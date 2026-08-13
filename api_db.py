@@ -60,6 +60,21 @@ def _load_ai_state():
             keys = json.loads(secure.decrypt_text(raw) or '{}')
         except Exception:
             keys = {}
+    # v1.1.42 兼容修复：v1.1.40/41 误把内层 Key 也加密了一次（双重加密），
+    # 读取时若发现内层 key 仍是 Fernet 密文（gAAAA 开头）则再解密一次，并把修复后的数据回写（幂等）
+    repaired = False
+    for pid in list(keys.keys()):
+        conf = keys[pid]
+        if isinstance(conf, dict) and isinstance(conf.get('key'), str) and conf['key'].startswith('gAAAA'):
+            inner = secure.decrypt_text(conf['key'])
+            if inner:
+                conf['key'] = inner
+                repaired = True
+    if repaired:
+        if keys:
+            db.set_setting(K_KEYS, secure.encrypt_text(json.dumps(keys, ensure_ascii=False)))
+        else:
+            db.delete_setting(K_KEYS)
     default = db.get_setting(K_DEFAULT)
     thinking = db.get_setting(K_THINKING) == '1'
     return {'keys': keys, 'defaultProvider': default, 'thinking': thinking}
@@ -170,8 +185,10 @@ def _save_settings(body):
                         'baseUrl': str(conf.get('baseUrl') or old[pid].get('baseUrl') or '').strip(),
                     }
             elif key_val:
+                # 注意：只在外层加密整个 JSON（下方 db.set_setting），这里不要再单独加密 key，
+                # 否则会双重加密导致发给服务商的是密文（v1.1.42 修复）
                 new[pid] = {
-                    'key': secure.encrypt_text(key_val),
+                    'key': key_val,
                     'model': str(conf.get('model') or '').strip(),
                     'baseUrl': str(conf.get('baseUrl') or '').strip(),
                 }

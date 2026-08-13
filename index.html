@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <title>IELTS 学习台</title>
-  <link rel="stylesheet" href="style.css?v=1.1.4">
+  <link rel="stylesheet" href="style.css?v=1.1.5">
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.3</span></h1>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.5</span></h1>
     <div class="topbar-actions">
       <div class="settings-wrap">
         <button class="settings-btn" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
@@ -26,7 +26,7 @@
             </div>
             <div class="settings-body">
               <div class="settings-section">API Key 绑定</div>
-              <p class="settings-hint">点击「添加 API KEY」，选择服务商并填写密钥，仅保存在本机浏览器。</p>
+              <p class="settings-hint">点击「添加 API KEY」，选择服务商、模型并填写密钥。绑定后可用「测试连接」真实调用该服务商验证 Key。密钥仅保存在本机浏览器。</p>
               <div class="apikey-bound" id="apikeyBound"></div>
               <div class="apikey-empty" id="apikeyEmpty" hidden>尚未绑定任何 API Key</div>
               <button class="apikey-btn apikey-add" id="apikeyAdd" type="button">＋ 添加 API KEY</button>
@@ -35,6 +35,13 @@
                 <div class="apikey-row">
                   <input type="password" class="apikey-input" id="apikeyInput" placeholder="填入 API Key">
                   <button class="apikey-btn apikey-toggle" id="apikeyToggle" type="button" title="显示/隐藏">👁</button>
+                </div>
+                <div class="apikey-row" id="apikeyModelRow">
+                  <select class="apikey-select apikey-model-select" id="apikeyModel" title="选择模型"></select>
+                  <input type="text" class="apikey-input" id="apikeyModelCustom" placeholder="输入模型名，如 gpt-4o-mini" hidden>
+                </div>
+                <div class="apikey-row" id="apikeyBaseUrlRow" hidden>
+                  <input type="text" class="apikey-input" id="apikeyBaseUrl" placeholder="Base URL（OpenAI 兼容格式必填），如 https://api.xxx.com/v1">
                 </div>
                 <div class="apikey-row apikey-form-btns">
                   <button class="apikey-btn apikey-save" id="apikeySave" type="button">保存</button>
@@ -87,25 +94,56 @@
       if (e.key === 'Escape') { menu.hidden = true; resetPanels(); }
     });
 
-    // ===== API Key 绑定（手动添加方式） =====
+    // ===== API Key 绑定（手动添加方式，支持真实调用测试） =====
     var PROVIDERS = [
       { id: 'openai', name: 'OpenAI' },
       { id: 'openai-compatible', name: 'OpenAI 兼容格式' },
       { id: 'deepseek', name: 'DeepSeek' },
-      { id: 'opencode', name: 'OpenCode' },
-      { id: 'go', name: 'Go' }
+      { id: 'opencode', name: 'OpenCode Zen' },
+      { id: 'go', name: 'OpenCode Go' }
     ];
+    var MODELS = {
+      openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1', 'gpt-4.1-mini'],
+      'openai-compatible': [],
+      deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+      opencode: ['glm-5', 'glm-5.1', 'glm-5.2', 'kimi-k2.5', 'kimi-k2.6', 'kimi-k2.7-code', 'deepseek-v4-pro', 'deepseek-v4-flash'],
+      go: ['glm-5', 'glm-5.1', 'kimi-k2.5', 'kimi-k2.6', 'deepseek-v4-pro', 'deepseek-v4-flash']
+    };
+    var DEFAULT_MODELS = {
+      openai: 'gpt-4o-mini',
+      'openai-compatible': '',
+      deepseek: 'deepseek-chat',
+      opencode: 'glm-5',
+      go: 'glm-5'
+    };
     var STORE_KEY = 'ielts_api_keys';
     var MASK = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022';
     var editingProvider = null;
 
     function loadKeys() {
-      try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { return {}; }
+      var keys = {};
+      try { keys = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { keys = {}; }
+      var changed = false;
+      Object.keys(keys).forEach(function (id) {
+        var v = keys[id];
+        if (typeof v === 'string') {
+          keys[id] = { key: v, model: DEFAULT_MODELS[id] || '', baseUrl: '' };
+          changed = true;
+        } else if (!v || typeof v !== 'object') {
+          delete keys[id];
+          changed = true;
+        }
+      });
+      if (changed) localStorage.setItem(STORE_KEY, JSON.stringify(keys));
+      return keys;
     }
-    function storeKey(id, value) {
+    function storeKey(id, keyVal, model, baseUrl) {
       var keys = loadKeys();
-      var v = (value || '').trim();
-      if (v && v !== MASK) { keys[id] = v; } else { delete keys[id]; }
+      if (keyVal && keyVal !== MASK) {
+        keys[id] = { key: keyVal, model: model || '', baseUrl: baseUrl || '' };
+      } else {
+        delete keys[id];
+      }
       localStorage.setItem(STORE_KEY, JSON.stringify(keys));
     }
     function providerName(id) {
@@ -124,14 +162,54 @@
         sel.appendChild(opt);
       });
       if (current) sel.value = current;
+      sel.onchange = function () {
+        var conf = loadKeys()[sel.value] || {};
+        renderModelSelect(sel.value, conf.model || '');
+        renderBaseUrl(sel.value, conf.baseUrl || '');
+      };
+    }
+    function renderModelSelect(provider, currentModel) {
+      var sel = document.getElementById('apikeyModel');
+      var custom = document.getElementById('apikeyModelCustom');
+      sel.innerHTML = '';
+      (MODELS[provider] || []).forEach(function (m) {
+        var opt = document.createElement('option');
+        opt.value = m; opt.textContent = m;
+        sel.appendChild(opt);
+      });
+      var optC = document.createElement('option');
+      optC.value = '__custom__'; optC.textContent = '自定义…';
+      sel.appendChild(optC);
+      var presets = MODELS[provider] || [];
+      if (currentModel && presets.indexOf(currentModel) >= 0) {
+        sel.value = currentModel; custom.hidden = true; custom.value = '';
+      } else if (currentModel) {
+        sel.value = '__custom__'; custom.hidden = false; custom.value = currentModel;
+      } else {
+        sel.value = presets.length ? presets[0] : '__custom__';
+        custom.hidden = presets.length > 0; custom.value = '';
+      }
+      sel.onchange = function () {
+        custom.hidden = sel.value !== '__custom__';
+        if (sel.value === '__custom__') custom.focus();
+      };
+    }
+    function renderBaseUrl(provider, currentBaseUrl) {
+      var row = document.getElementById('apikeyBaseUrlRow');
+      var input = document.getElementById('apikeyBaseUrl');
+      row.hidden = provider !== 'openai-compatible';
+      input.value = currentBaseUrl || '';
     }
     function openForm(id) {
       editingProvider = id || null;
       var keys = loadKeys();
       renderProviderSelect(keys, editingProvider);
+      var conf = id ? (keys[id] || {}) : {};
       var input = document.getElementById('apikeyInput');
-      input.value = id ? (keys[id] || '') : '';
+      input.value = id ? (conf.key || '') : '';
       input.type = 'password';
+      renderModelSelect(id || 'openai', conf.model || '');
+      renderBaseUrl(id || '', conf.baseUrl || '');
       document.getElementById('apikeyForm').hidden = false;
       input.focus();
     }
@@ -143,6 +221,7 @@
       var ids = Object.keys(keys);
       empty.hidden = ids.length > 0;
       ids.forEach(function (id) {
+        var conf = keys[id] || {};
         var item = document.createElement('div');
         item.className = 'apikey-bound-item';
         var head = document.createElement('div');
@@ -153,11 +232,17 @@
         var val = document.createElement('span');
         val.className = 'apikey-val';
         val.textContent = MASK;
-        val.dataset.plain = keys[id] || '';
+        val.dataset.plain = conf.key || '';
         var status = document.createElement('span');
         status.className = 'apikey-status bound';
         status.textContent = '已绑定';
         head.appendChild(name); head.appendChild(val); head.appendChild(status);
+
+        var meta = document.createElement('div');
+        meta.className = 'apikey-meta';
+        var metaText = conf.model ? ('模型：' + conf.model) : '模型：未选择';
+        if (conf.baseUrl) metaText += ' · Base URL：' + conf.baseUrl;
+        meta.textContent = metaText;
 
         var ops = document.createElement('div');
         ops.className = 'apikey-row apikey-ops';
@@ -170,7 +255,12 @@
         var del = document.createElement('button');
         del.type = 'button'; del.className = 'apikey-btn apikey-del'; del.textContent = '🗑';
         del.title = '删除';
-        ops.appendChild(show); ops.appendChild(edit); ops.appendChild(del);
+        var test = document.createElement('button');
+        test.type = 'button'; test.className = 'apikey-btn apikey-test'; test.textContent = '🔌 测试连接';
+        test.title = '真实调用该服务商 API 验证 Key';
+        var result = document.createElement('div');
+        result.className = 'apikey-test-result';
+        ops.appendChild(show); ops.appendChild(edit); ops.appendChild(del); ops.appendChild(test);
 
         show.addEventListener('click', function () {
           var showing = val.textContent !== MASK;
@@ -183,8 +273,49 @@
           if (editingProvider === id) { editingProvider = null; document.getElementById('apikeyForm').hidden = true; }
           renderApiKeys();
         });
+        test.addEventListener('click', function () {
+          var c = loadKeys()[id] || {};
+          if (!c.key || !c.model) {
+            result.className = 'apikey-test-result fail';
+            result.textContent = '❌ 请先保存模型（OpenAI 兼容格式还需 Base URL）';
+            return;
+          }
+          test.disabled = true;
+          var orig = test.textContent;
+          test.textContent = '测试中…';
+          result.className = 'apikey-test-result testing';
+          result.textContent = '⏳ 正在调用 ' + providerName(id) + '…';
+          fetch('/api/ai_chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              provider: id,
+              apiKey: c.key,
+              model: c.model,
+              baseUrl: c.baseUrl || '',
+              message: '你好，请只回复四个字：连接成功'
+            })
+          }).then(function (r) { return r.json(); }).then(function (res) {
+            test.disabled = false;
+            test.textContent = orig;
+            if (res.ok) {
+              result.className = 'apikey-test-result ok';
+              result.textContent = '✅ 连接成功：' + String(res.content || '').slice(0, 150);
+            } else {
+              result.className = 'apikey-test-result fail';
+              var msg = String(res.error || '未知错误');
+              if (res.status) msg = 'HTTP ' + res.status + ' ' + msg;
+              result.textContent = '❌ 连接失败：' + msg.slice(0, 220);
+            }
+          }).catch(function (err) {
+            test.disabled = false;
+            test.textContent = orig;
+            result.className = 'apikey-test-result fail';
+            result.textContent = '❌ 无法连接本地服务：' + err.message;
+          });
+        });
 
-        item.appendChild(head); item.appendChild(ops);
+        item.appendChild(head); item.appendChild(meta); item.appendChild(ops); item.appendChild(result);
         bound.appendChild(item);
       });
       renderProviderSelect(keys, editingProvider);
@@ -196,6 +327,8 @@
       var input = document.getElementById('apikeyInput');
       input.value = '';
       input.type = 'password';
+      renderModelSelect('openai', '');
+      renderBaseUrl('openai', '');
       document.getElementById('apikeyForm').hidden = false;
       input.focus();
     });
@@ -205,9 +338,20 @@
     });
     document.getElementById('apikeySave').addEventListener('click', function () {
       var id = document.getElementById('apikeyProvider').value;
-      var v = document.getElementById('apikeyInput').value.trim();
-      if (!v) { document.getElementById('apikeyInput').focus(); return; }
-      storeKey(id, v);
+      var keyVal = document.getElementById('apikeyInput').value.trim();
+      if (!keyVal) { document.getElementById('apikeyInput').focus(); return; }
+      var sel = document.getElementById('apikeyModel');
+      var model = (sel.value === '__custom__')
+        ? document.getElementById('apikeyModelCustom').value.trim()
+        : sel.value;
+      var baseUrl = document.getElementById('apikeyBaseUrl').value.trim();
+      if (id === 'openai-compatible' && !baseUrl) {
+        document.getElementById('apikeyBaseUrl').focus();
+        return;
+      }
+      var prev = (loadKeys()[id] || {}).key || '';
+      var finalKey = (keyVal === MASK) ? prev : keyVal;
+      storeKey(id, finalKey, model, baseUrl);
       editingProvider = null;
       document.getElementById('apikeyForm').hidden = true;
       renderApiKeys();

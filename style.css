@@ -458,7 +458,7 @@ main {
 .apikey-save { background: #e63946; color: #fff; }
 .apikey-save:hover { background: #c1272d; }
 
-/* API Key 绑定（手动添加方式 v1.1.4） */
+/* API Key 绑定（手动添加方式 v1.1.5，含模型/Base URL/测试连接） */
 .apikey-add {
   display: block;
   width: 100%;
@@ -529,3 +529,26 @@ main {
 }
 .apikey-ops { justify-content: flex-end; }
 .apikey-del:hover { background: #e63946; color: #fff; }
+
+.apikey-model-row { align-items: stretch; }
+.apikey-model-select { flex: 1; min-width: 0; margin-bottom: 0; }
+.apikey-meta {
+  font-size: 11px;
+  color: #a05c22;
+  margin: 4px 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.apikey-test { background: #a8dadc; }
+.apikey-test:hover { background: #8ecae6; }
+.apikey-test:disabled { opacity: 0.6; cursor: wait; }
+.apikey-test-result {
+  font-size: 11px;
+  margin-top: 6px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+.apikey-test-result.ok { color: #2a6f2a; }
+.apikey-test-result.fail { color: #e63946; }
+.apikey-test-result.testing { color: #a05c22; }

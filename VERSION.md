@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.4**
+- 当前版本：**1.1.5**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,19 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.4`
-2. index.html / reader.html 的 `style.css?v=1.1.4`
-3. reader.html 的 `app.js?v=1.1.4`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.5`
+2. index.html / reader.html 的 `style.css?v=1.1.5`
+3. reader.html 的 `app.js?v=1.1.5`
 
 ---
 
 # 更新日志
+
+## v1.1.5 API Key 真实调用
+- 新增本地代理接口 /api/ai_chat：绑定 API Key 后通过本地服务器真实调用所选服务商，解决浏览器跨域限制
+- 服务商命名修正：原「Go」改为「OpenCode Go」（https://opencode.ai/go），原「OpenCode」改为「OpenCode Zen」
+- 添加 API Key 时支持选择模型（各服务商常用模型预设，可自定义）与填写 Base URL（OpenAI 兼容格式必填）
+- 已绑定列表新增「测试连接」按钮：真实调用该服务商 API 验证 Key 是否可用，并显示服务商返回结果
 
 ## v1.1.4 API Key 绑定改为手动添加方式
 - 进入 AI 设置不再一次性列出全部服务商，改为点击「＋ 添加 API KEY」后选择服务商并填写密钥

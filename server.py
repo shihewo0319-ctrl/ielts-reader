@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import urllib.parse
+import urllib.error
 import urllib.request
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -25,6 +26,12 @@ class Handler(SimpleHTTPRequestHandler):
             self.handle_sentences()
         else:
             super().do_GET()
+
+    def do_POST(self):
+        if self.path.startswith('/api/ai_chat'):
+            self.handle_ai_chat()
+        else:
+            self.send_error(404)
 
     def send_json(self, payload):
         body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
@@ -122,6 +129,63 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header('Content-Length', str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    # OpenAI 兼容 chat/completions 代理：本地转发，避免浏览器跨域限制
+    def handle_ai_chat(self):
+        try:
+            length = int(self.headers.get('Content-Length') or 0)
+            raw = self.rfile.read(length)
+            data = json.loads(raw.decode('utf-8'))
+        except Exception:
+            self.send_json({'ok': False, 'error': '请求体不是有效的 JSON'})
+            return
+        provider = str(data.get('provider') or '').strip()
+        api_key = str(data.get('apiKey') or '').strip()
+        model = str(data.get('model') or '').strip()
+        base_url = str(data.get('baseUrl') or '').strip()
+        message = str(data.get('message') or '').strip()
+        if not provider or not api_key or not model or not message:
+            self.send_json({'ok': False, 'error': '缺少 provider / apiKey / model / message'})
+            return
+        ENDPOINTS = {
+            'openai': 'https://api.openai.com/v1',
+            'deepseek': 'https://api.deepseek.com/v1',
+            'opencode': 'https://opencode.ai/zen/v1',
+            'go': 'https://opencode.ai/zen/go/v1',
+        }
+        base = base_url if (provider == 'openai-compatible' and base_url) else ENDPOINTS.get(provider, '')
+        if not base:
+            self.send_json({'ok': False, 'error': '未知服务商，或 OpenAI 兼容格式需要填写 Base URL'})
+            return
+        url = base.rstrip('/') + '/chat/completions'
+        payload = {
+            'model': model,
+            'messages': [{'role': 'user', 'content': message}],
+            'stream': False,
+        }
+        req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + api_key,
+            'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                           'AppleWebKit/537.36 (KHTML, like Gecko) '
+                           'Chrome/120.0 Safari/537.36'),
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                result = json.loads(resp.read().decode('utf-8', 'ignore'))
+            choices = result.get('choices') or []
+            content = ''
+            if choices:
+                content = (choices[0].get('message') or {}).get('content') or ''
+            self.send_json({'ok': True, 'content': content, 'model': model})
+        except urllib.error.HTTPError as ex:
+            try:
+                err_text = ex.read().decode('utf-8', 'ignore')
+            except Exception:
+                err_text = ''
+            self.send_json({'ok': False, 'status': ex.code, 'error': err_text or str(ex.reason)})
+        except Exception as ex:
+            self.send_json({'ok': False, 'error': str(ex)})
 
     def end_headers(self):
         # 禁止浏览器缓存，确保每次刷新都拿到最新代码

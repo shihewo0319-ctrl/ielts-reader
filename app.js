@@ -295,25 +295,68 @@ function ttsSpeak(word) {
   }, 60);
 }
 
-function speakWord(word) {
-  // 按钮播放反馈
-  const btn = document.querySelector('.popup .popup-sound');
+function speakWord(word, accent) {
+  // 播放反馈：高亮被点击的音标标签（或兜底喇叭按钮）
+  const sel = accent ? '.popup .popup-phonetic[data-accent="' + accent + '"]' : '.popup .popup-sound';
+  const btn = document.querySelector(sel);
   if (btn) {
     btn.classList.remove('speaking');
     void btn.offsetWidth; // 重置动画
     btn.classList.add('speaking');
     setTimeout(() => btn.classList.remove('speaking'), 1600);
   }
-  // 默认：有道发音
+  // 默认：有道发音（type=2 美音 / type=1 英音）
+  const type = accent === 'uk' ? 1 : 2;
   let used = false;
   const fallback = () => { if (!used) { used = true; ttsSpeak(word); } };
   try {
-    const audio = new Audio('https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=2');
+    const audio = new Audio('https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=' + type);
     audio.play().then(() => { used = true; }).catch(fallback);
     setTimeout(() => { if (!used) fallback(); }, 2000);
   } catch (e) {
     fallback();
   }
+}
+
+// 音标：有道 /api/pron 返回英音(ukphone)/美音(usphone)两套音标，点击哪个就发哪个音
+const pronCache = {};
+async function loadPhonetics(word, wrap) {
+  let data = null;
+  if (pronCache[word]) {
+    data = pronCache[word];
+  } else {
+    try {
+      data = await fetchJson('/api/pron?word=' + encodeURIComponent(word), 6000);
+      if (data && data.ok) pronCache[word] = data;
+    } catch (e) { data = null; }
+  }
+  const uk = data && (data.ukphone || '').trim();
+  const us = data && (data.usphone || '').trim();
+  if (!uk && !us) return; // 没有音标时保留 🔊 兜底按钮
+  wrap.innerHTML = '';
+  if (us) wrap.appendChild(makePhoneticBtn(word, 'us', us));
+  if (uk) wrap.appendChild(makePhoneticBtn(word, 'uk', uk));
+}
+
+function makePhoneticBtn(word, accent, ipa) {
+  const b = document.createElement('button');
+  b.className = 'popup-phonetic';
+  b.dataset.accent = accent;
+  b.title = (accent === 'uk' ? '英音' : '美音') + '发音';
+  b.setAttribute('aria-label', (accent === 'uk' ? '英音' : '美音') + ' ' + word);
+  const ipaSpan = document.createElement('span');
+  ipaSpan.className = 'ipa';
+  ipaSpan.textContent = '/' + ipa + '/';
+  const accSpan = document.createElement('span');
+  accSpan.className = 'accent';
+  accSpan.textContent = accent === 'uk' ? '英' : '美';
+  b.appendChild(ipaSpan);
+  b.appendChild(accSpan);
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    speakWord(word, accent);
+  });
+  return b;
 }
 
 function showPopupAt(anchorRect, contentHtml, title) {
@@ -331,17 +374,18 @@ function showPopupAt(anchorRect, contentHtml, title) {
     wordSpan.className = 'popup-word-text';
     wordSpan.textContent = title;
     w.appendChild(wordSpan);
-    const soundBtn = document.createElement('button');
-    soundBtn.className = 'popup-sound';
-    soundBtn.textContent = '🔊';
-    soundBtn.title = '朗读发音';
-    soundBtn.setAttribute('aria-label', '朗读 ' + title);
-    soundBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      speakWord(title);
-    });
-    w.appendChild(soundBtn);
+    const chips = document.createElement('span');
+    chips.className = 'popup-phonetics';
+    // 兜底喇叭按钮：音标加载出来后会被替换成 英/美 两个音标标签
+    const fallbackBtn = document.createElement('button');
+    fallbackBtn.className = 'popup-sound';
+    fallbackBtn.textContent = '🔊';
+    fallbackBtn.title = '美音发音';
+    fallbackBtn.addEventListener('click', (e) => { e.stopPropagation(); speakWord(title, 'us'); });
+    chips.appendChild(fallbackBtn);
+    w.appendChild(chips);
     popup.appendChild(w);
+    loadPhonetics(title, chips);
   }
   const body = document.createElement('div');
   body.innerHTML = contentHtml;

@@ -19,8 +19,55 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith('/api/chinese'):
             self.handle_chinese()
+        elif self.path.startswith('/api/pron'):
+            self.handle_pron()
         else:
             super().do_GET()
+
+    def send_json(self, payload):
+        body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def handle_pron(self):
+        # 有道词典音标/发音接口：返回英音(ukphone)与美音(usphone)两套音标
+        try:
+            q = urllib.parse.urlparse(self.path)
+            params = urllib.parse.parse_qs(q.query)
+            word = (params.get('word') or [''])[0].strip().lower()
+            if not word:
+                self.send_json({'ok': False, 'error': 'empty word'})
+                return
+            url = 'https://dict.youdao.com/jsonapi?q=' + urllib.parse.quote(word)
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                raw = resp.read().decode('utf-8', 'ignore')
+            data = json.loads(raw)
+            ec_words = (data.get('ec') or {}).get('word') or []
+            hit = None
+            for w in ec_words:
+                phrase = ((w.get('return-phrase') or {}).get('l') or {}).get('i') or []
+                if phrase and str(phrase[0]).strip().lower() == word:
+                    hit = w
+                    break
+            if hit is None and ec_words:
+                hit = ec_words[0]
+            entry = hit or {}
+            payload = {
+                'ok': bool(entry),
+                'word': word,
+                'ukphone': (entry.get('ukphone') or '').strip(),
+                'usphone': (entry.get('usphone') or '').strip(),
+                'ukspeech': entry.get('ukspeech') or '',
+                'usspeech': entry.get('usspeech') or '',
+            }
+        except Exception as ex:
+            payload = {'ok': False, 'error': str(ex)}
+        self.send_json(payload)
 
     def handle_chinese(self):
         try:

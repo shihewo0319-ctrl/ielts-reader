@@ -168,6 +168,43 @@ main {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.35); }
 }
+.popup-word .popup-phonetics {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.popup-word .popup-phonetic {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  border: 1px solid #d0d7de;
+  background: #f6f8fa;
+  color: #57606a;
+  border-radius: 6px;
+  padding: 1px 7px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.popup-word .popup-phonetic:hover {
+  border-color: #1c7ed6;
+  color: #1c7ed6;
+  background: #e7f5ff;
+}
+.popup-word .popup-phonetic .ipa {
+  font-family: "Segoe UI", "Arial Unicode MS", "DejaVu Sans", "Noto Sans", sans-serif;
+}
+.popup-word .popup-phonetic .accent {
+  font-size: 11px;
+  color: #8b949e;
+}
+.popup-word .popup-phonetic.speaking {
+  animation: sound-pulse .4s ease-in-out 2;
+  border-color: #1c7ed6;
+  color: #1c7ed6;
+  background: #e7f5ff;
+}
 .popup-phonetic { color: #6e7781; font-size: 14px; margin: 2px 0 10px; }
 .popup-meanings { font-size: 14px; color: #24292f; }
 .popup-meanings .def {

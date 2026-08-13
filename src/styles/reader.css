@@ -228,3 +228,22 @@
   font-size: 12px;
   vertical-align: 1px;
 }
+
+/* ===== 语境翻译：原句显示 + 选中单词高亮 ===== */
+.ai-sentence {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #3a2b1e;
+  background: #fdf0d5;
+  border: 2px solid #3a2b1e;
+  border-left: 6px solid #f4a261;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.ai-word-hl {
+  background: #ffe08a;
+  color: #e63946;
+  font-weight: 700;
+  padding: 0 2px;
+  border-bottom: 2px solid #f4a261;
+}

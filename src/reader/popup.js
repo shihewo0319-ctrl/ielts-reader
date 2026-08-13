@@ -103,25 +103,44 @@ export function showPopupAt(anchorRect, contentHtml, title, ai) {
 async function loadAiPane(pane, kind, ai) {
   if (pane.dataset.loaded === '1') return;
   pane.dataset.loaded = '1';
+  // 语境翻译：顶部显示原句 + 高亮选中单词
+  if (kind === 'translate' && ai.sentence) {
+    const sent = document.createElement('div');
+    sent.className = 'ai-sentence';
+    sent.innerHTML = highlightWord(escapeHtml(ai.sentence), ai.word);
+    pane.appendChild(sent);
+  }
+  // 结果容器：loading / 结果 / 错误都放在这里，保留上面的原句
+  const box = document.createElement('div');
+  box.className = 'ai-result-box';
+  pane.appendChild(box);
   const loadingText = kind === 'translate'
     ? '⏳ AI 结合语境分析「' + ai.word + '」…'
     : '⏳ 语法分析中…';
-  pane.innerHTML = '<div class="ai-loading">' + escapeHtml(loadingText) + '</div>';
+  box.innerHTML = '<div class="ai-loading">' + escapeHtml(loadingText) + '</div>';
   const res = await fetchAi(kind, ai.word, ai.sentence);
   if (res.ok) {
-    pane.innerHTML = '';
+    box.innerHTML = '';
     const meta = document.createElement('div');
     meta.className = 'ai-meta';
     meta.textContent = '由 ' + (PROVIDER_NAMES[res.provider] || res.provider) + ' 生成 · 同一单词同一句子只请求一次';
-    pane.appendChild(meta);
+    box.appendChild(meta);
     const content = document.createElement('div');
     content.className = 'ai-content';
     content.innerHTML = buildAiContentHtml(res.content);
-    pane.appendChild(content);
+    box.appendChild(content);
   } else {
-    pane.innerHTML = '<div class="popup-error">❌ ' + escapeHtml(res.error) + '</div>';
+    box.innerHTML = '<div class="popup-error">❌ ' + escapeHtml(res.error) + '</div>';
   }
   positionPopup();
+}
+
+// 在句子中高亮选中单词（不区分大小写，按词边界匹配）
+function highlightWord(escapedSentence, word) {
+  if (!word) return escapedSentence;
+  const w = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(\\b' + w + '\\b)', 'gi');
+  return escapedSentence.replace(re, '<span class="ai-word-hl">$1</span>');
 }
 
 export function hidePopup() {

@@ -262,8 +262,8 @@ function buildMeaningsHtml(entry) {
 }
 
 /* ============ 弹窗 ============ */
-// 单词发音：优先浏览器语音合成；若未真正开始朗读（部分浏览器静默失败），
-// 自动兜底用有道词典发音接口（免费、国内稳定）。type=2 美音，type=1 英音。
+// 单词发音：默认用有道词典发音接口（免费、无需 key、国内稳定，type=2 美音 / type=1 英音）；
+// 若播放失败或超时未开始播放，兜底用浏览器内置语音合成。
 let ttsVoices = [];
 function initTts() {
   if (!('speechSynthesis' in window)) return;
@@ -280,11 +280,19 @@ function pickEnVoice() {
       || null;
 }
 
-function speakByYoudao(word) {
-  try {
-    const audio = new Audio('https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=2');
-    audio.play().catch(() => {});
-  } catch (e) {}
+function ttsSpeak(word) {
+  if (!('speechSynthesis' in window)) return;
+  let started = false;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-US';
+  u.rate = 0.9;
+  const voice = pickEnVoice();
+  if (voice) u.voice = voice;
+  // Chrome 已知问题：cancel 后立刻 speak 可能被吞掉，稍作延迟
+  setTimeout(() => {
+    if (!started) { try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u); }
+  }, 60);
 }
 
 function speakWord(word) {
@@ -296,27 +304,16 @@ function speakWord(word) {
     btn.classList.add('speaking');
     setTimeout(() => btn.classList.remove('speaking'), 1600);
   }
-  if ('speechSynthesis' in window) {
-    let started = false;
-    let timer = null;
-    try { speechSynthesis.cancel(); } catch (e) {}
-    const u = new SpeechSynthesisUtterance(word);
-    u.lang = 'en-US';
-    u.rate = 0.9;
-    const voice = pickEnVoice();
-    if (voice) u.voice = voice;
-    u.onstart = () => { started = true; };
-    u.onend = () => { if (timer) clearTimeout(timer); };
-    u.onerror = () => { if (timer) clearTimeout(timer); speakByYoudao(word); };
-    // Chrome 已知问题：cancel 后立刻 speak 可能被吞掉，稍作延迟
-    timer = setTimeout(() => {
-      if (!started) { try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u); }
-    }, 60);
-    // 如果浏览器一直没真正开始朗读，自动切到有道发音
-    setTimeout(() => { if (!started) speakByYoudao(word); }, 900);
-    return;
+  // 默认：有道发音
+  let used = false;
+  const fallback = () => { if (!used) { used = true; ttsSpeak(word); } };
+  try {
+    const audio = new Audio('https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=2');
+    audio.play().then(() => { used = true; }).catch(fallback);
+    setTimeout(() => { if (!used) fallback(); }, 2000);
+  } catch (e) {
+    fallback();
   }
-  speakByYoudao(word);
 }
 
 function showPopupAt(anchorRect, contentHtml, title) {

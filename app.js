@@ -262,6 +262,22 @@ function buildMeaningsHtml(entry) {
 }
 
 /* ============ 弹窗 ============ */
+// 单词发音：使用浏览器内置语音合成（免费、无需 API、连接稳定）
+function speakWord(word) {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US';
+    u.rate = 0.9;
+    const voices = speechSynthesis.getVoices();
+    const en = voices.find(v => /^en(-|_)?(US|GB)/i.test(v.lang) && /Google|Microsoft|Samantha|Daniel|Alex/i.test(v.name))
+            || voices.find(v => /^en/i.test(v.lang));
+    if (en) u.voice = en;
+    speechSynthesis.speak(u);
+  } catch (err) { /* 发音失败时静默忽略 */ }
+}
+
 function showPopupAt(anchorRect, contentHtml, title) {
   popup.innerHTML = '';
   popup.classList.remove('hidden');
@@ -273,7 +289,20 @@ function showPopupAt(anchorRect, contentHtml, title) {
   if (title) {
     const w = document.createElement('div');
     w.className = 'popup-word';
-    w.textContent = title;
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'popup-word-text';
+    wordSpan.textContent = title;
+    w.appendChild(wordSpan);
+    const soundBtn = document.createElement('button');
+    soundBtn.className = 'popup-sound';
+    soundBtn.textContent = '🔊';
+    soundBtn.title = '朗读发音';
+    soundBtn.setAttribute('aria-label', '朗读 ' + title);
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      speakWord(title);
+    });
+    w.appendChild(soundBtn);
     popup.appendChild(w);
   }
   const body = document.createElement('div');

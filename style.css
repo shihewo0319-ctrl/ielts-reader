@@ -142,7 +142,27 @@ main {
   box-shadow: 0 8px 24px rgba(0,0,0,.12);
   padding: 16px;
 }
-.popup-word { font-size: 24px; font-weight: 800; color: #1f2328; letter-spacing: .3px; }
+.popup-word {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f2328;
+  letter-spacing: .3px;
+}
+.popup-word .popup-sound {
+  font-size: 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  opacity: .75;
+  transition: opacity .15s, transform .1s;
+}
+.popup-word .popup-sound:hover { opacity: 1; transform: scale(1.15); }
+.popup-word .popup-sound:active { transform: scale(.95); }
 .popup-phonetic { color: #6e7781; font-size: 14px; margin: 2px 0 10px; }
 .popup-meanings { font-size: 14px; color: #24292f; }
 .popup-meanings .def {

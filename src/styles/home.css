@@ -315,7 +315,7 @@
 /* ===== 主页底部：每日名言（简洁一行 + 艺术字体） ===== */
 .quote-box {
   max-width: 720px;
-  margin: 36px auto 30px;
+  margin: 90px auto 18px;
   padding: 0 16px;
   text-align: center;
 }

@@ -204,8 +204,9 @@ async function lookupChinese(word) {
   return data.explain;
 }
 
-function buildPopupHtml(entry, zh) {
+function buildPopupHtml(entry, zh, examples) {
   let html = '';
+  const hasEn = !(entry && entry.error);
   if (entry && entry.error) {
     html += `<div class="popup-error">${escapeHtml(entry.error.message || '英文释义查询失败')}</div>`;
   } else if (entry) {
@@ -216,8 +217,34 @@ function buildPopupHtml(entry, zh) {
   }
   if (zh) {
     // 英文释义正常显示时，用分割线隔开；只有中文时不再加分割线
-    if (!(entry && entry.error)) html += '<div class="popup-divider"></div>';
+    if (hasEn) html += '<div class="popup-divider"></div>';
     html += `<div class="popup-zh"><span class="pos">中文</span>${escapeHtml(zh)}</div>`;
+  }
+  if (examples && examples.length) {
+    // 例句区与上文用分割线隔开
+    if (hasEn || zh) html += '<div class="popup-divider"></div>';
+    html += buildExamplesHtml(examples);
+  }
+  return html;
+}
+
+// 例句：通过本地代理请求有道词典（同源，避免跨域），返回英中双语例句
+const exampleCache = {};
+async function lookupExamples(word) {
+  if (exampleCache[word]) return exampleCache[word];
+  const data = await fetchJson(`/api/sentences?word=${encodeURIComponent(word)}`, 6000);
+  const list = (data && data.ok && Array.isArray(data.sentences)) ? data.sentences : [];
+  exampleCache[word] = list;
+  return list;
+}
+
+function buildExamplesHtml(sentences) {
+  let html = '<div class="popup-examples-label">例句</div>';
+  for (const s of sentences.slice(0, 3)) {
+    html += '<div class="popup-example">';
+    if (s.en) html += `<div class="ex-en">${escapeHtml(s.en)}</div>`;
+    if (s.zh) html += `<div class="ex-zh">${escapeHtml(s.zh)}</div>`;
+    html += '</div>';
   }
   return html;
 }
@@ -416,11 +443,12 @@ articleContent.addEventListener('click', async (e) => {
   e.stopPropagation();
   const word = span.dataset.word;
   showPopupAt(span.getBoundingClientRect(), '<div class="popup-error">查询中…</div>', word);
-  const [entry, zh] = await Promise.all([
+  const [entry, zh, examples] = await Promise.all([
     lookupWord(word).catch(err => ({ error: err })),
     lookupChinese(word).catch(() => ''),
+    lookupExamples(word).catch(() => []),
   ]);
-  showPopupAt(span.getBoundingClientRect(), buildPopupHtml(entry, zh), word);
+  showPopupAt(span.getBoundingClientRect(), buildPopupHtml(entry, zh, examples), word);
 });
 
 /* 选中词组查询 */

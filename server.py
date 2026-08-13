@@ -21,6 +21,8 @@ class Handler(SimpleHTTPRequestHandler):
             self.handle_chinese()
         elif self.path.startswith('/api/pron'):
             self.handle_pron()
+        elif self.path.startswith('/api/sentences'):
+            self.handle_sentences()
         else:
             super().do_GET()
 
@@ -65,6 +67,32 @@ class Handler(SimpleHTTPRequestHandler):
                 'ukspeech': entry.get('ukspeech') or '',
                 'usspeech': entry.get('usspeech') or '',
             }
+        except Exception as ex:
+            payload = {'ok': False, 'error': str(ex)}
+        self.send_json(payload)
+
+    def handle_sentences(self):
+        # 有道词典双语例句：blng_sents_part.sentence-pair[] -> {en, zh}
+        try:
+            q = urllib.parse.urlparse(self.path)
+            params = urllib.parse.parse_qs(q.query)
+            word = (params.get('word') or [''])[0].strip().lower()
+            if not word:
+                self.send_json({'ok': False, 'error': 'empty word'})
+                return
+            url = 'https://dict.youdao.com/jsonapi?q=' + urllib.parse.quote(word)
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                raw = resp.read().decode('utf-8', 'ignore')
+            data = json.loads(raw)
+            pairs = ((data.get('blng_sents_part') or {}).get('sentence-pair') or [])[:3]
+            sentences = []
+            for p in pairs:
+                en = (p.get('sentence') or '').strip()
+                zh = (p.get('sentence-translation') or '').strip()
+                if en:
+                    sentences.append({'en': en, 'zh': zh})
+            payload = {'ok': bool(sentences), 'word': word, 'sentences': sentences}
         except Exception as ex:
             payload = {'ok': False, 'error': str(ex)}
         self.send_json(payload)

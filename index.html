@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <title>IELTS 学习台</title>
-  <link rel="stylesheet" href="style.css?v=1.1.2">
+  <link rel="stylesheet" href="style.css?v=1.1.3">
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.2</span></h1>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.3</span></h1>
     <div class="topbar-actions">
       <div class="settings-wrap">
         <button class="settings-btn" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
@@ -25,7 +25,9 @@
               AI 设置
             </div>
             <div class="settings-body">
-              <p>设置项将在这里显示，敬请期待。</p>
+              <div class="settings-section">API Key 绑定</div>
+              <p class="settings-hint">选择服务商并填入 API Key，保存后仅存储在你本机浏览器中。</p>
+              <div class="apikey-list" id="apikeyList"></div>
             </div>
           </div>
         </div>
@@ -65,19 +67,101 @@
       if (opening) resetPanels();
     });
 
-    document.querySelector('[data-panel="ai"]').addEventListener('click', function () {
-      main.hidden = true; ai.hidden = false;
-    });
-
-    back.addEventListener('click', function () {
-      resetPanels();
-    });
-
     document.addEventListener('click', function (e) {
       if (!e.target.closest('.settings-wrap')) { menu.hidden = true; resetPanels(); }
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { menu.hidden = true; resetPanels(); }
+    });
+
+    // ===== API Key 绑定 =====
+    var PROVIDERS = [
+      { id: 'openai', name: 'OpenAI', placeholder: 'sk-...' },
+      { id: 'openai-compatible', name: 'OpenAI 兼容格式', placeholder: 'sk-... 或自定义 base_url' },
+      { id: 'deepseek', name: 'DeepSeek', placeholder: 'sk-...' },
+      { id: 'opencode', name: 'OpenCode', placeholder: '粘贴 OpenCode API Key' },
+      { id: 'go', name: 'Go', placeholder: '粘贴 API Key' }
+    ];
+    var STORE_KEY = 'ielts_api_keys';
+    var MASK = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022';
+
+    function loadKeys() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { return {}; }
+    }
+    function storeKey(id, value) {
+      var keys = loadKeys();
+      var v = (value || '').trim();
+      if (v && v !== MASK) { keys[id] = v; } else { delete keys[id]; }
+      localStorage.setItem(STORE_KEY, JSON.stringify(keys));
+    }
+
+    function renderApiKeys() {
+      var list = document.getElementById('apikeyList');
+      if (!list) return;
+      var keys = loadKeys();
+      list.innerHTML = '';
+      PROVIDERS.forEach(function (p) {
+        var saved = keys[p.id] || '';
+        var item = document.createElement('div');
+        item.className = 'apikey-item';
+        var head = document.createElement('div');
+        head.className = 'apikey-head';
+        var name = document.createElement('span');
+        name.className = 'apikey-name';
+        name.textContent = p.name;
+        var status = document.createElement('span');
+        status.className = 'apikey-status' + (saved ? ' bound' : '');
+        status.textContent = saved ? '已绑定' : '未绑定';
+        head.appendChild(name); head.appendChild(status);
+
+        var row = document.createElement('div');
+        row.className = 'apikey-row';
+        var input = document.createElement('input');
+        input.type = 'password';
+        input.className = 'apikey-input';
+        input.placeholder = p.placeholder;
+        input.value = saved ? MASK : '';
+        input.dataset.id = p.id;
+        var toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'apikey-btn apikey-toggle';
+        toggle.title = '显示/隐藏';
+        toggle.textContent = '\u{1F441}';
+        var save = document.createElement('button');
+        save.type = 'button';
+        save.className = 'apikey-btn apikey-save';
+        save.textContent = '保存';
+        var clear = document.createElement('button');
+        clear.type = 'button';
+        clear.className = 'apikey-btn apikey-clear';
+        clear.textContent = '清除';
+        row.appendChild(input); row.appendChild(toggle); row.appendChild(save); row.appendChild(clear);
+
+        item.appendChild(head); item.appendChild(row);
+
+        toggle.addEventListener('click', function () {
+          if (input.value === MASK) { input.value = keys[input.dataset.id] || ''; }
+          input.type = (input.type === 'text') ? 'password' : 'text';
+        });
+
+        save.addEventListener('click', function () {
+          storeKey(input.dataset.id, input.value);
+          renderApiKeys();
+        });
+
+        clear.addEventListener('click', function () {
+          storeKey(input.dataset.id, '');
+          renderApiKeys();
+        });
+
+        list.appendChild(item);
+      });
+    }
+
+    back.addEventListener('click', function () { resetPanels(); });
+    document.querySelector('[data-panel="ai"]').addEventListener('click', function () {
+      main.hidden = true; ai.hidden = false;
+      renderApiKeys();
     });
   })();
 </script>

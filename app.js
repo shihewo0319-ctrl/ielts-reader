@@ -112,23 +112,94 @@ $('btn-reset').addEventListener('click', () => {
   hidePopup();
 });
 
-/* ============ 词典查询 ============ */
+/* ============ 词典查询（多 API 自动切换） ============ */
+async function fetchJson(url, timeout = 8000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// 源1：Free Dictionary API（信息最全：音标+释义+例句）
+async function lookupFreeDict(word) {
+  const data = await fetchJson(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+  if (!Array.isArray(data) || !data[0]) throw new Error('未找到该词');
+  const e = data[0];
+  return {
+    source: 'Free Dictionary API',
+    phonetic: (e.phonetics || []).map(p => p.text).filter(Boolean)[0] || '',
+    meanings: (e.meanings || []).slice(0, 3).map(m => ({
+      partOfSpeech: m.partOfSpeech || '',
+      definition: (m.definitions || []).map(d => d.definition).filter(Boolean)[0] || '',
+      example: (m.definitions || []).map(d => d.example).filter(Boolean)[0] || '',
+    })).filter(m => m.definition),
+  };
+}
+
+// 源2：Datamuse（稳定、响应快，无需 Key）
+async function lookupDatamuse(word) {
+  const data = await fetchJson(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=d,p&max=1`);
+  const e = Array.isArray(data) && data[0];
+  if (!e || !Array.isArray(e.defs) || !e.defs.length) throw new Error('未找到该词');
+  const tags = e.tags || [];
+  const pron = tags.find(t => t.startsWith('pron:')) || '';
+  return {
+    source: 'Datamuse',
+    phonetic: pron.replace(/^pron:/, ''),
+    meanings: e.defs.slice(0, 3).map(d => {
+      const i = d.indexOf('\t');
+      return {
+        partOfSpeech: i > 0 ? d.slice(0, i) : '',
+        definition: i > 0 ? d.slice(i + 1) : d,
+        example: '',
+      };
+    }),
+  };
+}
+
+// 源3：Wiktionary（维基媒体基础设施，长期稳定）
+async function lookupWiktionary(word) {
+  const data = await fetchJson(`https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`);
+  const list = data && data.en;
+  if (!Array.isArray(list) || !list.length) throw new Error('未找到该词');
+  const meanings = [];
+  for (const item of list.slice(0, 3)) {
+    const def = (item.definitions || []).map(d => stripHtml(d.definition || '')).filter(Boolean)[0];
+    if (!def) continue;
+    meanings.push({ partOfSpeech: item.partOfSpeech || '', definition: def, example: '' });
+  }
+  if (!meanings.length) throw new Error('未找到该词');
+  return { source: 'Wiktionary', phonetic: '', meanings };
+}
+
+function stripHtml(s) {
+  return String(s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// 统一入口：按顺序尝试，前一个失败自动用下一个
 async function lookupWord(word) {
-  const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('未找到该词');
-  const data = await res.json();
-  return data[0];
+  const errors = [];
+  for (const fn of [lookupFreeDict, lookupDatamuse, lookupWiktionary]) {
+    try {
+      return await fn(word);
+    } catch (e) {
+      errors.push(e.message || e);
+    }
+  }
+  throw new Error('三个词典源都查询失败：' + [...new Set(errors)].join(' / '));
 }
 
 function buildMeaningsHtml(entry) {
   let html = '';
-  const meanings = entry.meanings || [];
-  for (const m of meanings.slice(0, 3)) {
-    const def = (m.definitions || [])[0];
-    if (!def) continue;
-    html += `<div class="def"><span class="pos">${escapeHtml(m.partOfSpeech || '')}</span>${escapeHtml(def.definition || '')}`;
-    if (def.example) html += `<div class="ex">例：${escapeHtml(def.example)}</div>`;
+  for (const m of (entry.meanings || [])) {
+    if (!m.definition) continue;
+    html += `<div class="def"><span class="pos">${escapeHtml(m.partOfSpeech || '')}</span>${escapeHtml(m.definition)}`;
+    if (m.example) html += `<div class="ex">例：${escapeHtml(m.example)}</div>`;
     html += `</div>`;
   }
   return html || '<div class="popup-error">暂无释义</div>';
@@ -181,7 +252,7 @@ articleContent.addEventListener('click', async (e) => {
   try {
     const entry = await lookupWord(word);
     const phonetic = (entry.phonetics || []).map(p => p.text).filter(Boolean)[0] || '';
-    const src = '<div class="popup-src">来源：Free Dictionary API</div>';
+    const src = `<div class="popup-src">来源：${escapeHtml(entry.source || "词典")}</div>`;
     showPopupAt(span.getBoundingClientRect(), `<div class="popup-phonetic">${escapeHtml(phonetic)}</div>${buildMeaningsHtml(entry)}${src}`, word);
   } catch (err) {
     showPopupAt(span.getBoundingClientRect(), `<div class="popup-error">${escapeHtml(err.message || '查询失败')}</div>`, word);

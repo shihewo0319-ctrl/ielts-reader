@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS 阅读学习助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>📖 IELTS 阅读学习助手</h1>
+    <div class="topbar-actions">
+      <button id="btn-ai" class="btn btn-primary" title="让 AI 整理文章重点词汇">✨ AI 整理</button>
+      <button id="btn-settings" class="btn">⚙️ 设置</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 上传区 -->
+    <section id="upload-panel" class="panel">
+      <div id="drop-zone" class="drop-zone">
+        <p>📄 拖拽文章到这里，或</p>
+        <input type="file" id="file-input" accept=".txt,.md,.html,.htm" hidden>
+        <button id="btn-choose" class="btn btn-primary">选择文件</button>
+        <button id="btn-sample" class="btn">📝 加载示例文章</button>
+        <p class="hint">支持 .txt / .md / .html 文件</p>
+      </div>
+    </section>
+
+    <!-- 文章区 -->
+    <section id="article-panel" class="panel hidden">
+      <div class="article-head">
+        <h2 id="article-title">阅读文章</h2>
+        <div class="article-actions">
+          <button id="btn-reset" class="btn">↩️ 换一篇</button>
+        </div>
+      </div>
+      <article id="article-content" class="article"></article>
+    </section>
+
+    <!-- 词汇列表（AI 整理结果） -->
+    <section id="vocab-panel" class="panel hidden">
+      <div class="article-head">
+        <h2>📌 AI 整理的重点词汇</h2>
+        <span id="vocab-count" class="hint"></span>
+      </div>
+      <div id="vocab-list" class="vocab-list"></div>
+    </section>
+  </main>
+
+  <!-- 单词释义弹窗 -->
+  <div id="popup" class="popup hidden">
+    <button id="popup-close" class="popup-close">×</button>
+    <div id="popup-word" class="popup-word"></div>
+    <div id="popup-phonetic" class="popup-phonetic"></div>
+    <div id="popup-meanings" class="popup-meanings"></div>
+    <div id="popup-src" class="popup-src"></div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-box">
+      <h2>⚙️ AI 设置</h2>
+      <p class="hint">配置后点击"✨ AI 整理"可让 AI 提取文章重点词汇。不配置也不影响手动点击查词。</p>
+      <label>API 地址（OpenAI 兼容）</label>
+      <input type="text" id="set-base" placeholder="https://api.openai.com/v1">
+      <label>API Key</label>
+      <input type="password" id="set-key" placeholder="sk-...">
+      <label>模型名称</label>
+      <input type="text" id="set-model" placeholder="gpt-4o-mini">
+      <div class="modal-actions">
+        <button id="btn-save-settings" class="btn btn-primary">保存</button>
+        <button id="btn-cancel-settings" class="btn">取消</button>
+      </div>
+      <p id="settings-msg" class="hint"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

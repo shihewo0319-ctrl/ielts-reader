@@ -214,3 +214,17 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* AI 分析内容里的【标签】→ 与词典词性标签一致的红色标签样式 */
+.ai-content .pos {
+  display: inline-block;
+  background: #e63946;
+  color: #fff;
+  border-radius: 0;
+  padding: 1px 7px;
+  margin-right: 7px;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  vertical-align: 1px;
+}

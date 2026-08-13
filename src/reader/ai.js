@@ -3,6 +3,7 @@
  * 同一单词 + 同一句子只请求一次（内存缓存），避免重复消耗 token。
  */
 import { getDefaultAiConfig } from '../lib/ai-config.js';
+import { escapeHtml } from '../lib/dom.js';
 
 export const PROVIDER_NAMES = {
   go: 'OpenCode Go',
@@ -22,7 +23,7 @@ function buildPrompt(kind, word, sentence) {
   if (kind === 'translate') {
     return '下面是一篇英文文章中的一句话（双引号内）：\n"' + sentence + '"\n\n'
       + '请解释单词 "' + word + '" 在这句话语境下的具体含义，用中文回答，按下面格式：\n'
-      + '【词性】\n【在此语境中的意思】\n【中文翻译】\n'
+      + '【词性】\n【语境翻译】这个词在此句中的意思\n【句子翻译】整个句子的中文翻译\n'
       + '【语境说明】用一两句话说明为什么在这个句子里它是这个意思。';
   }
   return '下面是一句英文（双引号内）：\n"' + sentence + '"\n\n'
@@ -72,4 +73,10 @@ export async function fetchAi(kind, word, sentence) {
   } catch (err) {
     return { ok: false, error: '无法连接本地服务：' + err.message };
   }
+}
+
+// 把 AI 返回内容里的【标签】转成带背景色的标签样式（与词典标签一致）
+export function buildAiContentHtml(content) {
+  const esc = escapeHtml(content);
+  return esc.replace(/【([^】]+)】/g, '<span class="pos">$1</span>');
 }

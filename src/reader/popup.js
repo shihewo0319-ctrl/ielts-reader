@@ -4,7 +4,7 @@
 import { $, escapeHtml } from '../lib/dom.js';
 import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml } from './dict.js';
 import { speakWord, loadPhonetics } from './tts.js';
-import { fetchAi, PROVIDER_NAMES } from './ai.js';
+import { fetchAi, PROVIDER_NAMES, buildAiContentHtml } from './ai.js';
 
 let lastAnchor = null;
 
@@ -116,7 +116,7 @@ async function loadAiPane(pane, kind, ai) {
     pane.appendChild(meta);
     const content = document.createElement('div');
     content.className = 'ai-content';
-    content.textContent = res.content;
+    content.innerHTML = buildAiContentHtml(res.content);
     pane.appendChild(content);
   } else {
     pane.innerHTML = '<div class="popup-error">❌ ' + escapeHtml(res.error) + '</div>';

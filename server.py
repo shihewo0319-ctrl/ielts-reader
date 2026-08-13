@@ -144,6 +144,7 @@ class Handler(SimpleHTTPRequestHandler):
         model = str(data.get('model') or '').strip()
         base_url = str(data.get('baseUrl') or '').strip()
         message = str(data.get('message') or '').strip()
+        thinking = bool(data.get('thinking'))  # 思考模式开关（前端全局设置）
         if not provider or not api_key or not model or not message:
             self.send_json({'ok': False, 'error': '缺少 provider / apiKey / model / message'})
             return
@@ -163,9 +164,10 @@ class Handler(SimpleHTTPRequestHandler):
             'messages': [{'role': 'user', 'content': message}],
             'stream': False,
         }
-        # DeepSeek V4 默认开启思考模式（effort=high）导致响应慢/易超时，默认禁用，保证响应快且稳定
+        # DeepSeek V4：默认禁用思考模式（官方默认开启且 effort=high，会导致响应慢/易超时）；
+        # 前端「思考模式」开关开启时改为 enabled
         if provider == 'deepseek':
-            payload['thinking'] = {'type': 'disabled'}
+            payload['thinking'] = {'type': 'enabled' if thinking else 'disabled'}
         req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + api_key,

@@ -410,6 +410,26 @@ main {
   margin-bottom: 10px;
 }
 .settings-hint { font-size: 12px; color: #a05c22; margin: 0 0 12px; line-height: 1.6; }
+
+/* 思考模式开关（AI 设置面板，复古像素风） */
+.think-row { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; cursor: pointer; user-select: none; }
+.think-checkbox { display: none; }
+.think-switch {
+  width: 40px; height: 20px; flex-shrink: 0;
+  background: #d9c7a7; border: 2px solid #3a2b1e;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.18);
+  position: relative; display: inline-block;
+}
+.think-switch::after {
+  content: ''; position: absolute; top: 1px; left: 1px;
+  width: 13px; height: 13px; background: #fffdf0;
+  border: 2px solid #3a2b1e; box-sizing: border-box;
+  transition: left .12s steps(2);
+}
+.think-checkbox:checked + .think-switch { background: #f4a261; }
+.think-checkbox:checked + .think-switch::after { left: 19px; }
+.think-text { font-size: 13px; font-weight: 700; color: #3a2b1e; }
+
 .apikey-item {
   border: 2px solid #3a2b1e;
   background: #fff;
@@ -458,7 +478,7 @@ main {
 .apikey-save { background: #e63946; color: #fff; }
 .apikey-save:hover { background: #c1272d; }
 
-/* API Key 绑定（手动添加方式 v1.1.8，含模型/Base URL/测试连接） */
+/* API Key 绑定（手动添加方式 v1.1.9，含模型/Base URL/测试连接） */
 .apikey-add {
   display: block;
   width: 100%;

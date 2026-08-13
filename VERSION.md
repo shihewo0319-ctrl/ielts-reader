@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.8**
+- 当前版本：**1.1.9**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,19 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.8`
-2. index.html / reader.html 的 `style.css?v=1.1.8`
-3. reader.html 的 `app.js?v=1.1.8`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.9`
+2. index.html / reader.html 的 `style.css?v=1.1.9`
+3. reader.html 的 `app.js?v=1.1.9`
 
 ---
 
 # 更新日志
+
+## v1.1.9 AI 设置新增「思考模式」开关
+- 主页 → 设置 → AI 设置 新增思考模式开关（默认关闭）
+- 开启后 DeepSeek V4（flash / pro）请求带 thinking: enabled，先推理再回答（更准但更慢、更耗 token）
+- 关闭（默认）时带 thinking: disabled，响应快且稳定；仅 DeepSeek 生效，其它服务商不受影响
+- 开关状态保存于浏览器 localStorage，测试连接时同步生效
 
 ## v1.1.8 DeepSeek 思考模式处理
 - 根据 DeepSeek 官方文档：V4 模型思考模式默认开启（effort=high），会导致响应慢、测试连接易超时

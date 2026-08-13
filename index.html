@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <title>IELTS 学习台</title>
-  <link rel="stylesheet" href="style.css?v=1.1.8">
+  <link rel="stylesheet" href="style.css?v=1.1.9">
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.8</span></h1>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.9</span></h1>
     <div class="topbar-actions">
       <div class="settings-wrap">
         <button class="settings-btn" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
@@ -25,6 +25,13 @@
               AI 设置
             </div>
             <div class="settings-body">
+              <div class="settings-section">思考模式</div>
+              <label class="think-row" title="DeepSeek 思考模式开关">
+                <input type="checkbox" id="thinkingToggle" class="think-checkbox">
+                <span class="think-switch" aria-hidden="true"></span>
+                <span class="think-text">对 DeepSeek 模型启用思考模式</span>
+              </label>
+              <p class="settings-hint">默认关闭（响应快）。开启后 DeepSeek V4（flash / pro）会先推理再回答，更准确但更慢、更耗 token。仅 DeepSeek 生效，其它服务商不受影响。</p>
               <div class="settings-section">API Key 绑定</div>
               <p class="settings-hint">点击「添加 API KEY」，选择服务商、模型并填写密钥（已知服务商的 Base URL 会自动填写）。绑定后可用「测试连接」真实调用该服务商验证 Key。密钥仅保存在本机浏览器。</p>
               <div class="apikey-bound" id="apikeyBound"></div>
@@ -315,6 +322,7 @@
               apiKey: c.key,
               model: c.model,
               baseUrl: c.baseUrl || '',
+              thinking: loadThinking(),
               message: '你好，请只回复四个字：连接成功'
             })
           }).then(function (r) { return r.json(); }).then(function (res) {

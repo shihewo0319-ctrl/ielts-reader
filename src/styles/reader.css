@@ -113,7 +113,7 @@ main { max-width: min(1400px, 96vw); }
 .popup-word .popup-word-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   margin-top: 2px;
 }
@@ -365,15 +365,18 @@ main { max-width: min(1400px, 96vw); }
 
 /* ===== 弹窗内「⭐ 加入生词本」按钮 ===== */
 .popup-word .popup-wordbook {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.4;
   color: #3a2b1e;
   background: #fff3d6;
   border: 2px solid #3a2b1e;
   border-radius: 0;
-  padding: 2px 10px;
+  padding: 1px 10px;
   cursor: pointer;
   transition: background .15s;
 }

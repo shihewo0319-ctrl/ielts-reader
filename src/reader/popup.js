@@ -4,7 +4,7 @@
 import { $, escapeHtml } from '../lib/dom.js';
 import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml } from './dict.js';
 import { speakWord, loadPhonetics } from './tts.js';
-import { fetchAi, PROVIDER_NAMES, buildAiContentHtml } from './ai.js';
+import { fetchAi, PROVIDER_NAMES, buildAiContentHtml, parseGrammarJson } from './ai.js';
 
 let lastAnchor = null;
 
@@ -125,14 +125,101 @@ async function loadAiPane(pane, kind, ai) {
     meta.className = 'ai-meta';
     meta.textContent = '由 ' + (PROVIDER_NAMES[res.provider] || res.provider) + ' 生成 · 同一单词同一句子只请求一次';
     box.appendChild(meta);
-    const content = document.createElement('div');
-    content.className = 'ai-content';
-    content.innerHTML = buildAiContentHtml(res.content, kind === 'grammar');
-    box.appendChild(content);
+    if (kind === 'grammar') {
+      const parsed = parseGrammarJson(res.content);
+      if (parsed.ok) {
+        box.appendChild(renderGrammarChunks(parsed));
+      } else {
+        const content = document.createElement('div');
+        content.className = 'ai-content';
+        content.textContent = res.content;
+        box.appendChild(content);
+      }
+    } else {
+      const content = document.createElement('div');
+      content.className = 'ai-content';
+      content.innerHTML = buildAiContentHtml(res.content);
+      box.appendChild(content);
+    }
   } else {
     box.innerHTML = '<div class="popup-error">❌ ' + escapeHtml(res.error) + '</div>';
   }
   positionPopup();
+}
+
+// ===== 语法分析：行内下标注（Enpuz 式）渲染 =====
+// 整句保持原样，每个词/短语下方用小标签标出成分，主句与从句用底色区分
+function renderGrammarChunks(parsed) {
+  const wrap = document.createElement('div');
+  wrap.className = 'ai-grammar';
+
+  if (parsed.summary) {
+    const sum = document.createElement('div');
+    sum.className = 'grammar-summary';
+    sum.textContent = parsed.summary;
+    wrap.appendChild(sum);
+  }
+
+  const sent = document.createElement('div');
+  sent.className = 'grammar-chunks';
+  for (const c of parsed.chunks) {
+    const item = document.createElement('span');
+    item.className = 'grammar-chunk';
+    if (c.clause) {
+      item.classList.add('in-clause', clauseBg(c.clause));
+      item.title = c.clause;
+    }
+    const txt = document.createElement('span');
+    txt.className = 'grammar-word';
+    txt.textContent = c.text;
+    item.appendChild(txt);
+    if (c.role && c.role !== '标点') {
+      const tag = document.createElement('span');
+      tag.className = 'grammar-tag ' + roleColorClass(c.role);
+      tag.textContent = c.role;
+      item.appendChild(tag);
+    }
+    sent.appendChild(item);
+  }
+  wrap.appendChild(sent);
+
+  // 图例
+  const legend = document.createElement('div');
+  legend.className = 'grammar-legend';
+  [['主语', 'subj'], ['谓语/系表', 'pred'], ['宾语', 'obj'],
+   ['状语/补语', 'adv'], ['连词', 'conj'], ['定语', 'att']]
+    .forEach(([label, cls]) => legend.appendChild(legendItem(label, cls)));
+  wrap.appendChild(legend);
+
+  return wrap;
+}
+
+// 成分 → 标签颜色
+function roleColorClass(role) {
+  if (/主语/.test(role)) return 'subj';
+  if (/谓语|系表/.test(role)) return 'pred';
+  if (/宾语/.test(role)) return 'obj';
+  if (/状语|补语/.test(role)) return 'adv';
+  if (/连词/.test(role)) return 'conj';
+  if (/定语/.test(role)) return 'att';
+  return 'def';
+}
+
+// 从句名 → 底色（区分多个从句）
+function clauseBg(clause) {
+  let h = 0;
+  for (const ch of String(clause)) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return ['c1', 'c2', 'c3', 'c4'][h % 4];
+}
+
+function legendItem(label, cls) {
+  const item = document.createElement('span');
+  item.className = 'grammar-legend-item';
+  const sw = document.createElement('i');
+  sw.className = 'legend-swatch ' + cls;
+  item.appendChild(sw);
+  item.appendChild(document.createTextNode(label));
+  return item;
 }
 
 // 在句子中高亮选中单词（不区分大小写，按词边界匹配）

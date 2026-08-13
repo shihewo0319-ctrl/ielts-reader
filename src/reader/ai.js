@@ -30,19 +30,19 @@ function buildPrompt(kind, word, sentence) {
       + '【语境说明】用一两句话说明为什么在这个句子里它是这个意思。';
   }
   return '下面是一句英文（双引号内）：\n"' + sentence + '"\n\n'
-    + '请像专业语法分析工具 Enpuz 那样，用中文对这句话做完整语法分析，严格按下面的【标签】逐项输出：\n'
-    + '【句子类型】判断陈述句/疑问句/祈使句/感叹句，以及简单句/并列句/复合句\n'
-    + '【时态语态】时态（如一般现在时）与语态（主动/被动）\n'
-    + '【成分划分】从左到右标注核心成分（主语/谓语动词/宾语/表语/定语/状语/补语等），示例格式："The old man(主语) slowly(方式状语) walked(谓语动词) along the river(地点状语)."；'
-    + '多词短语整体标注并用 ··· 连接；存在从句时，分别用【主句】与【从句】分段，从句注明类型（如定语从句/状语从句/宾语从句/主语从句）；'
-    + '形式主语/形式宾语需标注其真实主语/真实宾语；只标主要成分，不必逐词展开，保持简洁\n'
-    + '【主干结构】一句话概括句子主干（主谓宾 / 主系表 / 主谓等），并列或嵌套关系一并说明\n'
-    + '【结构图】最后输出一个树状图，直观展示整句结构，每行一个节点，用 ├─ └─ │ 等线条连接，格式示例：\n'
-    + '陈述句（主谓状）\n'
-    + '├─ 主语：The old man\n'
-    + '├─ 谓语动词：walked\n'
-    + '└─ 地点状语：along the river\n'
-    + '有从句时按层级展开，如：├─ 主句 │  ├─ 主语：I │  └─ 谓语动词：believe └─ 宾语从句 ├─ 主语：he └─ 谓语动词：is coming';
+    + '请像专业语法分析工具 Enpuz 那样分析这句话，只输出一个 JSON 对象（不要输出任何其他文字、不要用 markdown 代码块包裹），格式如下：\n'
+    + '{\n'
+    + '  "summary": "句子类型（简单句/并列句/复合句及从句类型）+ 主干 + 时态语态，用中文一句话概括",\n'
+    + '  "chunks": [\n'
+    + '    {"text": "单词或短语原文", "role": "成分名", "clause": "所属从句名"}\n'
+    + '  ]\n'
+    + '}\n'
+    + '要求：\n'
+    + '1. chunks 按原文从左到右列出，覆盖整句，不遗漏任何单词\n'
+    + '2. 多词短语作为一个 chunk，例如 "the old man" 整体作为一个 chunk\n'
+    + '3. role 用中文成分名：主语/谓语动词/宾语/表语/定语/状语/补语/连词/系表结构/介词短语等\n'
+    + '4. clause 填该 chunk 属于的主句或从句名（如 主句 / 让步状语从句 / 宾语从句），标点符号的 clause 填空字符串\n'
+    + '5. 标点符号（逗号句号等）单独作为一个 chunk，role 填 "标点"'
 }
 
 // kind: 'translate' | 'grammar'
@@ -91,32 +91,35 @@ export async function fetchAi(kind, word, sentence) {
 }
 
 // 把 AI 返回内容里的【标签】转成带背景色的标签样式（与词典标签一致）
-export function buildAiContentHtml(content, compact = false) {
-  let text = content;
-  // 语法分析：压缩结构之间的连续空行，让间距更紧凑
-  if (compact) text = text.replace(/\n{2,}/g, '\n');
-  let html = escapeHtml(text);
-  // 【结构图】块 → 树形图表卡片（先替换，避免后续标签处理影响树内内容）
-  html = html.replace(/【结构图】\n?([\s\S]*?)(?=\n【[^】]+】|$)/g, (m, block) => {
-    return '<span class="pos">结构图</span><div class="ai-tree">' + renderTreeBlock(block) + '</div>';
-  });
-  return html.replace(/【([^】]+)】/g, '<span class="pos">$1</span>');
+export function buildAiContentHtml(content) {
+  const esc = escapeHtml(content);
+  return esc.replace(/【([^】]+)】/g, '<span class="pos">$1</span>');
 }
 
-// 把【结构图】里的文本树渲染成带连接线的树形图表
-function renderTreeBlock(block) {
-  const lines = block.split('\n');
-  let out = '';
-  for (const raw of lines) {
-    const line = raw.replace(/\s+$/, '');
-    if (!line.trim()) continue;
-    // 拆出树线前缀（├─ └─ │ 等）与节点内容，树线保持原样
-    const m = line.match(/^(\s*(?:[│├└]─?[ \t]*)*)(.*)$/);
-    const prefix = m ? m[1] : '';
-    let text = m ? m[2] : line;
-    // 高亮节点里的「成分：内容」中的成分（红色标签样式）
-    text = text.replace(/^([^:：]{1,14}?)([:：]\s*)/, '<span class="pos">$1</span>$2');
-    out += '<div class="tree-line"><span class="tree-prefix">' + prefix + '</span>' + text + '</div>';
+// 解析语法分析的 JSON 输出（容忍 markdown 代码块 / 前后多余文字）
+// 返回 { ok:true, summary, chunks:[{text,role,clause}] } 或 { ok:false }
+export function parseGrammarJson(content) {
+  try {
+    let text = String(content || '').trim();
+    // 去掉可能的 ```json ... ``` 代码块
+    const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fence) text = fence[1].trim();
+    // 提取第一个 { ... } 对象
+    const s = text.indexOf('{');
+    const e = text.lastIndexOf('}');
+    if (s === -1 || e === -1 || e <= s) return { ok: false };
+    const obj = JSON.parse(text.slice(s, e + 1));
+    if (!obj || !Array.isArray(obj.chunks)) return { ok: false };
+    const chunks = obj.chunks
+      .filter(c => c && typeof c.text === 'string')
+      .map(c => ({
+        text: c.text,
+        role: typeof c.role === 'string' ? c.role : '',
+        clause: typeof c.clause === 'string' ? c.clause : '',
+      }));
+    if (!chunks.length) return { ok: false };
+    return { ok: true, summary: typeof obj.summary === 'string' ? obj.summary : '', chunks };
+  } catch (e) {
+    return { ok: false };
   }
-  return out;
 }

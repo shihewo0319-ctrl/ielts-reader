@@ -229,26 +229,77 @@
   vertical-align: 1px;
 }
 
-/* ===== 语法分析：句子结构树形图 ===== */
-.ai-tree {
-  background: #fdf0d5;
+/* ===== 语法分析：行内下标注（Enpuz 式） ===== */
+.ai-grammar { margin-top: 4px; }
+.grammar-summary {
+  font-size: 13px;
+  color: #3a2b1e;
+  background: #fff3d6;
   border: 2px solid #3a2b1e;
   border-left: 6px solid #f4a261;
-  padding: 8px 10px;
-  margin: 8px 0;
-  font-family: 'Courier New', Consolas, monospace;
-  font-size: 13px;
-  line-height: 1.7;
-  overflow-x: auto;
-  white-space: pre;
+  padding: 6px 10px;
+  margin-bottom: 12px;
 }
-.ai-tree .tree-line { white-space: pre; }
-.ai-tree .tree-prefix { color: #3a2b1e; }
-.ai-tree .pos {
-  margin-right: 4px;
-  vertical-align: baseline;
+.grammar-chunks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: baseline;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.grammar-chunk {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 7px 4px;
+  border-radius: 6px;
+}
+.grammar-chunk.in-clause {
+  border: 1px dashed #c9bfae;
+}
+.grammar-chunk.in-clause.c1 { background: #f0ecf8; border-color: #cdbcee; }
+.grammar-chunk.in-clause.c2 { background: #e8f4f0; border-color: #bcdcd3; }
+.grammar-chunk.in-clause.c3 { background: #fdeee2; border-color: #f0c9a8; }
+.grammar-chunk.in-clause.c4 { background: #eef0f6; border-color: #c6cde2; }
+.grammar-word { font-weight: 600; }
+.grammar-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  padding: 1px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.grammar-tag.subj { background: #3a86ff; }
+.grammar-tag.pred { background: #e63946; }
+.grammar-tag.obj  { background: #2a9d8f; }
+.grammar-tag.adv  { background: #e76f51; }
+.grammar-tag.conj { background: #8338ec; }
+.grammar-tag.att  { background: #8d99ae; }
+.grammar-tag.def  { background: #e63946; }
+.grammar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 14px;
   font-size: 12px;
+  color: #6b6258;
 }
+.grammar-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-swatch {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+.legend-swatch.subj { background: #3a86ff; }
+.legend-swatch.pred { background: #e63946; }
+.legend-swatch.obj  { background: #2a9d8f; }
+.legend-swatch.adv  { background: #e76f51; }
+.legend-swatch.conj { background: #8338ec; }
+.legend-swatch.att  { background: #8d99ae; }
 
 /* ===== 语境翻译：原句显示 + 选中单词高亮 ===== */
 .ai-sentence {

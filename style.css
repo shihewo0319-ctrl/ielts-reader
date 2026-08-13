@@ -196,3 +196,10 @@ main {
   .topbar { flex-direction: column; gap: 8px; }
   .popup { width: 90vw; left: 5vw !important; }
 }
+
+.source-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.source-select:hover { background: #f0f2f5; }

@@ -28,6 +28,22 @@ const vocabList = $('vocab-list');
 const vocabCount = $('vocab-count');
 const popup = $('popup');
 const btnAI = $('btn-ai');
+
+/* 词典源选择器 */
+const dictSelect = $('dict-source');
+if (dictSelect) {
+  dictSelect.value = getDictSource();
+  const syncTitle = () => {
+    const opt = dictSelect.options[dictSelect.selectedIndex];
+    dictSelect.title = '当前词典源：' + (opt ? opt.text : '');
+  };
+  syncTitle();
+  dictSelect.addEventListener('change', () => {
+    localStorage.setItem(dictSourceKey, dictSelect.value);
+    syncTitle();
+    hidePopup();
+  });
+}
 const settingsModal = $('settings-modal');
 
 /* ============ 文章加载 ============ */
@@ -181,17 +197,31 @@ function stripHtml(s) {
   return String(s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-// 统一入口：按顺序尝试，前一个失败自动用下一个
+// 词典源选择（localStorage 持久化）
+const dictSourceKey = 'ieltsDictSource';
+function getDictSource() {
+  try { return localStorage.getItem(dictSourceKey) || 'auto'; } catch { return 'auto'; }
+}
+
+// 统一入口：按用户选择的源查询；选"自动"则按顺序尝试
 async function lookupWord(word) {
+  const source = getDictSource();
+  const sourceMap = {
+    free: [lookupFreeDict],
+    datamuse: [lookupDatamuse],
+    wiktionary: [lookupWiktionary],
+    auto: [lookupFreeDict, lookupDatamuse, lookupWiktionary],
+  };
+  const list = sourceMap[source] || sourceMap.auto;
   const errors = [];
-  for (const fn of [lookupFreeDict, lookupDatamuse, lookupWiktionary]) {
+  for (const fn of list) {
     try {
       return await fn(word);
     } catch (e) {
       errors.push(e.message || e);
     }
   }
-  throw new Error('三个词典源都查询失败：' + [...new Set(errors)].join(' / '));
+  throw new Error('词典查询失败：' + [...new Set(errors)].join(' / '));
 }
 
 function buildMeaningsHtml(entry) {

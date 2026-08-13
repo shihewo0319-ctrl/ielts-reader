@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.9**
+- 当前版本：**1.1.10**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -17,6 +17,11 @@
 ---
 
 # 更新日志
+
+## v1.1.10 修正 OpenCode Go 官方模型列表
+- OpenCode Go 官方模型列表中不存在 glm-5 / kimi-k2.5（已在 Zen 下线），已改为官方 chat/completions 端点可用模型：grok-4.5、glm-5.2、glm-5.1、kimi-k3、kimi-k2.7-code、kimi-k2.6、deepseek-v4-pro、deepseek-v4-flash、mimo-v2.5、mimo-v2.5-pro、hy3
+- OpenCode Go 默认模型改为官方旗舰 glm-5.2
+- 说明：官方另 7 款模型（gpt-5.6-luna、minimax-m3/m2.7/m2.5、qwen3.8-max/qwen3.7-max/qwen3.7-plus/qwen3.6-plus）走 Responses / Anthropic 端点，暂未列入
 
 ## v1.1.9 AI 设置新增「思考模式」开关
 - 主页 → 设置 → AI 设置 新增思考模式开关（默认关闭）

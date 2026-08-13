@@ -32,6 +32,7 @@ main { max-width: 860px; }
 /* 生词条目 */
 .wb-item {
   display: flex;
+  flex-wrap: wrap; /* 释义面板（flex: 0 0 100%）独占第二行 */
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
@@ -42,9 +43,9 @@ main { max-width: 860px; }
 }
 .wb-item-head {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  flex-direction: column; /* 时间移到单词下方，不再并排 */
+  align-items: flex-start;
+  gap: 2px;
   min-width: 0;
   /* 禁止头部被 flex 压缩：句子较长时若头部被压窄，
      时间（nowrap）会溢出并与下方句子重叠（v1.1.45 修复） */
@@ -95,6 +96,46 @@ main { max-width: 860px; }
   min-width: 0;
 }
 
+/* 操作区：释义按钮 + 删除按钮 */
+.wb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.wb-zh-btn {
+  padding: 8px 10px;
+  font-size: 13px;
+  background: #fdf0d5;
+}
+
+/* 中文释义面板：默认隐藏，点击「释义」后特效展开/收起 */
+.wb-meaning {
+  flex: 0 0 100%; /* 独占第二行 */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #3a2b1e;
+  line-height: 1.6;
+  background: #fdf0d5;
+  border-left: 3px solid #e63946;
+  transition: max-height .35s ease, opacity .35s ease, margin-top .35s ease, padding .35s ease;
+}
+.wb-meaning.open {
+  max-height: 240px;
+  opacity: 1;
+  margin-top: 10px;
+  padding: 8px 10px;
+}
+.wb-zh-label {
+  font-weight: 700;
+  color: #e63946;
+  margin-right: 6px;
+}
+
 /* 危险按钮 */
 .btn-danger {
   background: #e63946;
@@ -115,6 +156,6 @@ main { max-width: 860px; }
 @media (max-width: 600px) {
   .wb-item { flex-direction: column; align-items: flex-start; }
   .wb-item-head { width: 100%; }
-  .wb-item > .btn { align-self: flex-end; }
+  .wb-actions { align-self: flex-end; }
   .lookup-item-head { flex-direction: column; align-items: flex-start; gap: 4px; }
 }

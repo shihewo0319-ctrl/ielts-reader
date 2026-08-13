@@ -5,7 +5,11 @@
  * 数据读写走 src/lib/db-api.js（后端 SQLite）。
  */
 import { $, escapeHtml } from './lib/dom.js';
+import { fetchJson } from './lib/api.js';
 import { listWords, deleteWord, listLookups, clearLookups } from './lib/db-api.js';
+
+// 中文释义内存缓存（word -> 释义文本），避免重复请求有道接口
+const zhCache = new Map();
 
 function fmtTime(s) {
   return String(s || '').replace('T', ' ').slice(0, 16);
@@ -58,6 +62,46 @@ async function loadWords() {
     }
     if (body.childNodes.length) item.appendChild(body);
 
+    // 中文释义面板：默认隐藏（max-height:0），点击「释义」按钮特效展开/收起
+    const meaning = document.createElement('div');
+    meaning.className = 'wb-meaning';
+
+    // 操作区：释义按钮（左）+ 删除按钮（右）
+    const actions = document.createElement('div');
+    actions.className = 'wb-actions';
+
+    const zhBtn = document.createElement('button');
+    zhBtn.className = 'btn wb-zh-btn';
+    zhBtn.textContent = '📖 释义';
+    zhBtn.title = '显示 / 隐藏中文释义';
+    zhBtn.addEventListener('click', async () => {
+      if (meaning.classList.contains('open')) {
+        meaning.classList.remove('open'); // 特效收起
+        return;
+      }
+      if (!meaning.dataset.loaded) {
+        zhBtn.disabled = true;
+        try {
+          let explain = zhCache.get(w.word);
+          if (explain === undefined) {
+            const data = await fetchJson('/api/chinese?word=' + encodeURIComponent(w.word), 8000);
+            explain = (data && data.ok && data.explain) ? data.explain : '（暂无中文释义）';
+            zhCache.set(w.word, explain);
+          }
+          meaning.innerHTML = '<span class="wb-zh-label">中文释义</span>' + escapeHtml(explain);
+          meaning.dataset.loaded = '1';
+        } catch (e) {
+          meaning.innerHTML = '<span class="wb-zh-label">中文释义</span>获取失败：' + escapeHtml(e.message || e);
+          meaning.dataset.loaded = '1';
+        } finally {
+          zhBtn.disabled = false;
+        }
+        void meaning.offsetHeight; // 强制回流，保证展开动画从 0 开始
+      }
+      meaning.classList.add('open');
+    });
+    actions.appendChild(zhBtn);
+
     const del = document.createElement('button');
     del.className = 'btn btn-danger';
     del.textContent = '🗑';
@@ -71,7 +115,10 @@ async function loadWords() {
         alert('删除失败：' + e.message);
       }
     });
-    item.appendChild(del);
+    actions.appendChild(del);
+
+    item.appendChild(actions);
+    item.appendChild(meaning);
     box.appendChild(item);
   }
 }

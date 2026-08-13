@@ -144,9 +144,9 @@ main {
 }
 .popup-word {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   font-size: 24px;
   font-weight: 800;
   color: #1f2328;
@@ -175,6 +175,7 @@ main {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+  margin-top: 2px;
 }
 .popup-word .popup-phonetic {
   display: inline-flex;

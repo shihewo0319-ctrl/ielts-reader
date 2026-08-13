@@ -312,85 +312,29 @@
 .apikey-default-on { background: #ffe08a; }
 .apikey-default-on:disabled { cursor: default; opacity: 1; }
 
-/* ===== 主页底部：每日名言（艺术字体，复古像素风） ===== */
+/* ===== 主页底部：每日名言（简洁一行 + 艺术字体） ===== */
 .quote-box {
-  position: relative;
   max-width: 720px;
-  margin: 48px auto 40px;
+  margin: 36px auto 30px;
   padding: 0 16px;
   text-align: center;
-}
-.quote-card {
-  position: relative;
-  background: #fff3d6;
-  border: 3px solid #3a2b1e;
-  border-radius: 0;
-  box-shadow: 6px 6px 0 #3a2b1e;
-  padding: 28px 30px 24px;
-}
-.quote-card::before,
-.quote-card::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #e63946;
-  border: 2px solid #3a2b1e;
-}
-.quote-card::before { top: -8px; left: -8px; }
-.quote-card::after { bottom: -8px; right: -8px; }
-
-.quote-kicker {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #3a2b1e;
-  background: #ffe08a;
-  border: 2px solid #3a2b1e;
-  padding: 2px 10px;
-  margin-bottom: 14px;
 }
 .quote-en {
   font-family: Georgia, 'Times New Roman', 'KaiTi', 'STKaiti', serif;
   font-style: italic;
-  font-size: 23px;
+  font-size: 19px;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.6;
   color: #c1121f;
-  margin: 0 0 10px;
+  margin: 0 0 4px;
   text-shadow:
     1px 1px 0 #ffe08a,
-    2px 2px 0 #f4a261,
-    3px 3px 0 rgba(58, 43, 30, .3);
+    2px 2px 0 #f4a261;
 }
 .quote-zh {
   font-family: 'KaiTi', 'STKaiti', 'KaiTi_GB2312', serif;
-  font-size: 18px;
+  font-size: 14px;
   color: #3a2b1e;
-  margin: 0 0 12px;
+  margin: 0;
   letter-spacing: 1px;
 }
-.quote-author {
-  font-family: 'Courier New', Consolas, monospace;
-  font-size: 13px;
-  font-weight: 700;
-  color: #a05c22;
-}
-.quote-refresh {
-  position: absolute;
-  right: 4px;
-  bottom: -46px;
-  width: 34px;
-  height: 34px;
-  font-size: 17px;
-  line-height: 1;
-  background: #fff3d6;
-  color: #3a2b1e;
-  border: 2px solid #3a2b1e;
-  border-radius: 0;
-  box-shadow: 2px 2px 0 #3a2b1e;
-  cursor: pointer;
-}
-.quote-refresh:hover { background: #ffe08a; }
-.quote-refresh:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #3a2b1e; }

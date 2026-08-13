@@ -18,15 +18,8 @@ function renderQuote() {
   if (!box) return;
   const q = randomQuote();
   box.innerHTML =
-    '<div class="quote-card">'
-    + '<div class="quote-kicker">✦ DAILY QUOTE · 每日一句 ✦</div>'
-    + '<div class="quote-en">“' + esc(q.en) + '”</div>'
-    + '<div class="quote-zh">' + esc(q.zh) + '</div>'
-    + '<div class="quote-author">— ' + esc(q.author) + '</div>'
-    + '</div>'
-    + '<button class="quote-refresh" title="换一句" aria-label="换一句">🔄</button>';
-  const btn = box.querySelector('.quote-refresh');
-  if (btn) btn.addEventListener('click', renderQuote);
+    '<div class="quote-en">“' + esc(q.en) + '”</div>'
+    + '<div class="quote-zh">' + esc(q.zh) + '</div>';
 }
 
 renderQuote();

@@ -68,6 +68,16 @@ export function initUploadPanel() {
     if (f) readFile(f);
   });
 
+  // 粘贴文章文本
+  $('btn-paste').addEventListener('click', () => {
+    const text = $('paste-text').value.trim();
+    if (!text) {
+      $('paste-text').focus();
+      return;
+    }
+    loadArticle(text, '粘贴的文章');
+  });
+
   $('btn-sample').addEventListener('click', () => loadArticle(SAMPLE_ARTICLE, '示例文章：The Impact of Urban Green Spaces'));
   $('btn-reset').addEventListener('click', () => {
     $('article-panel').classList.add('hidden');

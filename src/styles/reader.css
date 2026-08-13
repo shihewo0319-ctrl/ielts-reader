@@ -13,6 +13,32 @@
 .drop-zone .btn { margin: 4px 6px; }
 .hint { font-size: 13px; color: #a05c22; margin-top: 8px; }
 
+/* 粘贴文章区 */
+.paste-zone {
+  margin-top: 24px;
+  border: 3px solid #3a2b1e;
+  background: #fffdf0;
+  padding: 18px 20px 22px;
+  box-shadow: 4px 4px 0 #3a2b1e;
+}
+.paste-title { font-size: 16px; font-weight: 700; margin: 0 0 10px; color: #3a2b1e; }
+.paste-zone textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #3a2b1e;
+  background: #fffdf6;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  padding: 10px 12px;
+  resize: vertical;
+}
+.paste-zone textarea:focus { outline: 3px solid #ffe08a; }
+.paste-actions { margin-top: 12px; }
+.paste-actions .btn { margin-right: 10px; }
+
 /* 文章 */
 .article-head {
   display: flex;

@@ -1,7 +1,6 @@
 /* ============ 阅读器入口：组装各模块并初始化 ============ */
 import { $ } from './lib/dom.js';
 import { loadArticle, initUploadPanel } from './reader/article.js';
-import { SAMPLE_ARTICLE } from './reader/sample.js';
 import { dictSourceKey, getDictSource } from './reader/dict.js';
 import { hidePopup, initWordLookup } from './reader/popup.js';
 import { initTts } from './reader/tts.js';
@@ -26,5 +25,3 @@ if (dictSelect) {
   });
 }
 
-// 首次进入自动展示示例文章，方便立刻体验
-loadArticle(SAMPLE_ARTICLE, '示例文章：The Impact of Urban Green Spaces');

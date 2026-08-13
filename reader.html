@@ -10,7 +10,7 @@
 </head>
 <body>
   <header class="topbar">
-    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.27</span></h1>
+    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.28</span></h1>
     <div class="topbar-actions">
       <select id="dict-source" class="btn source-select" title="选择查词来源">
         <option value="auto">🔁 词典源：自动</option>
@@ -28,8 +28,15 @@
         <p>📄 拖拽文章到这里，或</p>
         <input type="file" id="file-input" accept=".txt,.md,.html,.htm" hidden>
         <button id="btn-choose" class="btn btn-primary">选择文件</button>
-        <button id="btn-sample" class="btn">📝 加载示例文章</button>
         <p class="hint">支持 .txt / .md / .html 文件</p>
+      </div>
+      <div class="paste-zone">
+        <p class="paste-title">✍️ 或直接粘贴文章文本</p>
+        <textarea id="paste-text" rows="8" placeholder="将英文文章粘贴到这里，点击「开始阅读」…"></textarea>
+        <div class="paste-actions">
+          <button id="btn-paste" class="btn btn-primary">开始阅读</button>
+          <button id="btn-sample" class="btn">📝 加载示例文章</button>
+        </div>
       </div>
     </section>
 

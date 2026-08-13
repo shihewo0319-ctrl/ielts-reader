@@ -1,5 +1,6 @@
 /* ============ AI 语境翻译 + 句子语法分析 ============
  * 调用本地 /api/ai_chat，使用 AI 设置中绑定的 API Key（见 lib/ai-config.js）。
+ * v1.1.40 起 Key 加密存服务器数据库，前端不传 Key，由后端按 provider 读取。
  * 同一单词 + 同一句子只请求一次（内存缓存），避免重复消耗 token。
  */
 import { getDefaultAiConfig } from '../lib/ai-config.js';
@@ -51,25 +52,23 @@ export async function fetchAi(kind, word, sentence) {
   const cached = successCache.get(key);
   if (cached) return cached;
 
-  const cfg = getDefaultAiConfig();
+  const cfg = await getDefaultAiConfig();
   if (!cfg) {
     return { ok: false, error: '未绑定 API Key，请先到主页右上角「设置 → AI 设置」添加并保存' };
   }
 
   // 语法分析不需要深度思考：强制关闭，避免思考模式导致 60s+ 超时
-  // （全局「思考模式」开关只对语境翻译生效）
-  let thinking = false;
-  if (kind !== 'grammar') {
-    try { thinking = localStorage.getItem('ieltsThinking') === '1'; } catch (e) {}
-  }
+  // （全局「思考模式」开关只对语境翻译生效，存于服务器设置）
+  const thinking = kind !== 'grammar' && !!cfg.thinking;
 
   try {
+    // apiKey 留空：v1.1.40 起 Key 加密存服务器数据库，后端按 provider 自动读取
     const resp = await fetch('/api/ai_chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         provider: cfg.provider,
-        apiKey: cfg.apiKey,
+        apiKey: '',
         model: cfg.model,
         baseUrl: cfg.baseUrl || '',
         thinking,

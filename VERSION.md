@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.39**
+- 当前版本：**1.1.40**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,20 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.39`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.40`
 2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.40 API Key 迁移到服务器数据库（加密存储）
+- API Key / 默认服务商 / 思考模式从浏览器 localStorage 迁移到服务器数据库 `data/ielts.db` 的 `settings` 表：绑定一次，手机 / 平板等所有设备通用（平板之前"未绑定 API Key"的问题由此解决）
+- 密钥**加密存储**：新增 `secure.py`，使用 Fernet 对称加密；主密钥保存在 `data/.secrets.key`（权限 600、自动生成、gitignore，不进入版本库），数据库里只存密文，浏览器也拿不到明文 Key（编辑时只显示掩码，保存掩码即保留原 Key）
+- 后端新增 `/api/settings`（GET 读取 / POST 整体保存，`api_db.py`）；`server.py` 的 `/api/ai_chat` 支持不传 apiKey 时按服务商自动从数据库读取（跨设备调用）
+- 前端新增 `src/lib/db-settings.js`（设置 API 封装）；`ai-config.js` 改为异步读取服务器设置（含旧 localStorage 数据一次性自动迁移并清除）；`settings/ai.js` 绑定/删除/设默认/思考模式全部走服务器
+- 备份提醒：`data/` 目录现在包含 `ielts.db` 和 `.secrets.key`，两者要一起备份才能恢复已绑定的 API Key
 
 ## v1.1.39 数据库整合（SQLite：文章库 / 生词本 / 学习记录）
 - 新增本地 SQLite 数据库 `data/ielts.db`（`data/` 已加入 .gitignore，不进入版本库），三张表：`articles` 文章库、`words` 生词本、`lookups` 学习记录；数据读写统一走 `db.py`（新建，数据层）

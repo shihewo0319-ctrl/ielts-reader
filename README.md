@@ -1,6 +1,6 @@
 # IELTS 学习台（ielts-reader）
 
-雅思阅读学习工具：上传阅读文章，点击任意单词即可查看**英文释义、音标、中文释义、双语例句**，支持选中词组查询、英/美音发音；内置 **SQLite 数据库**，支持「我的文章」「生词本 / 学习记录」的保存与跨设备同步。
+雅思阅读学习工具：上传阅读文章，点击任意单词即可查看**英文释义、音标、中文释义、双语例句**，支持选中词组查询、英/美音发音；内置 **SQLite 数据库**，支持「我的文章」「生词本 / 学习记录」的保存与跨设备同步；**AI API Key 加密保存在服务器数据库**，绑定一次、所有设备通用。
 
 ## 快速开始
 
@@ -14,7 +14,7 @@ python3 server.py          # 默认端口 8123
 ### 本地数据库（SQLite）
 
 - 数据文件：`data/ielts.db`（首次启动 `server.py` 自动建表；`data/` 已加入 `.gitignore`，不进入版本库）
-- 三张表：`articles` 文章库（同标题保存自动覆盖）、`words` 生词本（同词覆盖句子/备注）、`lookups` 学习记录（查词自动记录）
+- 四张表：`articles` 文章库（同标题保存自动覆盖）、`words` 生词本（同词覆盖句子/备注）、`lookups` 学习记录（查词自动记录）、`settings` 设置（加密后的 AI API Key / 默认服务商 / 思考模式）
 - 页面入口：主页「📚 我的文章」→ `library.html`；「📒 生词本」→ `wordbook.html`；阅读器「💾 保存文章」「⭐ 加入生词本」
 - 数据保存在**运行服务器的那台电脑**上；手机等设备通过 Tailscale 访问同一服务器即实现跨设备同步
 - 备份：直接复制 `data/ielts.db` 即可（如需彻底备份可先停服务或用 `sqlite3 .backup`）
@@ -51,8 +51,9 @@ ielts-reader/
 ├── library.html          # 我的文章（Vite 入口 3）
 ├── wordbook.html         # 生词本 / 学习记录（Vite 入口 4）
 ├── server.py             # 本地服务器 + API 代理（有道/词典/AI/数据库路由）
-├── api_db.py             # 数据库 API 路由（/api/articles /api/words /api/lookups）
-├── db.py                 # SQLite 数据层（建表 + 文章/生词/学习记录 CRUD）
+├── api_db.py             # 数据库 API 路由（/api/articles /api/words /api/lookups /api/settings）
+├── db.py                 # SQLite 数据层（建表 + 文章/生词/学习记录/设置 CRUD）
+├── secure.py             # API Key 加密（Fernet，主密钥 data/.secrets.key，权限 600）
 ├── data/                 # 本地数据库目录（gitignore，不进入版本库）
 ├── src/
 │   ├── home.js           # 主页入口（卡片跳转逻辑 + 名言渲染）
@@ -75,7 +76,8 @@ ielts-reader/
 │   │   ├── dom.js        # 通用 DOM / 字符串工具
 │   │   ├── api.js        # 带超时的 JSON 请求封装
 │   │   ├── db-api.js     # 数据库 API 封装（文章库 / 生词本 / 学习记录）
-│   │   ├── ai-config.js  # AI 调用配置：默认服务商 / 读取已绑定 Key
+│   │   ├── db-settings.js# AI 设置 API 封装（/api/settings，密钥只存服务器）
+│   │   ├── ai-config.js  # AI 调用配置：默认服务商 / 读取已绑定 Key（异步，读服务器）
 │   │   └── providers.js  # AI 服务商 / 模型 / Base URL 数据表
 │   └── styles/
 │       ├── theme.css     # 变量 + 通用（顶部栏 / 按钮 / 面板）
@@ -91,13 +93,15 @@ ielts-reader/
 
 - **新功能模块**：在 `src/` 下建独立目录/文件，从 `src/reader.js` 或 `src/home.js` 入口引入（设置相关拆进 `src/settings/` 对应子模块，不要往 `settings/menu.js` / `settings/ai.js` 里堆无关逻辑），主页卡片加在 `index.html` 的 `.home-grid` 里。
 - **新 API 代理**：在 `server.py` 的 `Handler` 里加一个 `handle_xxx` 方法，并在 `do_GET`/`do_POST` 中路由。
-- **新数据库接口**：数据表/读写逻辑加到 `db.py`，路由解析加到 `api_db.py`（`handle_get/post/delete`），不要在 `server.py` 里写业务逻辑。
+- **新数据库接口**：数据表/读写逻辑加到 `db.py`，路由解析加到 `api_db.py`（`handle_get/post/delete`），不要在 `server.py` 里写业务逻辑；涉及加密（如 Key）用 `secure.py`。
 - **版本**：每次改动在 `VERSION.md` 升版本（功能更新同步更新日志）。
 
 ## API Key 说明
 
-- 绑定后仅保存在本机浏览器 `localStorage`，不会上传。
+- **加密存储在服务器数据库**（`data/ielts.db` 的 `settings` 表，密文），主密钥在 `data/.secrets.key`（权限 600、自动生成、gitignore）。浏览器拿不到明文 Key，编辑时只显示掩码，保存掩码即保留原 Key。
+- 绑定一次，手机 / 平板等所有设备通用（阅读器的 AI 语境翻译 / 语法分析调用时由服务器从数据库读取 Key，前端不传 Key）。
 - 「测试连接」通过本地服务器 `server.py` 真实调用所选服务商，避免浏览器跨域限制。
+- 备份：`data/` 目录里 `ielts.db` 与 `.secrets.key` 要**一起备份**，否则重启/迁移后无法解密已绑定的 Key。
 
 ## 模块化约定（所有改动必须遵守）
 

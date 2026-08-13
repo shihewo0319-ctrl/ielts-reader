@@ -1,15 +1,17 @@
 /* ============ AI 设置：测试连接 ============
  * 「🔌 测试连接」按钮：真实调用本地 /api/ai_chat 验证所选服务商 Key。
  * 与 src/settings/ai.js 解耦：配置与思考模式通过 getConfig / getThinking 注入。
+ * v1.1.40 起 Key 加密存在服务器数据库，前端不发真实 Key（apiKey 留空，
+ * 后端 /api/ai_chat 会按 provider 从数据库读取）。
  */
 import { providerName } from '../lib/providers.js';
 
 export function bindTestButton({ test, result, getConfig, getThinking }) {
   test.addEventListener('click', () => {
     const c = getConfig();
-    if (!c.key || !c.model) {
+    if (!c.hasKey || !c.model) {
       result.className = 'apikey-test-result fail';
-      result.textContent = '❌ 请先保存模型（OpenAI 兼容格式还需 Base URL）';
+      result.textContent = '❌ 该服务商未绑定 Key 或未选择模型';
       return;
     }
     test.disabled = true;
@@ -22,7 +24,7 @@ export function bindTestButton({ test, result, getConfig, getThinking }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         provider: c.id,
-        apiKey: c.key,
+        apiKey: '',
         model: c.model,
         baseUrl: c.baseUrl || '',
         thinking: getThinking(),

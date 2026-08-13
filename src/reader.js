@@ -5,10 +5,12 @@ import { dictSourceKey, getDictSource } from './reader/dict.js';
 import { hidePopup, initWordLookup } from './reader/popup.js';
 import { initTts } from './reader/tts.js';
 import { getArticle, saveArticle } from './lib/db-api.js';
+import { initAiConfig } from './lib/ai-config.js';
 
 initTts();
 initUploadPanel();
 initWordLookup();
+initAiConfig(); // 预加载服务器 AI 设置（API Key / 思考模式），首次点击语境翻译更快
 
 /* 词典源选择器 */
 const dictSelect = $('dict-source');

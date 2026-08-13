@@ -1,66 +1,55 @@
 /* ============ AI 设置：思考模式 + API Key 绑定 + 测试连接 ============
  * 面板 HTML 由 src/settings/menu.js 的模板渲染，本模块负责全部业务：
- *   - 思考模式开关（localStorage: ieltsThinking）
- *   - API Key 绑定 / 修改 / 删除 / 设为默认（localStorage: ielts_api_keys）
- *   - 「测试连接」真实调用本地 /api/ai_chat 验证 Key
+ *   - 思考模式开关（存服务器 /api/settings，跨设备生效）
+ *   - API Key 绑定 / 修改 / 删除 / 设为默认（加密存服务器数据库 data/ielts.db）
+ *   - 「测试连接」真实调用本地 /api/ai_chat 验证 Key（Key 由服务器从数据库读取）
+ * 浏览器拿不到真实 Key，编辑时输入框只显示掩码 MASK，保存掩码表示保留原 Key。
  */
-import { getDefaultProvider, setDefaultProvider } from '../lib/ai-config.js';
-import { PROVIDERS, MODELS, DEFAULT_MODELS, BASE_URLS, providerName } from '../lib/providers.js';
+import { PROVIDERS, MODELS, BASE_URLS, providerName } from '../lib/providers.js';
+import { loadSettings, saveSettings, MASK } from '../lib/db-settings.js';
 import { bindTestButton } from './ai-test.js';
 
-const THINKING_KEY = 'ieltsThinking';
-const STORE_KEY = 'ielts_api_keys';
-const MASK = '••••••••';
 let editingProvider = null;
+let state = { keys: {}, defaultProvider: '', thinking: false };
+
+/* ===== 从服务器刷新状态（打开面板 / 每次保存后调用） ===== */
+async function refreshState() {
+  state = await loadSettings();
+}
 
 /* ===== 思考模式开关 ===== */
-function loadThinking() {
-  try { return localStorage.getItem(THINKING_KEY) === '1'; } catch (e) { return false; }
-}
-function saveThinking(v) {
-  try { localStorage.setItem(THINKING_KEY, v ? '1' : '0'); } catch (e) {}
+function syncThinkingToggle() {
+  const toggle = document.getElementById('thinkingToggle');
+  if (toggle) toggle.checked = state.thinking;
 }
 function wireThinkingToggle() {
   const toggle = document.getElementById('thinkingToggle');
   if (!toggle) return;
-  toggle.checked = loadThinking();
-  toggle.addEventListener('change', () => saveThinking(toggle.checked));
-}
-
-/* ===== API Key 存取（含旧数据迁移） ===== */
-function loadKeys() {
-  let keys = {};
-  try { keys = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { keys = {}; }
-  let changed = false;
-  Object.keys(keys).forEach((id) => {
-    const v = keys[id];
-    if (typeof v === 'string') {
-      keys[id] = { key: v, model: DEFAULT_MODELS[id] || '', baseUrl: '' };
-      changed = true;
-    } else if (!v || typeof v !== 'object') {
-      delete keys[id];
-      changed = true;
+  toggle.addEventListener('change', async () => {
+    const v = toggle.checked;
+    state.thinking = v;
+    try {
+      await saveSettings({ thinking: v });
+    } catch (e) {
+      toggle.checked = !v;
+      alert('保存失败：' + e.message);
     }
   });
-  // 旧 DeepSeek 模型名迁移：deepseek-chat / deepseek-reasoner 已于 2026-07-24 停用
-  if (keys.deepseek && keys.deepseek.model === 'deepseek-chat') {
-    keys.deepseek.model = 'deepseek-v4-flash';
-    changed = true;
-  } else if (keys.deepseek && keys.deepseek.model === 'deepseek-reasoner') {
-    keys.deepseek.model = 'deepseek-v4-flash';
-    changed = true;
-  }
-  if (changed) localStorage.setItem(STORE_KEY, JSON.stringify(keys));
-  return keys;
 }
-function storeKey(id, keyVal, model, baseUrl) {
-  const keys = loadKeys();
-  if (keyVal && keyVal !== MASK) {
-    keys[id] = { key: keyVal, model: model || '', baseUrl: baseUrl || '' };
-  } else {
-    delete keys[id];
-  }
-  localStorage.setItem(STORE_KEY, JSON.stringify(keys));
+
+/* ===== 把当前 state.keys（含 hasKey 标记）转成可提交的 POST 结构 =====
+ * 已绑定服务商一律填掩码 MASK，后端据此保留原 Key；overrides 用于覆盖本次表单改动。
+ */
+function postKeysFromState(overrides = {}) {
+  const keys = {};
+  Object.keys(state.keys).forEach((id) => {
+    const c = state.keys[id] || {};
+    keys[id] = { key: MASK, model: c.model || '', baseUrl: c.baseUrl || '' };
+  });
+  Object.keys(overrides).forEach((id) => {
+    keys[id] = overrides[id];
+  });
+  return keys;
 }
 
 /* ===== 表单渲染 ===== */
@@ -70,14 +59,14 @@ function renderProviderSelect(keys, current) {
   PROVIDERS.forEach((p) => {
     const opt = document.createElement('option');
     opt.value = p.id;
-    const bound = !!keys[p.id];
+    const bound = !!(keys[p.id] && keys[p.id].hasKey);
     opt.textContent = p.name + (bound ? '（已绑定）' : '');
     if (bound && p.id !== current) opt.disabled = true;
     sel.appendChild(opt);
   });
   if (current) sel.value = current;
   sel.onchange = () => {
-    const conf = loadKeys()[sel.value] || {};
+    const conf = state.keys[sel.value] || {};
     renderModelSelect(sel.value, conf.model || '');
     renderBaseUrl(sel.value, conf.baseUrl || '');
   };
@@ -123,11 +112,11 @@ function renderBaseUrl(provider, currentBaseUrl) {
 
 function openForm(id) {
   editingProvider = id || null;
-  const keys = loadKeys();
-  renderProviderSelect(keys, editingProvider);
-  const conf = id ? (keys[id] || {}) : {};
+  renderProviderSelect(state.keys, editingProvider);
+  const conf = id ? (state.keys[id] || {}) : {};
   const input = document.getElementById('apikeyInput');
-  input.value = id ? (conf.key || '') : '';
+  // 浏览器拿不到真实 Key，已绑定的只显示掩码
+  input.value = id && conf.hasKey ? MASK : '';
   input.type = 'password';
   renderModelSelect(id || 'openai', conf.model || '');
   renderBaseUrl(id || '', conf.baseUrl || '');
@@ -136,7 +125,7 @@ function openForm(id) {
 }
 
 function renderApiKeys() {
-  const keys = loadKeys();
+  const keys = state.keys;
   const bound = document.getElementById('apikeyBound');
   const empty = document.getElementById('apikeyEmpty');
   bound.innerHTML = '';
@@ -159,7 +148,7 @@ function renderApiKeys() {
     status.className = 'apikey-status bound';
     status.textContent = '已绑定';
     head.appendChild(name); head.appendChild(val); head.appendChild(status);
-    if (getDefaultProvider() === id) {
+    if (state.defaultProvider === id) {
       const badge = document.createElement('span');
       badge.className = 'apikey-default-badge';
       badge.textContent = '⭐ 默认';
@@ -182,12 +171,15 @@ function renderApiKeys() {
     del.title = '删除';
     const setDefault = document.createElement('button');
     setDefault.type = 'button';
-    setDefault.className = 'apikey-btn' + (getDefaultProvider() === id ? ' apikey-default-on' : '');
-    setDefault.textContent = getDefaultProvider() === id ? '✓ 默认' : '⭐ 设为默认';
+    setDefault.className = 'apikey-btn' + (state.defaultProvider === id ? ' apikey-default-on' : '');
+    setDefault.textContent = state.defaultProvider === id ? '✓ 默认' : '⭐ 设为默认';
     setDefault.title = '设为默认 API（阅读器 AI 语境翻译 / 语法分析默认使用）';
-    setDefault.disabled = getDefaultProvider() === id;
-    setDefault.addEventListener('click', () => {
-      setDefaultProvider(id);
+    setDefault.disabled = state.defaultProvider === id;
+    setDefault.addEventListener('click', async () => {
+      state.defaultProvider = id;
+      try {
+        await saveSettings({ defaultProvider: id });
+      } catch (e) { alert('保存失败：' + e.message); }
       renderApiKeys();
     });
     const test = document.createElement('button');
@@ -198,9 +190,14 @@ function renderApiKeys() {
     ops.appendChild(edit); ops.appendChild(del); ops.appendChild(setDefault); ops.appendChild(test);
 
     edit.addEventListener('click', () => openForm(id));
-    del.addEventListener('click', () => {
-      storeKey(id, '');
-      if (getDefaultProvider() === id) setDefaultProvider('');
+    del.addEventListener('click', async () => {
+      const keysMap = postKeysFromState();
+      delete keysMap[id];
+      const def = state.defaultProvider === id ? '' : state.defaultProvider;
+      try {
+        await saveSettings({ keys: keysMap, defaultProvider: def, thinking: state.thinking });
+        await refreshState();
+      } catch (e) { alert('删除失败：' + e.message); return; }
       if (editingProvider === id) { editingProvider = null; document.getElementById('apikeyForm').hidden = true; }
       renderApiKeys();
     });
@@ -208,10 +205,10 @@ function renderApiKeys() {
       test,
       result,
       getConfig: () => {
-        const conf = loadKeys()[id] || {};
-        return { id, key: conf.key || '', model: conf.model || '', baseUrl: conf.baseUrl || '' };
+        const c = state.keys[id] || {};
+        return { id, model: c.model || '', baseUrl: c.baseUrl || '', hasKey: !!c.hasKey };
       },
-      getThinking: () => loadThinking(),
+      getThinking: () => state.thinking,
     });
 
     item.appendChild(head); item.appendChild(meta); item.appendChild(ops); item.appendChild(result);
@@ -220,19 +217,23 @@ function renderApiKeys() {
   renderProviderSelect(keys, editingProvider);
 }
 
-/* 进入 AI 设置子面板时：收起表单并刷新已绑定列表 */
-export function openAiPanel() {
+/* 进入 AI 设置子面板时：收起表单并从服务器刷新已绑定列表 */
+export async function openAiPanel() {
   editingProvider = null;
   document.getElementById('apikeyForm').hidden = true;
+  try {
+    await refreshState();
+  } catch (e) { /* 服务器不可用时保留旧状态 */ }
+  syncThinkingToggle();
   renderApiKeys();
 }
 
-/* 初始化：接线思考模式开关 + API Key 表单 */
+/* 初始化：接线思考模式开关 + API Key 表单 + 首次加载服务器数据 */
 export function initAiSettings() {
   wireThinkingToggle();
   document.getElementById('apikeyAdd').addEventListener('click', () => {
     editingProvider = null;
-    renderProviderSelect(loadKeys(), null);
+    renderProviderSelect(state.keys, null);
     const input = document.getElementById('apikeyInput');
     input.value = '';
     input.type = 'password';
@@ -245,7 +246,7 @@ export function initAiSettings() {
     const input = document.getElementById('apikeyInput');
     input.type = (input.type === 'text') ? 'password' : 'text';
   });
-  document.getElementById('apikeySave').addEventListener('click', () => {
+  document.getElementById('apikeySave').addEventListener('click', async () => {
     const id = document.getElementById('apikeyProvider').value;
     const keyVal = document.getElementById('apikeyInput').value.trim();
     if (!keyVal) { document.getElementById('apikeyInput').focus(); return; }
@@ -258,9 +259,16 @@ export function initAiSettings() {
       document.getElementById('apikeyBaseUrl').focus();
       return;
     }
-    const prev = (loadKeys()[id] || {}).key || '';
-    const finalKey = (keyVal === MASK) ? prev : keyVal;
-    storeKey(id, finalKey, model, baseUrl);
+    const finalKey = (keyVal === MASK) ? MASK : keyVal;
+    const keysMap = postKeysFromState();
+    keysMap[id] = { key: finalKey, model, baseUrl };
+    try {
+      await saveSettings({ keys: keysMap, defaultProvider: state.defaultProvider, thinking: state.thinking });
+      await refreshState();
+    } catch (e) {
+      alert('保存失败：' + e.message);
+      return;
+    }
     editingProvider = null;
     document.getElementById('apikeyForm').hidden = true;
     renderApiKeys();
@@ -270,4 +278,8 @@ export function initAiSettings() {
     document.getElementById('apikeyForm').hidden = true;
     renderApiKeys();
   });
+  // 首次加载服务器数据（后台异步，成功后渲染列表）
+  refreshState()
+    .then(() => { syncThinkingToggle(); renderApiKeys(); })
+    .catch(() => { renderApiKeys(); });
 }

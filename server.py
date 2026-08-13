@@ -212,8 +212,24 @@ class Handler(SimpleHTTPRequestHandler):
         base_url = str(data.get('baseUrl') or '').strip()
         message = str(data.get('message') or '').strip()
         thinking = bool(data.get('thinking'))  # 思考模式开关（前端全局设置）
-        if not provider or not api_key or not model or not message:
-            self.send_json({'ok': False, 'error': '缺少 provider / apiKey / model / message'})
+        # 未传 Key（或传的是掩码）时：从服务器数据库读取已绑定 Key，实现跨设备生效
+        if not api_key or api_key == '••••••••':
+            cred = api_db.get_ai_credentials(provider or None)
+            if cred:
+                provider = cred['provider']
+                api_key = cred['key']
+                if not model:
+                    model = cred['model']
+                if not base_url:
+                    base_url = cred['baseUrl']
+        if not provider or not api_key:
+            self.send_json({'ok': False, 'error': '未绑定 API Key，请先到主页右上角「设置 → AI 设置」添加并保存'})
+            return
+        if not model:
+            self.send_json({'ok': False, 'error': '该服务商未选择模型，请到「AI 设置」中修改'})
+            return
+        if not message:
+            self.send_json({'ok': False, 'error': '缺少 message'})
             return
         ENDPOINTS = {
             'openai': 'https://api.openai.com/v1',

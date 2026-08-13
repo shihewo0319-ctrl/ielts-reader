@@ -2,7 +2,7 @@
 """IELTS 学习台 数据层（SQLite）
 - 负责建表与所有增删查操作，供 server.py 的 /api/* 路由调用
 - 数据库文件：data/ielts.db（data/ 已 gitignore，不进入版本库）
-- 表：articles 文章库 / words 生词本 / lookups 学习记录
+- 表：articles 文章库 / words 生词本 / lookups 学习记录 / settings 键值设置（API Key 等）
 """
 import json
 import os
@@ -32,6 +32,10 @@ CREATE TABLE IF NOT EXISTS lookups (
   sentence      TEXT NOT NULL DEFAULT '',
   article_title TEXT NOT NULL DEFAULT '',
   created_at    TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT ''
 );
 """
 
@@ -185,5 +189,37 @@ if __name__ == '__main__':
             "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")]
         print('数据库已初始化：', DB_PATH)
         print('表：', ', '.join(tables))
+    finally:
+        conn.close()
+
+# ============ 设置 settings（键值对，用于加密后的 API Key 等） ============
+def get_setting(key):
+    """读取设置项；不存在返回 ''"""
+    conn = get_conn()
+    try:
+        row = conn.execute('SELECT value FROM settings WHERE key = ?', (key,)).fetchone()
+        return row['value'] if row else ''
+    finally:
+        conn.close()
+
+
+def set_setting(key, value):
+    """写入设置项（存在则覆盖）"""
+    conn = get_conn()
+    try:
+        conn.execute(
+            'INSERT INTO settings (key, value) VALUES (?, ?)'
+            ' ON CONFLICT(key) DO UPDATE SET value=excluded.value',
+            (key, str(value)))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def delete_setting(key):
+    conn = get_conn()
+    try:
+        conn.execute('DELETE FROM settings WHERE key = ?', (key,))
+        conn.commit()
     finally:
         conn.close()

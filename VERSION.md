@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.42**
+- 当前版本：**1.1.43**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -9,14 +9,23 @@
 - **功能更新**（新增功能、更换实现方式、功能增强等）：升版本号后，必须在下方「更新日志」里新增一条，写明版本号和更新内容
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
-## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.42`
-2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
+## 每次改版本时需要同步的位置（index.html / reader.html / library.html / wordbook.html）
+1. 四个页面标题旁的版本徽章：`v1.1.43`（index.html / reader.html / library.html / wordbook.html）
+2. 页面的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.43 模块化重构（数据库迁移机制 + 后端/前端拆分，功能不变）
+- **数据库层**（db.py 207 行）：新增 `PRAGMA user_version` 逐级迁移机制（SCHEMA_V1 四张表 → SCHEMA_V2：`lookups.article_id` 列 + 4 个索引），全部读写统一走 `with cursor()` 上下文管理器（自动提交/回滚/关闭），删除手写 get_conn；数据文件自动迁移，旧数据完好
+- **后端拆分**：新增 `config.py`（端口/目录/超时集中管理）、`providers.py`（服务商端点表，与前端 providers.js 保持一致）、`proxy.py`（有道词典 + AI chat 代理，172 行）、`settings_store.py`（AI 设置加密存储，128 行）
+- **server.py 精简到 143 行**：改为前缀路由表（PROXY_GET / PROXY_POST）+ api_db 分发，`send_json` 加固（BrokenPipeError 静默）；**api_db.py 精简到 127 行**：只做路由解析，SQL 全在 db.py，AI 设置转 settings_store
+- **前端请求统一**：`lib/api.js` 新增 `postJson` / `deleteJson`（统一校验 ok、抛带 status 的 Error），db-api / db-settings / reader/ai / ai-test 全部改用统一封装
+- **AI 设置拆四文件**：`settings/ai-state.js`（共享状态）+ `ai-form.js`（表单渲染）+ `ai-list.js`（已绑定列表）+ `ai.js`（77 行，只做编排）；删除 `PROVIDER_NAMES` 重复表（统一用 lib/providers.js 的 `providerName`）
+- **修复**：① 默认服务商被清空（只改思考模式时误写空 defaultProvider，现改为仅显式提交才写）；② 新增表单 Base URL 不自动回填（openForm 传空 id 的问题）；③ 词典代理丢 query 导致 empty word；④ 客户端提前断开时报 BrokenPipeError
+- 阅读器弹窗点词时 `lookups` 记录新增 `article_id` 字段（从文章库打开时带上文章 id）
 
 ## v1.1.42 修复：API Key 双重加密导致 AI 调用 401
 - 修复：v1.1.40/41 保存 Key 时误加密了两次（内层先加密一次、外层又加密整个 JSON 一次），读取时只解密外层，导致发给服务商的是**密文**而非真实 Key，语境翻译 / 语法分析报 `HTTP 401 Invalid API key`

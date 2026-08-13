@@ -4,15 +4,8 @@
  * 同一单词 + 同一句子只请求一次（内存缓存），避免重复消耗 token。
  */
 import { getDefaultAiConfig } from '../lib/ai-config.js';
+import { postJson } from '../lib/api.js';
 import { escapeHtml } from '../lib/dom.js';
-
-export const PROVIDER_NAMES = {
-  go: 'OpenCode Go',
-  opencode: 'OpenCode Zen',
-  deepseek: 'DeepSeek',
-  openai: 'OpenAI',
-  'openai-compatible': 'OpenAI 兼容',
-};
 
 const successCache = new Map(); // key -> { ok:true, content, provider }（当前页面内存缓存，刷新即清空）
 
@@ -63,29 +56,24 @@ export async function fetchAi(kind, word, sentence) {
 
   try {
     // apiKey 留空：v1.1.40 起 Key 加密存服务器数据库，后端按 provider 自动读取
-    const resp = await fetch('/api/ai_chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        provider: cfg.provider,
-        apiKey: '',
-        model: cfg.model,
-        baseUrl: cfg.baseUrl || '',
-        thinking,
-        message: buildPrompt(kind, word, sentence),
-      }),
-    });
-    const res = await resp.json();
+    const res = await postJson('/api/ai_chat', {
+      provider: cfg.provider,
+      apiKey: '',
+      model: cfg.model,
+      baseUrl: cfg.baseUrl || '',
+      thinking,
+      message: buildPrompt(kind, word, sentence),
+    }, 120000);
     if (res.ok) {
       const out = { ok: true, content: res.content || '', provider: cfg.provider };
       successCache.set(key, out);
       return out;
     }
-    let msg = String(res.error || '未知错误');
-    if (res.status) msg = 'HTTP ' + res.status + ' ' + msg;
-    return { ok: false, error: msg };
+    return { ok: false, error: String(res.error || '未知错误') };
   } catch (err) {
-    return { ok: false, error: '无法连接本地服务：' + err.message };
+    const msg = String(err.message || err);
+    if (err.status) return { ok: false, error: (err.status > 0 ? 'HTTP ' + err.status + ' ' : '') + msg };
+    return { ok: false, error: '无法连接本地服务：' + msg };
   }
 }
 

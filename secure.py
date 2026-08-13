@@ -4,12 +4,14 @@
 - 主密钥保存在 data/.secrets.key（权限 600，首次启动自动生成，data/ 已 gitignore）
 - 服务器重启后密钥不变，已加密的 API Key 仍可解密（单用户本地场景）
 - db.py 只负责存取密文，不接触加密细节；本模块负责加解密
+- 目录常量来自 config.py
 """
 import os
 
 from cryptography.fernet import Fernet
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+from config import DATA_DIR
+
 KEY_FILE = os.path.join(DATA_DIR, '.secrets.key')
 
 

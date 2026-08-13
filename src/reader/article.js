@@ -5,10 +5,12 @@ import { hidePopup } from './popup.js';
 
 let articleText = '';          // 当前文章纯文本
 let articleTitle = '阅读文章';   // 当前文章标题
+let articleId = null;            // 当前文章在文章库中的 id（未保存 / 粘贴 / 示例为 null）
 
-export function loadArticle(text, title = '阅读文章') {
+export function loadArticle(text, title = '阅读文章', id = null) {
   articleText = text;
   articleTitle = title;
+  articleId = id;
   $('article-title').textContent = title;
   renderArticle();
   $('upload-panel').classList.add('hidden');
@@ -16,9 +18,9 @@ export function loadArticle(text, title = '阅读文章') {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 供保存文章 / 学习记录使用（返回当前文章的文本与标题）
+// 供保存文章 / 学习记录使用（返回当前文章的文本 / 标题 / 文章库 id）
 export function getCurrentArticle() {
-  return { text: articleText, title: articleTitle };
+  return { text: articleText, title: articleTitle, id: articleId };
 }
 
 export function renderArticle() {

@@ -4,7 +4,8 @@
 import { $, escapeHtml } from '../lib/dom.js';
 import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml } from './dict.js';
 import { speakWord, loadPhonetics } from './tts.js';
-import { fetchAi, PROVIDER_NAMES, buildAiContentHtml, parseGrammarJson } from './ai.js';
+import { fetchAi, buildAiContentHtml, parseGrammarJson } from './ai.js';
+import { providerName } from '../lib/providers.js';
 import { renderGrammarChunks, highlightWord } from './grammar.js';
 import { addWord, addLookup } from '../lib/db-api.js';
 import { getCurrentArticle } from './article.js';
@@ -146,7 +147,7 @@ async function loadAiPane(pane, kind, ai) {
     box.innerHTML = '';
     const meta = document.createElement('div');
     meta.className = 'ai-meta';
-    meta.textContent = '由 ' + (PROVIDER_NAMES[res.provider] || res.provider) + ' 生成 · 同一单词同一句子只请求一次';
+    meta.textContent = '由 ' + providerName(res.provider) + ' 生成 · 同一单词同一句子只请求一次';
     box.appendChild(meta);
     if (kind === 'grammar') {
       const parsed = parseGrammarJson(res.content);
@@ -203,7 +204,8 @@ export function initWordLookup() {
     const word = span.dataset.word;
     const aiCtx = { word, sentence: sentenceOf(span) };
     // 自动记录一次查词（写入学习记录，失败静默忽略）
-    addLookup(word, aiCtx.sentence, getCurrentArticle().title);
+    const cur = getCurrentArticle();
+    addLookup(word, aiCtx.sentence, cur.title, cur.id);
     showPopupAt(span.getBoundingClientRect(), '<div class="popup-error">查询中…</div>', word, aiCtx);
     const [entry, zh, examples] = await Promise.all([
       lookupWord(word).catch(err => ({ error: err })),

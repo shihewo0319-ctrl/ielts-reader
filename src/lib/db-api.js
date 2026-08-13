@@ -1,28 +1,9 @@
 /* ============ 数据库 API 封装（文章库 / 生词本 / 学习记录） ============
  * 对应后端 /api/articles、/api/words、/api/lookups（见 server.py + api_db.py + db.py）。
- * 前端统一从这里读写 SQLite 数据，页面组件不直接 fetch。
+ * 前端统一从这里读写 SQLite 数据，页面组件不直接 fetch；
+ * 请求封装统一走 lib/api.js（fetchJson / postJson / deleteJson）。
  */
-import { fetchJson } from './api.js';
-
-async function postJson(url, body) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || '请求失败');
-  return data;
-}
-
-async function deleteJson(url) {
-  const res = await fetch(url, { method: 'DELETE' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || '请求失败');
-  return data;
-}
+import { fetchJson, postJson, deleteJson } from './api.js';
 
 /* ===== 文章库 ===== */
 export async function listArticles() {
@@ -69,10 +50,15 @@ export async function listLookups(limit = 100) {
   return res.lookups || [];
 }
 
-export async function addLookup(word, sentence = '', articleTitle = '') {
+export async function addLookup(word, sentence = '', articleTitle = '', articleId = null) {
   // 记录失败不打断查词流程，静默忽略
   try {
-    await postJson('/api/lookups', { word, sentence, article_title: articleTitle });
+    await postJson('/api/lookups', {
+      word,
+      sentence,
+      article_title: articleTitle,
+      article_id: articleId,
+    });
   } catch (e) { /* ignore */ }
 }
 

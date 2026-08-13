@@ -34,7 +34,7 @@ if (dictSelect) {
   if (!id) return;
   try {
     const article = await getArticle(id);
-    if (article) loadArticle(article.content, article.title);
+    if (article) loadArticle(article.content, article.title, article.id);
   } catch (e) {
     alert('打开文章失败：' + e.message);
   }

@@ -102,7 +102,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  margin-top: 2px;
 }
 .dict-result .popup-word .popup-phonetic {
   display: inline-flex;
@@ -134,11 +133,11 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.4;
   color: #3a2b1e;
   background: #fff3d6;
   border: 2px solid #3a2b1e;
   border-radius: 0;
-  box-shadow: 2px 2px 0 #3a2b1e;
   padding: 2px 10px;
   cursor: pointer;
   transition: background .15s;
@@ -148,7 +147,6 @@
   background: #ffe08a;
   color: #2a6f2a;
   cursor: default;
-  box-shadow: none;
 }
 .dict-result .popup-phonetic { color: #3a2b1e; font-size: 14px; margin: 2px 0 10px; font-weight: 600; }
 .dict-result .popup-meanings { font-size: 14px; color: #3a2b1e; }

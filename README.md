@@ -1,6 +1,6 @@
 # IELTS 学习台（ielts-reader）
 
-雅思阅读学习工具：上传阅读文章，点击任意单词即可查看**英文释义、音标、中文释义、双语例句**，支持选中词组查询、英/美音发音。
+雅思阅读学习工具：上传阅读文章，点击任意单词即可查看**英文释义、音标、中文释义、双语例句**，支持选中词组查询、英/美音发音；内置 **SQLite 数据库**，支持「我的文章」「生词本 / 学习记录」的保存与跨设备同步。
 
 ## 快速开始
 
@@ -10,6 +10,14 @@ python3 server.py          # 默认端口 8123
 ```
 
 零依赖即可运行：前端使用原生 ES Modules，由本地 Python 服务器直接提供静态文件。
+
+### 本地数据库（SQLite）
+
+- 数据文件：`data/ielts.db`（首次启动 `server.py` 自动建表；`data/` 已加入 `.gitignore`，不进入版本库）
+- 三张表：`articles` 文章库（同标题保存自动覆盖）、`words` 生词本（同词覆盖句子/备注）、`lookups` 学习记录（查词自动记录）
+- 页面入口：主页「📚 我的文章」→ `library.html`；「📒 生词本」→ `wordbook.html`；阅读器「💾 保存文章」「⭐ 加入生词本」
+- 数据保存在**运行服务器的那台电脑**上；手机等设备通过 Tailscale 访问同一服务器即实现跨设备同步
+- 备份：直接复制 `data/ielts.db` 即可（如需彻底备份可先停服务或用 `sqlite3 .backup`）
 
 ### IPv6 公网访问
 
@@ -40,6 +48,12 @@ python3 server.py 8123 --prod   # 部署：服务 dist/ 构建产物
 ielts-reader/
 ├── index.html            # 主页（Vite 入口 1）
 ├── reader.html           # 阅读器（Vite 入口 2）
+├── library.html          # 我的文章（Vite 入口 3）
+├── wordbook.html         # 生词本 / 学习记录（Vite 入口 4）
+├── server.py             # 本地服务器 + API 代理（有道/词典/AI/数据库路由）
+├── api_db.py             # 数据库 API 路由（/api/articles /api/words /api/lookups）
+├── db.py                 # SQLite 数据层（建表 + 文章/生词/学习记录 CRUD）
+├── data/                 # 本地数据库目录（gitignore，不进入版本库）
 ├── src/
 │   ├── home.js           # 主页入口（卡片跳转逻辑 + 名言渲染）
 │   ├── settings.js       # 设置入口：渲染菜单 HTML 并装配子模块
@@ -55,16 +69,20 @@ ielts-reader/
 │   │   ├── grammar.js    # 语法分析渲染（Enpuz 式词块 / 图例 / 单词高亮）
 │   │   ├── tts.js        # 单词发音 / 音标
 │   │   └── sample.js     # 示例文章
+│   ├── library.js        # 我的文章页（列表 / 阅读 / 删除）
+│   ├── wordbook.js       # 生词本 / 学习记录页
 │   ├── lib/
 │   │   ├── dom.js        # 通用 DOM / 字符串工具
 │   │   ├── api.js        # 带超时的 JSON 请求封装
+│   │   ├── db-api.js     # 数据库 API 封装（文章库 / 生词本 / 学习记录）
 │   │   ├── ai-config.js  # AI 调用配置：默认服务商 / 读取已绑定 Key
 │   │   └── providers.js  # AI 服务商 / 模型 / Base URL 数据表
 │   └── styles/
 │       ├── theme.css     # 变量 + 通用（顶部栏 / 按钮 / 面板）
 │       ├── home.css      # 主页 + 设置菜单 + API Key
-│       └── reader.css    # 阅读器 + 弹窗 + 音标
-├── server.py             # 本地服务器 + API 代理（有道/词典/AI）
+│       ├── reader.css    # 阅读器 + 弹窗 + 音标
+│       ├── library.css   # 我的文章页
+│       └── wordbook.css  # 生词本 / 学习记录页
 ├── package.json          # Vite 工程化配置（可选）
 └── vite.config.js
 ```
@@ -73,6 +91,7 @@ ielts-reader/
 
 - **新功能模块**：在 `src/` 下建独立目录/文件，从 `src/reader.js` 或 `src/home.js` 入口引入（设置相关拆进 `src/settings/` 对应子模块，不要往 `settings/menu.js` / `settings/ai.js` 里堆无关逻辑），主页卡片加在 `index.html` 的 `.home-grid` 里。
 - **新 API 代理**：在 `server.py` 的 `Handler` 里加一个 `handle_xxx` 方法，并在 `do_GET`/`do_POST` 中路由。
+- **新数据库接口**：数据表/读写逻辑加到 `db.py`，路由解析加到 `api_db.py`（`handle_get/post/delete`），不要在 `server.py` 里写业务逻辑。
 - **版本**：每次改动在 `VERSION.md` 升版本（功能更新同步更新日志）。
 
 ## API Key 说明

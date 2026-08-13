@@ -4,14 +4,21 @@ import { SAMPLE_ARTICLE } from './sample.js';
 import { hidePopup } from './popup.js';
 
 let articleText = '';          // 当前文章纯文本
+let articleTitle = '阅读文章';   // 当前文章标题
 
 export function loadArticle(text, title = '阅读文章') {
   articleText = text;
+  articleTitle = title;
   $('article-title').textContent = title;
   renderArticle();
   $('upload-panel').classList.add('hidden');
   $('article-panel').classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 供保存文章 / 学习记录使用（返回当前文章的文本与标题）
+export function getCurrentArticle() {
+  return { text: articleText, title: articleTitle };
 }
 
 export function renderArticle() {

@@ -6,6 +6,8 @@ import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml } from './dic
 import { speakWord, loadPhonetics } from './tts.js';
 import { fetchAi, PROVIDER_NAMES, buildAiContentHtml, parseGrammarJson } from './ai.js';
 import { renderGrammarChunks, highlightWord } from './grammar.js';
+import { addWord, addLookup } from '../lib/db-api.js';
+import { getCurrentArticle } from './article.js';
 
 let lastAnchor = null;
 
@@ -50,6 +52,26 @@ export function showPopupAt(anchorRect, contentHtml, title, ai) {
     fallbackBtn.addEventListener('click', (e) => { e.stopPropagation(); speakWord(title, 'us'); });
     chips.appendChild(fallbackBtn);
     w.appendChild(chips);
+    // 加入生词本按钮（点击后把单词 + 所在句子收藏进生词本）
+    const wbBtn = document.createElement('button');
+    wbBtn.className = 'popup-wordbook';
+    wbBtn.textContent = '⭐ 加入生词本';
+    wbBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const sentence = (ai && ai.sentence) || '';
+      wbBtn.disabled = true;
+      try {
+        await addWord(title, sentence, '');
+        wbBtn.textContent = '✅ 已加入生词本';
+      } catch (err) {
+        wbBtn.textContent = '❌ 加入失败';
+        setTimeout(() => {
+          wbBtn.textContent = '⭐ 加入生词本';
+          wbBtn.disabled = false;
+        }, 1500);
+      }
+    });
+    w.appendChild(wbBtn);
     popup.appendChild(w);
     loadPhonetics(title, chips);
   }
@@ -180,6 +202,8 @@ export function initWordLookup() {
     e.stopPropagation();
     const word = span.dataset.word;
     const aiCtx = { word, sentence: sentenceOf(span) };
+    // 自动记录一次查词（写入学习记录，失败静默忽略）
+    addLookup(word, aiCtx.sentence, getCurrentArticle().title);
     showPopupAt(span.getBoundingClientRect(), '<div class="popup-error">查询中…</div>', word, aiCtx);
     const [entry, zh, examples] = await Promise.all([
       lookupWord(word).catch(err => ({ error: err })),

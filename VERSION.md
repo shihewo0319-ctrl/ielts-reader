@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.38**
+- 当前版本：**1.1.39**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,26 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.38`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.39`
 2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.39 数据库整合（SQLite：文章库 / 生词本 / 学习记录）
+- 新增本地 SQLite 数据库 `data/ielts.db`（`data/` 已加入 .gitignore，不进入版本库），三张表：`articles` 文章库、`words` 生词本、`lookups` 学习记录；数据读写统一走 `db.py`（新建，数据层）
+- 后端新增数据库 API 路由（`api_db.py` 新建，`server.py` 增加 `do_DELETE` 与路由分发）：
+  - `/api/articles`：GET 列表/详情、POST 保存（同标题覆盖）、DELETE 删除
+  - `/api/words`：GET 列表、POST 加入生词本（同词覆盖句子/备注）、DELETE 删除
+  - `/api/lookups`：GET 最近记录、POST 记录一次查词、DELETE 清空记录
+- 新增页面「📚 我的文章」（`library.html`）：保存的文章列表，可阅读 / 删除 / 新建；阅读器顶部新增「💾 保存文章」按钮，同标题再次保存自动覆盖更新
+- 新增页面「📒 生词本」（`wordbook.html`）：⭐ 生词本（收藏单词，阅读时点弹窗里的「⭐ 加入生词本」）+ 🕘 学习记录（点击单词查词自动记录，可清空）
+- 主页新增「我的文章」「生词本」两张功能卡片；阅读器支持 `reader.html?article=<id>` 从文章库直接打开
+- 前端新增 `src/lib/db-api.js`（数据库 API 封装），`vite.config.js` 增加 library / wordbook 两个多页入口
+- 数据保存在运行服务器的那台电脑上；通过 Tailscale 访问同一服务器即实现跨设备同步
+
 
 ## v1.1.36 支持 IPv6 公网访问
 - server.py 默认改为 IPv6 双栈绑定（`::`），IPv4/IPv6 同时可访问；可用 `--host <地址>` 指定绑定地址

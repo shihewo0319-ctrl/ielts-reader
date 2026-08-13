@@ -1,0 +1,112 @@
+/* ============ 生词本 / 学习记录页 ============ */
+main { max-width: 860px; }
+
+.page-title { font-size: 20px; color: #e63946; margin-bottom: 14px; }
+
+/* 标签页 */
+.wb-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 3px solid #3a2b1e;
+  margin-bottom: 16px;
+}
+.wb-tab {
+  background: #fffdf0;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #3a2b1e;
+  color: #3a2b1e;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 16px;
+  cursor: pointer;
+  margin-bottom: -3px;
+  border-bottom: none;
+}
+.wb-tab:hover { background: #fdf0d5; }
+.wb-tab.active { background: #f4a261; color: #3a2b1e; }
+
+.wb-pane { min-height: 120px; }
+
+/* 生词条目 */
+.wb-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border: 2px solid #3a2b1e;
+  background: #fff;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.wb-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+.wb-word {
+  font-size: 17px;
+  font-weight: 800;
+  color: #e63946;
+}
+.wb-time {
+  font-size: 11px;
+  color: #a05c22;
+  white-space: nowrap;
+}
+.wb-item-body { margin: 6px 0 0; min-width: 0; }
+.wb-sentence {
+  font-size: 14px;
+  color: #3a2b1e;
+  line-height: 1.6;
+  border-left: 3px solid #f4a261;
+  padding-left: 10px;
+}
+.wb-note {
+  font-size: 13px;
+  color: #a05c22;
+  margin-top: 4px;
+}
+
+/* 学习记录 */
+.lookup-list { display: flex; flex-direction: column; gap: 10px; }
+.lookup-list .btn { align-self: flex-end; }
+.lookup-item {
+  border: 2px solid #3a2b1e;
+  background: #fff;
+  padding: 10px 12px;
+}
+.lookup-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* 危险按钮 */
+.btn-danger {
+  background: #e63946;
+  color: #fff;
+  border-color: #3a2b1e;
+}
+.btn-danger:hover { background: #c1272d; color: #fff; }
+
+.loading { color: #a05c22; font-size: 14px; padding: 12px 0; }
+.empty-state {
+  color: #a05c22;
+  font-size: 14px;
+  border: 2px dashed #a05c22;
+  padding: 20px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .wb-item { flex-direction: column; align-items: flex-start; }
+  .wb-item-head { width: 100%; }
+  .wb-item > .btn { align-self: flex-end; }
+  .lookup-item-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+}

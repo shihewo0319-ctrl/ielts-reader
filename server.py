@@ -12,6 +12,7 @@ import sys
 import urllib.parse
 import urllib.error
 import urllib.request
+import api_db
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -72,11 +73,30 @@ class Handler(SimpleHTTPRequestHandler):
         elif self.path.startswith('/api/sentences'):
             self.handle_sentences()
         else:
-            super().do_GET()
+            parsed = urllib.parse.urlparse(self.path)
+            payload = api_db.handle_get(parsed.path, urllib.parse.parse_qs(parsed.query))
+            if payload is not None:
+                self.send_json(payload)
+            else:
+                super().do_GET()
 
     def do_POST(self):
         if self.path.startswith('/api/ai_chat'):
             self.handle_ai_chat()
+            return
+        parsed = urllib.parse.urlparse(self.path)
+        payload = api_db.handle_post(parsed.path, urllib.parse.parse_qs(parsed.query),
+                                     api_db.read_body(self))
+        if payload is not None:
+            self.send_json(payload)
+        else:
+            self.send_error(404)
+
+    def do_DELETE(self):
+        parsed = urllib.parse.urlparse(self.path)
+        payload = api_db.handle_delete(parsed.path, urllib.parse.parse_qs(parsed.query))
+        if payload is not None:
+            self.send_json(payload)
         else:
             self.send_error(404)
 

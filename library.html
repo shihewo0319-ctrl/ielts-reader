@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+  <title>IELTS 学习台 · 我的文章</title>
+  <link rel="stylesheet" href="/src/styles/theme.css">
+  <link rel="stylesheet" href="/src/styles/library.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.39</span></h1>
+    <div class="topbar-actions">
+      <a class="btn" href="reader.html">＋ 新建文章</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2 class="page-title">📚 我的文章</h2>
+      <p class="page-hint">在阅读器中点击「💾 保存文章」即可存入这里；同一标题再次保存会覆盖更新。</p>
+      <div id="article-list" class="article-list"></div>
+      <div id="empty-state" class="empty-state hidden">还没有保存过文章，去阅读器里保存一篇吧 → <a href="reader.html">去阅读</a></div>
+    </section>
+  </main>
+
+<script type="module" src="/src/library.js"></script>
+</body>
+</html>

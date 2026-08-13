@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.5**
+- 当前版本：**1.1.6**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,17 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.5`
-2. index.html / reader.html 的 `style.css?v=1.1.5`
-3. reader.html 的 `app.js?v=1.1.5`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.6`
+2. index.html / reader.html 的 `style.css?v=1.1.6`
+3. reader.html 的 `app.js?v=1.1.6`
 
 ---
 
 # 更新日志
+
+## v1.1.6 Base URL 自动填写
+- 添加 API Key 时，已知服务商（OpenAI / DeepSeek / OpenCode Zen / OpenCode Go）的 Base URL 自动填写官方端点并设为只读，无需手动输入
+- OpenAI 兼容格式仍由用户手动填写 Base URL；服务端优先使用前端传入的 Base URL，缺失时回退到官方端点
 
 ## v1.1.5 API Key 真实调用
 - 新增本地代理接口 /api/ai_chat：绑定 API Key 后通过本地服务器真实调用所选服务商，解决浏览器跨域限制

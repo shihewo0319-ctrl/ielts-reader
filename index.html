@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <title>IELTS 学习台</title>
-  <link rel="stylesheet" href="style.css?v=1.1.5">
+  <link rel="stylesheet" href="style.css?v=1.1.6">
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.5</span></h1>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.6</span></h1>
     <div class="topbar-actions">
       <div class="settings-wrap">
         <button class="settings-btn" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
@@ -26,7 +26,7 @@
             </div>
             <div class="settings-body">
               <div class="settings-section">API Key 绑定</div>
-              <p class="settings-hint">点击「添加 API KEY」，选择服务商、模型并填写密钥。绑定后可用「测试连接」真实调用该服务商验证 Key。密钥仅保存在本机浏览器。</p>
+              <p class="settings-hint">点击「添加 API KEY」，选择服务商、模型并填写密钥（已知服务商的 Base URL 会自动填写）。绑定后可用「测试连接」真实调用该服务商验证 Key。密钥仅保存在本机浏览器。</p>
               <div class="apikey-bound" id="apikeyBound"></div>
               <div class="apikey-empty" id="apikeyEmpty" hidden>尚未绑定任何 API Key</div>
               <button class="apikey-btn apikey-add" id="apikeyAdd" type="button">＋ 添加 API KEY</button>
@@ -41,7 +41,7 @@
                   <input type="text" class="apikey-input" id="apikeyModelCustom" placeholder="输入模型名，如 gpt-4o-mini" hidden>
                 </div>
                 <div class="apikey-row" id="apikeyBaseUrlRow" hidden>
-                  <input type="text" class="apikey-input" id="apikeyBaseUrl" placeholder="Base URL（OpenAI 兼容格式必填），如 https://api.xxx.com/v1">
+                  <input type="text" class="apikey-input" id="apikeyBaseUrl" placeholder="Base URL（OpenAI 兼容格式必填），如 https://api.xxx.com/v1" autocomplete="off">
                 </div>
                 <div class="apikey-row apikey-form-btns">
                   <button class="apikey-btn apikey-save" id="apikeySave" type="button">保存</button>
@@ -115,6 +115,13 @@
       deepseek: 'deepseek-chat',
       opencode: 'glm-5',
       go: 'glm-5'
+    };
+    var BASE_URLS = {
+      openai: 'https://api.openai.com/v1',
+      'openai-compatible': '',
+      deepseek: 'https://api.deepseek.com/v1',
+      opencode: 'https://opencode.ai/zen/v1',
+      go: 'https://opencode.ai/zen/go/v1'
     };
     var STORE_KEY = 'ielts_api_keys';
     var MASK = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022';
@@ -197,8 +204,12 @@
     function renderBaseUrl(provider, currentBaseUrl) {
       var row = document.getElementById('apikeyBaseUrlRow');
       var input = document.getElementById('apikeyBaseUrl');
-      row.hidden = provider !== 'openai-compatible';
-      input.value = currentBaseUrl || '';
+      var auto = BASE_URLS[provider] || '';
+      row.hidden = false;
+      input.value = currentBaseUrl || auto;
+      input.readOnly = !!auto;
+      input.placeholder = auto ? '' : 'Base URL（OpenAI 兼容格式必填），如 https://api.xxx.com/v1';
+      input.title = auto ? '该服务商官方端点已自动填写' : 'OpenAI 兼容格式需要填写你的 Base URL';
     }
     function openForm(id) {
       editingProvider = id || null;
@@ -212,6 +223,9 @@
       renderBaseUrl(id || '', conf.baseUrl || '');
       document.getElementById('apikeyForm').hidden = false;
       input.focus();
+    }
+    function effectiveBaseUrl(provider, stored) {
+      return (stored && stored.baseUrl) ? stored.baseUrl : (BASE_URLS[provider] || '');
     }
     function renderApiKeys() {
       var keys = loadKeys();

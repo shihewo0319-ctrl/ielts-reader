@@ -458,7 +458,7 @@ main {
 .apikey-save { background: #e63946; color: #fff; }
 .apikey-save:hover { background: #c1272d; }
 
-/* API Key 绑定（手动添加方式 v1.1.5，含模型/Base URL/测试连接） */
+/* API Key 绑定（手动添加方式 v1.1.6，含模型/Base URL/测试连接） */
 .apikey-add {
   display: block;
   width: 100%;
@@ -532,6 +532,7 @@ main {
 
 .apikey-model-row { align-items: stretch; }
 .apikey-model-select { flex: 1; min-width: 0; margin-bottom: 0; }
+.apikey-input[readonly] { background: #f0e8d8; color: #7a5a30; cursor: default; }
 .apikey-meta {
   font-size: 11px;
   color: #a05c22;

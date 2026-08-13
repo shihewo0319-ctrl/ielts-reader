@@ -153,7 +153,7 @@ class Handler(SimpleHTTPRequestHandler):
             'opencode': 'https://opencode.ai/zen/v1',
             'go': 'https://opencode.ai/zen/go/v1',
         }
-        base = base_url if (provider == 'openai-compatible' and base_url) else ENDPOINTS.get(provider, '')
+        base = base_url if base_url else ENDPOINTS.get(provider, '')
         if not base:
             self.send_json({'ok': False, 'error': '未知服务商，或 OpenAI 兼容格式需要填写 Base URL'})
             return

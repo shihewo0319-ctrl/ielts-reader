@@ -39,11 +39,7 @@ async function loadWords() {
     const wordEl = document.createElement('span');
     wordEl.className = 'wb-word';
     wordEl.textContent = w.word;
-    const time = document.createElement('span');
-    time.className = 'wb-time';
-    time.textContent = fmtTime(w.created_at);
     head.appendChild(wordEl);
-    head.appendChild(time);
     item.appendChild(head);
 
     const body = document.createElement('div');

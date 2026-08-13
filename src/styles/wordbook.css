@@ -46,6 +46,9 @@ main { max-width: 860px; }
   align-items: baseline;
   gap: 12px;
   min-width: 0;
+  /* 禁止头部被 flex 压缩：句子较长时若头部被压窄，
+     时间（nowrap）会溢出并与下方句子重叠（v1.1.45 修复） */
+  flex-shrink: 0;
 }
 .wb-word {
   font-size: 17px;
@@ -57,7 +60,12 @@ main { max-width: 860px; }
   color: #a05c22;
   white-space: nowrap;
 }
-.wb-item-body { margin: 6px 0 0; min-width: 0; }
+.wb-item-body {
+  /* 填满头部与删除按钮之间的剩余空间，句子左对齐、删除按钮靠右 */
+  flex: 1 1 auto;
+  margin: 6px 0 0;
+  min-width: 0;
+}
 .wb-sentence {
   font-size: 14px;
   color: #3a2b1e;

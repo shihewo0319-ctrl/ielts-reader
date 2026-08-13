@@ -133,7 +133,7 @@ main {
 .popup {
   position: fixed;
   z-index: 100;
-  width: 320px;
+  width: 350px;
   max-height: 60vh;
   overflow-y: auto;
   background: var(--popup-bg);
@@ -144,13 +144,15 @@ main {
 }
 .popup-word {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 6px 8px;
   font-size: 24px;
   font-weight: 800;
   color: #1f2328;
   letter-spacing: .3px;
 }
+.popup-word .popup-word-text { white-space: nowrap; }
 .popup-word .popup-sound {
   font-size: 14px;
   border: none;
@@ -170,6 +172,7 @@ main {
 }
 .popup-word .popup-phonetics {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
 }
@@ -179,6 +182,7 @@ main {
   gap: 4px;
   font-size: 13px;
   line-height: 1.4;
+  white-space: nowrap;
   border: 1px solid #d0d7de;
   background: #f6f8fa;
   color: #57606a;

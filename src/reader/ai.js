@@ -34,7 +34,6 @@ function buildPrompt(kind, word, sentence) {
     + '多词短语用 ··· 连接；存在从句时，分别用【主句】与【从句】分段，从句注明类型（如定语从句/状语从句/宾语从句/主语从句）；'
     + '形式主语/形式宾语需标注其真实主语/真实宾语\n'
     + '【主干结构】一句话概括句子主干（主谓宾 / 主系表 / 主谓等），并列或嵌套关系一并说明\n'
-    + '【中文翻译】整句话通顺的中文翻译\n'
     + '【理解要点】长难句给出拆分理解：先抓主干再逐层加修饰；特殊结构（倒装、省略、独立主格、非谓语等）单独说明';
 }
 
@@ -80,7 +79,10 @@ export async function fetchAi(kind, word, sentence) {
 }
 
 // 把 AI 返回内容里的【标签】转成带背景色的标签样式（与词典标签一致）
-export function buildAiContentHtml(content) {
-  const esc = escapeHtml(content);
+export function buildAiContentHtml(content, compact = false) {
+  let text = content;
+  // 语法分析：压缩结构之间的连续空行，让间距更紧凑
+  if (compact) text = text.replace(/\n{2,}/g, '\n');
+  const esc = escapeHtml(text);
   return esc.replace(/【([^】]+)】/g, '<span class="pos">$1</span>');
 }

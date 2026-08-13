@@ -127,7 +127,7 @@ async function loadAiPane(pane, kind, ai) {
     box.appendChild(meta);
     const content = document.createElement('div');
     content.className = 'ai-content';
-    content.innerHTML = buildAiContentHtml(res.content);
+    content.innerHTML = buildAiContentHtml(res.content, kind === 'grammar');
     box.appendChild(content);
   } else {
     box.innerHTML = '<div class="popup-error">❌ ' + escapeHtml(res.error) + '</div>';

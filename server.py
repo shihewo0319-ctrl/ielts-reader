@@ -2,9 +2,12 @@
 """IELTS 阅读学习助手 本地服务器
 - 提供静态页面（开发：项目根目录 / 原生 ES Modules；生产：--prod 时服务 dist/ 构建产物）
 - /api/chinese?word=xxx  代理有道词典中文释义（解决浏览器跨域限制）
+- 默认 IPv6 双栈绑定（::，同时支持 IPv4/IPv6 访问）；可用 --host 指定
 """
 import json
 import os
+import socket
+import subprocess
 import sys
 import urllib.parse
 import urllib.error
@@ -18,6 +21,46 @@ os.chdir(BASE_DIR)
 if '--prod' in sys.argv and os.path.isdir(os.path.join(BASE_DIR, 'dist')):
     os.chdir(os.path.join(BASE_DIR, 'dist'))
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8123
+
+
+def resolve_host():
+    """--host <地址> 指定绑定地址；默认 ::（IPv6 双栈，同时支持 IPv4/IPv6），
+    系统无 IPv6 时回退 0.0.0.0。"""
+    if '--host' in sys.argv:
+        i = sys.argv.index('--host')
+        if i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    try:
+        s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        s.close()
+        return '::'
+    except OSError:
+        return '0.0.0.0'
+
+
+def public_ipv6():
+    """从系统全局地址里找公网 IPv6 用于提示外网访问地址。
+    优先返回稳定的 /64 SLAAC 地址，避免临时隐私地址（/128，会频繁变化）。"""
+    try:
+        out = subprocess.run(
+            ['ip', '-6', 'addr', 'show', 'scope', 'global'],
+            capture_output=True, text=True, timeout=3).stdout
+        candidates = []
+        for line in out.splitlines():
+            line = line.strip()
+            if not line.startswith('inet6 '):
+                continue
+            ip, _, prefix = line.split()[1].partition('/')
+            if '::1' in ip or ip.startswith('fd') or ip.startswith('fe8'):
+                continue
+            candidates.append((ip, int(prefix or 0)))
+        if not candidates:
+            return ''
+        stable = [a for a in candidates if a[1] == 64]
+        pick = stable[0] if stable else candidates[0]
+        return pick[0]
+    except Exception:
+        return ''
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -208,6 +251,17 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    server = ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
-    print(f'IELTS 阅读学习助手：http://localhost:{PORT}  (Ctrl+C 停止)')
+    host = resolve_host()
+    if ':' in host:
+        class V6Server(ThreadingHTTPServer):
+            address_family = socket.AF_INET6
+        server = V6Server((host, PORT), Handler)
+    else:
+        server = ThreadingHTTPServer((host, PORT), Handler)
+    print(f'IELTS 阅读学习助手已启动（绑定 {host}）')
+    print(f'  本机访问   ：http://localhost:{PORT}')
+    pub = public_ipv6()
+    if pub:
+        print(f'  IPv6 公网  ：http://[{pub}]:{PORT}')
+    print('按 Ctrl+C 停止')
     server.serve_forever()

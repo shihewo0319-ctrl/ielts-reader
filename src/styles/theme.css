@@ -20,7 +20,10 @@ body {
   color: var(--text);
   line-height: 1.7;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+main { flex: 1 0 auto; }
 
 /* 顶部栏：红底白字 + 粗黑棕下边框 */
 .topbar {

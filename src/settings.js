@@ -199,7 +199,6 @@ function saveThinking(v) {
         var val = document.createElement('span');
         val.className = 'apikey-val';
         val.textContent = MASK;
-        val.dataset.plain = conf.key || '';
         var status = document.createElement('span');
         status.className = 'apikey-status bound';
         status.textContent = '已绑定';
@@ -220,9 +219,6 @@ function saveThinking(v) {
 
         var ops = document.createElement('div');
         ops.className = 'apikey-row apikey-ops';
-        var show = document.createElement('button');
-        show.type = 'button'; show.className = 'apikey-btn'; show.textContent = '👁';
-        show.title = '显示/隐藏';
         var edit = document.createElement('button');
         edit.type = 'button'; edit.className = 'apikey-btn'; edit.textContent = '✏️';
         edit.title = '修改';
@@ -241,13 +237,8 @@ function saveThinking(v) {
         setDefault.title = '设为默认 API（阅读器 AI 语境翻译 / 语法分析默认使用）';
         setDefault.disabled = isDefault;
         setDefault.addEventListener('click', function () { setDefaultProvider(id); renderApiKeys(); });
-        ops.appendChild(show); ops.appendChild(edit); ops.appendChild(del); ops.appendChild(setDefault); ops.appendChild(test);
+        ops.appendChild(edit); ops.appendChild(del); ops.appendChild(setDefault); ops.appendChild(test);
 
-        show.addEventListener('click', function () {
-          var showing = val.textContent !== MASK;
-          val.textContent = showing ? MASK : (val.dataset.plain || '');
-          show.textContent = showing ? '👁' : '🙈';
-        });
         edit.addEventListener('click', function () { openForm(id); });
         del.addEventListener('click', function () {
           storeKey(id, '');

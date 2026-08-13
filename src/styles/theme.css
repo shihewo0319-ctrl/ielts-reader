@@ -39,7 +39,28 @@ main { flex: 1 0 auto; }
   z-index: 50;
 }
 .topbar h1 { font-size: 20px; font-weight: 700; color: #fff; }
-.topbar-actions { display: flex; gap: 10px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+/* 顶栏导航按钮：红底顶栏上浅色按钮（与 .btn 风格一致，尺寸略小） */
+.topbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.topbar-nav-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  background: #fffdf0;
+  color: #3a2b1e;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.topbar-nav-btn:hover { background: #f4a261; }
 
 main {
   max-width: 860px;

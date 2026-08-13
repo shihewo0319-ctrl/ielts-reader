@@ -1,9 +1,29 @@
-/* ============ 释义弹窗：显示 / 定位 / 点击查词 / 选中词组查询 ============ */
-import { $ } from '../lib/dom.js';
+/* ============ 释义弹窗：显示 / 定位 / 点击查词 / 选中词组查询 ============
+ * 点击单词时弹窗带标签页：📖 词典 | 🤖 语境翻译 | 📚 语法分析
+ */
+import { $, escapeHtml } from '../lib/dom.js';
 import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml } from './dict.js';
 import { speakWord, loadPhonetics } from './tts.js';
+import { fetchAi, PROVIDER_NAMES } from './ai.js';
 
-export function showPopupAt(anchorRect, contentHtml, title) {
+let lastAnchor = null;
+
+function positionPopup() {
+  const popup = $('popup');
+  if (!popup || !lastAnchor) return;
+  const pw = popup.offsetWidth;
+  const ph = popup.offsetHeight;
+  let left = lastAnchor.left + lastAnchor.width / 2 - pw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+  let top = lastAnchor.bottom + 8;
+  if (top + ph > window.innerHeight - 8) top = lastAnchor.top - ph - 8;
+  if (top < 8) top = 8;
+  popup.style.left = left + 'px';
+  popup.style.top = top + 'px';
+}
+
+export function showPopupAt(anchorRect, contentHtml, title, ai) {
+  lastAnchor = anchorRect;
   const popup = $('popup');
   popup.innerHTML = '';
   popup.classList.remove('hidden');
@@ -32,22 +52,76 @@ export function showPopupAt(anchorRect, contentHtml, title) {
     popup.appendChild(w);
     loadPhonetics(title, chips);
   }
-  const body = document.createElement('div');
-  body.innerHTML = contentHtml;
-  popup.appendChild(body);
 
-  // 定位：优先放在锚点下方，超出屏幕则放上方
-  popup.style.left = '0px';
-  popup.style.top = '0px';
-  const pw = popup.offsetWidth;
-  const ph = popup.offsetHeight;
-  let left = anchorRect.left + anchorRect.width / 2 - pw / 2;
-  left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
-  let top = anchorRect.bottom + 8;
-  if (top + ph > window.innerHeight - 8) top = anchorRect.top - ph - 8;
-  if (top < 8) top = 8;
-  popup.style.left = left + 'px';
-  popup.style.top = top + 'px';
+  if (ai && ai.sentence) {
+    // 带标签页：词典 / AI 语境翻译 / 语法分析
+    const tabs = document.createElement('div');
+    tabs.className = 'popup-tabs';
+    const defs = [
+      ['dict', '📖 词典'],
+      ['ai-translate', '🤖 语境翻译'],
+      ['ai-grammar', '📚 语法分析'],
+    ];
+    defs.forEach(([id, label]) => {
+      const b = document.createElement('button');
+      b.className = 'popup-tab' + (id === 'dict' ? ' active' : '');
+      b.dataset.tab = id;
+      b.textContent = label;
+      tabs.appendChild(b);
+    });
+    popup.appendChild(tabs);
+
+    const panes = {};
+    ['dict', 'ai-translate', 'ai-grammar'].forEach(id => {
+      const p = document.createElement('div');
+      p.className = 'popup-pane' + (id === 'dict' ? '' : ' hidden');
+      p.dataset.pane = id;
+      popup.appendChild(p);
+      panes[id] = p;
+    });
+    panes.dict.innerHTML = contentHtml;
+
+    tabs.addEventListener('click', (e) => {
+      const tab = e.target.closest('.popup-tab');
+      if (!tab) return;
+      const id = tab.dataset.tab;
+      tabs.querySelectorAll('.popup-tab').forEach(t => t.classList.toggle('active', t === tab));
+      Object.keys(panes).forEach(k => panes[k].classList.toggle('hidden', k !== id));
+      if (id === 'ai-translate') loadAiPane(panes['ai-translate'], 'translate', ai);
+      if (id === 'ai-grammar') loadAiPane(panes['ai-grammar'], 'grammar', ai);
+    });
+  } else {
+    // 无 AI 上下文（如选中词组查询）：保持原样
+    const body = document.createElement('div');
+    body.innerHTML = contentHtml;
+    popup.appendChild(body);
+  }
+
+  positionPopup();
+}
+
+async function loadAiPane(pane, kind, ai) {
+  if (pane.dataset.loaded === '1') return;
+  pane.dataset.loaded = '1';
+  const loadingText = kind === 'translate'
+    ? '⏳ AI 结合语境分析「' + ai.word + '」…'
+    : '⏳ 语法分析中…';
+  pane.innerHTML = '<div class="ai-loading">' + escapeHtml(loadingText) + '</div>';
+  const res = await fetchAi(kind, ai.word, ai.sentence);
+  if (res.ok) {
+    pane.innerHTML = '';
+    const meta = document.createElement('div');
+    meta.className = 'ai-meta';
+    meta.textContent = '由 ' + (PROVIDER_NAMES[res.provider] || res.provider) + ' 生成 · 同一单词同一句子只请求一次';
+    pane.appendChild(meta);
+    const content = document.createElement('div');
+    content.className = 'ai-content';
+    content.textContent = res.content;
+    pane.appendChild(content);
+  } else {
+    pane.innerHTML = '<div class="popup-error">❌ ' + escapeHtml(res.error) + '</div>';
+  }
+  positionPopup();
 }
 
 export function hidePopup() {
@@ -58,6 +132,20 @@ export function hidePopup() {
 document.addEventListener('click', (e) => { if (!$('popup').contains(e.target)) hidePopup(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopup(); });
 
+/* 取单词所在句子（按标点切分，找到包含该单词的那一句） */
+function sentenceOf(span) {
+  const p = span.closest('p');
+  if (!p) return '';
+  const text = p.textContent || '';
+  const word = (span.dataset.word || '').toLowerCase();
+  const re = /[^.!?。！？]+[.!?。！？]*/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m[0].toLowerCase().includes(word)) return m[0].trim();
+  }
+  return text.trim();
+}
+
 /* 点击单词查词 + 选中词组查询 */
 export function initWordLookup() {
   const articleContent = $('article-content');
@@ -67,13 +155,14 @@ export function initWordLookup() {
     if (!span) return;
     e.stopPropagation();
     const word = span.dataset.word;
-    showPopupAt(span.getBoundingClientRect(), '<div class="popup-error">查询中…</div>', word);
+    const aiCtx = { word, sentence: sentenceOf(span) };
+    showPopupAt(span.getBoundingClientRect(), '<div class="popup-error">查询中…</div>', word, aiCtx);
     const [entry, zh, examples] = await Promise.all([
       lookupWord(word).catch(err => ({ error: err })),
       lookupChinese(word).catch(() => ''),
       lookupExamples(word).catch(() => []),
     ]);
-    showPopupAt(span.getBoundingClientRect(), buildPopupHtml(entry, zh, examples), word);
+    showPopupAt(span.getBoundingClientRect(), buildPopupHtml(entry, zh, examples), word, aiCtx);
   });
 
   articleContent.addEventListener('mouseup', (e) => {

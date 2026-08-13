@@ -34,9 +34,9 @@
 
 /* 弹窗 */
 .popup {
+  width: 460px;
   position: fixed;
   z-index: 100;
-  width: 350px;
   max-height: 60vh;
   overflow-y: auto;
   background: #fffdf0;
@@ -179,4 +179,38 @@
   margin-right: 6px;
   font-size: 12px;
   font-weight: 700;
+}
+
+/* ===== 弹窗标签页（词典 / AI 语境翻译 / 语法分析） ===== */
+.popup-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 3px solid #3a2b1e;
+  margin: 2px 0 10px;
+  padding-bottom: 6px;
+}
+.popup-tab {
+  background: #fffdf0;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 #3a2b1e;
+  color: #3a2b1e;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.popup-tab:hover { background: #fdf0d5; }
+.popup-tab.active { background: #f4a261; color: #3a2b1e; }
+.popup-pane.hidden { display: none; }
+
+/* ===== AI 分析面板 ===== */
+.ai-loading { font-size: 14px; color: #a05c22; padding: 8px 0; }
+.ai-meta { font-size: 11px; color: #a05c22; margin-bottom: 8px; }
+.ai-content {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #3a2b1e;
+  white-space: pre-wrap;
+  word-break: break-word;
 }

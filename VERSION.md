@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.6**
+- 当前版本：**1.1.7**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,17 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.6`
-2. index.html / reader.html 的 `style.css?v=1.1.6`
-3. reader.html 的 `app.js?v=1.1.6`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.7`
+2. index.html / reader.html 的 `style.css?v=1.1.7`
+3. reader.html 的 `app.js?v=1.1.7`
 
 ---
 
 # 更新日志
+
+## v1.1.7 修正 DeepSeek 官方模型列表
+- DeepSeek 官方 API 的旧模型名 deepseek-chat / deepseek-reasoner 已于 2026-07-24 停用，现更新为官方当前主模型 deepseek-v4-flash / deepseek-v4-pro
+- 已保存的旧 DeepSeek 模型名会自动迁移到 deepseek-v4-flash
 
 ## v1.1.6 Base URL 自动填写
 - 添加 API Key 时，已知服务商（OpenAI / DeepSeek / OpenCode Zen / OpenCode Go）的 Base URL 自动填写官方端点并设为只读，无需手动输入

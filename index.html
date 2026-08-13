@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <title>IELTS 学习台</title>
-  <link rel="stylesheet" href="style.css?v=1.1.6">
+  <link rel="stylesheet" href="style.css?v=1.1.7">
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.6</span></h1>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.7</span></h1>
     <div class="topbar-actions">
       <div class="settings-wrap">
         <button class="settings-btn" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
@@ -105,14 +105,14 @@
     var MODELS = {
       openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1', 'gpt-4.1-mini'],
       'openai-compatible': [],
-      deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+      deepseek: ['deepseek-v4-flash', 'deepseek-v4-pro'],
       opencode: ['glm-5', 'glm-5.1', 'glm-5.2', 'kimi-k2.5', 'kimi-k2.6', 'kimi-k2.7-code', 'deepseek-v4-pro', 'deepseek-v4-flash'],
       go: ['glm-5', 'glm-5.1', 'kimi-k2.5', 'kimi-k2.6', 'deepseek-v4-pro', 'deepseek-v4-flash']
     };
     var DEFAULT_MODELS = {
       openai: 'gpt-4o-mini',
       'openai-compatible': '',
-      deepseek: 'deepseek-chat',
+      deepseek: 'deepseek-v4-flash',
       opencode: 'glm-5',
       go: 'glm-5'
     };
@@ -141,6 +141,14 @@
           changed = true;
         }
       });
+      // 旧 DeepSeek 模型名迁移：deepseek-chat / deepseek-reasoner 已于 2026-07-24 停用
+      if (keys.deepseek && keys.deepseek.model === 'deepseek-chat') {
+        keys.deepseek.model = 'deepseek-v4-flash';
+        changed = true;
+      } else if (keys.deepseek && keys.deepseek.model === 'deepseek-reasoner') {
+        keys.deepseek.model = 'deepseek-v4-flash';
+        changed = true;
+      }
       if (changed) localStorage.setItem(STORE_KEY, JSON.stringify(keys));
       return keys;
     }

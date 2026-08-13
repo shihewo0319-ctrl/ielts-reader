@@ -244,3 +244,15 @@ main {
   font-size: 12px;
   font-weight: 600;
 }
+
+.version {
+  font-size: 12px;
+  font-weight: 400;
+  color: #8b949e;
+  background: #f0f2f5;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2px 8px;
+  vertical-align: middle;
+  margin-left: 6px;
+}

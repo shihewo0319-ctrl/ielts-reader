@@ -221,13 +221,13 @@ main {
 .popup-zh {
   font-size: 15px;
   font-weight: 600;
-  color: #24292f;
+  color: #1c7ed6;
   line-height: 1.6;
 }
 .popup-zh .pos {
   display: inline-block;
-  background: #fff4e6;
-  color: #e8590c;
+  background: #e7f5ff;
+  color: #1c7ed6;
   border-radius: 4px;
   padding: 1px 7px;
   margin-right: 6px;

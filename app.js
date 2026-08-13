@@ -257,7 +257,8 @@ function buildMeaningsHtml(entry) {
     if (m.example) html += `<div class="ex">例：${escapeHtml(m.example)}</div>`;
     html += `</div>`;
   }
-  return html || '<div class="popup-error">暂无释义</div>';
+  // 必须有 .popup-meanings 包裹层，词性标签样式才能生效
+  return html ? `<div class="popup-meanings">${html}</div>` : '<div class="popup-error">暂无释义</div>';
 }
 
 /* ============ 弹窗 ============ */

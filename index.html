@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IELTS 阅读学习助手</title>
-  <link rel="stylesheet" href="style.css?v=1.0.9">
+  <link rel="stylesheet" href="style.css?v=1.1.0">
 </head>
 <body>
   <header class="topbar">
-    <h1>📖 IELTS 阅读学习助手 <span class="version" id="app-version">v1.0.9</span></h1>
+    <h1>📖 IELTS 阅读学习助手 <span class="version" id="app-version">v1.1.0</span></h1>
     <div class="topbar-actions">
       <select id="dict-source" class="btn source-select" title="选择查词来源">
         <option value="auto">🔁 词典源：自动</option>
@@ -16,8 +16,6 @@
         <option value="datamuse">Datamuse</option>
         <option value="wiktionary">Wiktionary</option>
       </select>
-      <button id="btn-ai" class="btn btn-primary" title="让 AI 整理文章重点词汇">✨ AI 整理</button>
-      <button id="btn-settings" class="btn">⚙️ 设置</button>
     </div>
   </header>
 
@@ -43,15 +41,6 @@
       </div>
       <article id="article-content" class="article"></article>
     </section>
-
-    <!-- 词汇列表（AI 整理结果） -->
-    <section id="vocab-panel" class="panel hidden">
-      <div class="article-head">
-        <h2>📌 AI 整理的重点词汇</h2>
-        <span id="vocab-count" class="hint"></span>
-      </div>
-      <div id="vocab-list" class="vocab-list"></div>
-    </section>
   </main>
 
   <!-- 单词释义弹窗 -->
@@ -63,25 +52,6 @@
     <div id="popup-src" class="popup-src"></div>
   </div>
 
-  <!-- 设置弹窗 -->
-  <div id="settings-modal" class="modal hidden">
-    <div class="modal-box">
-      <h2>⚙️ AI 设置</h2>
-      <p class="hint">配置后点击"✨ AI 整理"可让 AI 提取文章重点词汇。不配置也不影响手动点击查词。</p>
-      <label>API 地址（OpenAI 兼容）</label>
-      <input type="text" id="set-base" placeholder="https://api.openai.com/v1">
-      <label>API Key</label>
-      <input type="password" id="set-key" placeholder="sk-...">
-      <label>模型名称</label>
-      <input type="text" id="set-model" placeholder="gpt-4o-mini">
-      <div class="modal-actions">
-        <button id="btn-save-settings" class="btn btn-primary">保存</button>
-        <button id="btn-cancel-settings" class="btn">取消</button>
-      </div>
-      <p id="settings-msg" class="hint"></p>
-    </div>
-  </div>
-
-  <script src="app.js?v=1.0.9"></script>
+  <script src="app.js?v=1.1.0"></script>
 </body>
 </html>

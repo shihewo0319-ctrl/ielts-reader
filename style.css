@@ -101,33 +101,12 @@ main {
 .article p { margin-bottom: 14px; text-align: justify; }
 .article h3 { margin: 18px 0 10px; font-size: 18px; }
 
-/* 单词：红字 + 橙色粗下划线（像素感） */
+/* 单词：普通文字，悬停浅黄底提示可点击查词 */
 .word {
   cursor: pointer;
-  color: #e63946;
-  font-weight: 700;
-  border-bottom: 3px solid #f4a261;
-  border-radius: 0;
   transition: background .12s;
 }
 .word:hover { background: #ffe08a; }
-.word.highlight { background: #ffe08a; }
-/* AI 重点词汇：浅黄底突出显示 */
-.word.highlight-ai { background: #ffe08a; }
-.word.highlight-ai:hover { background: #ffd77a; }
-.word.active { background: #f4a261; }
-
-/* 词汇列表 */
-.vocab-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-.vocab-item {
-  border: 2px solid #3a2b1e;
-  border-radius: 0;
-  padding: 10px 12px;
-  background: #fffdf0;
-}
-.vocab-item .v-word { font-weight: 700; cursor: pointer; color: #e63946; }
-.vocab-item .v-word:hover { text-decoration: underline; }
-.vocab-item .v-mean { font-size: 13px; color: #a05c22; margin-top: 2px; }
 
 /* 弹窗 */
 .popup {
@@ -249,39 +228,6 @@ main {
 }
 .popup-close:hover { color: #e63946; font-weight: 700; }
 .popup-error { color: #e63946; font-size: 14px; }
-
-/* 设置弹窗 */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(58,43,30,.5);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-box {
-  background: #fffdf0;
-  border: 3px solid #3a2b1e;
-  border-radius: 0;
-  box-shadow: 5px 5px 0 #3a2b1e;
-  padding: 24px;
-  width: 420px;
-  max-width: 92vw;
-}
-.modal-box h2 { margin-bottom: 8px; }
-.modal-box label { display: block; margin: 12px 0 4px; font-size: 14px; font-weight: 600; }
-.modal-box input {
-  width: 100%;
-  padding: 8px 10px;
-  border: 3px solid #3a2b1e;
-  border-radius: 0;
-  font-size: 14px;
-  background: #fff3d6;
-  color: #3a2b1e;
-}
-.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
-#settings-msg { margin-top: 8px; }
 
 @media (max-width: 600px) {
   .topbar { flex-direction: column; gap: 8px; }

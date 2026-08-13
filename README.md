@@ -4,24 +4,18 @@
 
 ## 功能
 - 📄 **上传文章**：支持拖拽或选择 `.txt` / `.md` / `.html` 文件
-- 🖱️ **点击查词**：点击文章中的任意单词，弹出英文释义、音标和例句
+- 🖱️ **点击查词**：点击文章中的任意单词，弹出英文释义、音标、中文释义和例句
 - 🔍 **词组查询**：用鼠标选中一段文字，会弹出"查询词组"按钮
-- ✨ **AI 整理**（可选）：配置 API Key 后，AI 自动提取文章重点词汇并高亮
+- 🔊 **发音**：释义弹窗内点击英音 / 美音音标即可播放发音（有道接口，免费无需 Key）
 
 ## 使用方法
 1. 在项目目录启动本地服务器：
    ```bash
-   python3 -m http.server 8000
+   python3 server.py 8123
    ```
-2. 浏览器打开 http://localhost:8000
+2. 浏览器打开 http://localhost:8123
 3. 上传文章（或点"加载示例文章"），点击单词查看释义
 
-## 配置 AI 整理（可选）
-点击右上角 ⚙️ 设置，填写：
-- **API 地址**：OpenAI 兼容接口，如 `https://api.openai.com/v1`
-- **API Key**：你的密钥
-- **模型名称**：如 `gpt-4o-mini`
-
-然后点"✨ AI 整理"，AI 会返回 15-25 个重点词汇并高亮显示在文章中。
-
-> 说明：点击查词功能使用免费的 [Free Dictionary API](https://dictionaryapi.dev)，不需要任何 Key。
+## 词典源
+右上角可选择词典源：自动 / Free Dictionary / Datamuse / Wiktionary。选"自动"时会按顺序自动尝试多个词典。
+点击查词使用免费的 [Free Dictionary API](https://dictionaryapi.dev) 等公开词典接口，不需要任何 Key。

@@ -143,9 +143,11 @@ def ai_chat(body):
         'messages': [{'role': 'user', 'content': message}],
         'stream': False,
     }
-    # DeepSeek V4：默认禁用思考模式（官方默认开启且 effort=high，会导致响应慢/易超时）；
-    # 前端「思考模式」开关开启时改为 enabled
-    if provider == 'deepseek':
+    # DeepSeek 系模型：默认禁用思考模式（官方默认开启且 effort=high，会导致响应慢/易超时）。
+    # OpenCode Go / OpenCode Zen 网关背后的 deepseek 模型同样默认开思考，必须显式禁用，
+    # 否则语法分析（长句+JSON）会非常慢甚至超时（v1.1.44 修复）。
+    # 前端「思考模式」开关开启时改为 enabled；非 deepseek 模型（glm/kimi 等）不传该参数，避免网关报错。
+    if 'deepseek' in model.lower():
         payload['thinking'] = {'type': 'enabled' if thinking else 'disabled'}
     req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
         'Content-Type': 'application/json',

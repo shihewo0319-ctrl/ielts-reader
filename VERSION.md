@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.43**
+- 当前版本：**1.1.44**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -17,6 +17,15 @@
 ---
 
 # 更新日志
+
+## v1.1.44 修复：OpenCode Go / Zen 走 DeepSeek 模型未禁用思考模式，语法分析超时
+- 修复：`proxy.py` 之前只在 `provider == 'deepseek'` 时显式发送 `thinking: {'type': 'disabled'}`，
+  OpenCode Go / OpenCode Zen 网关背后的 deepseek 模型默认开启思考模式（reasoning: true），
+  语法分析（长句 + JSON + 高 effort）会非常慢甚至超时；DeepSeek 官方不受影响
+- 现在改为按**模型名**判断（含 `deepseek` 即显式传 thinking 参数）：go / opencode 上的
+  deepseek-v4-flash、deepseek-v4-pro 同样默认禁用思考（前端「思考模式」开关开启时仍可启用）；
+  glm / kimi / grok 等非 deepseek 模型不传该参数，避免网关报错
+- 已实测：OpenCode Go + deepseek-v4-flash + thinking=disabled 正常返回且无思考痕迹
 
 ## v1.1.43 模块化重构（数据库迁移机制 + 后端/前端拆分，功能不变）
 - **数据库层**（db.py 207 行）：新增 `PRAGMA user_version` 逐级迁移机制（SCHEMA_V1 四张表 → SCHEMA_V2：`lookups.article_id` 列 + 4 个索引），全部读写统一走 `with cursor()` 上下文管理器（自动提交/回滚/关闭），删除手写 get_conn；数据文件自动迁移，旧数据完好

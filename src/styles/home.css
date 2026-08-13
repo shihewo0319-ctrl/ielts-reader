@@ -338,3 +338,37 @@
   margin: 0;
   letter-spacing: 1px;
 }
+
+/* ===== 单词查询搜索框（首页入口，与 dict.html 查询页一致） ===== */
+.dict-search {
+  max-width: 860px;
+  margin: 0 auto 30px;
+  padding: 0 20px;
+}
+.dict-search-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e63946;
+  margin-bottom: 10px;
+}
+.dict-search-form {
+  display: flex;
+  gap: 10px;
+}
+.dict-search-input {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 16px;
+  color: #3a2b1e;
+  background: #fffdf0;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  padding: 10px 14px;
+}
+.dict-search-input:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 2px 2px 0 #f4a261;
+}
+.dict-search-form .btn { padding: 10px 22px; font-size: 15px; }

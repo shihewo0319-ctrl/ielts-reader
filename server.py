@@ -180,7 +180,7 @@ class Handler(SimpleHTTPRequestHandler):
                            'Chrome/120.0 Safari/537.36'),
         })
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=120) as resp:
                 result = json.loads(resp.read().decode('utf-8', 'ignore'))
             choices = result.get('choices') or []
             content = ''

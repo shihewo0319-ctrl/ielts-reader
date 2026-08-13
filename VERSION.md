@@ -18,11 +18,6 @@
 
 # 更新日志
 
-## v1.1.15 选择默认 API
-- AI 设置已绑定列表新增「⭐ 设为默认」：绑定多个 API 时，可手动指定阅读器 AI 语境翻译 / 语法分析默认调用哪个服务商
-- 默认 API 存在 localStorage（ieltsDefaultProvider），删除默认服务商时自动清除
-- 未手动设置时，仍按 OpenCode Go → OpenCode Zen → DeepSeek → OpenAI → OpenAI 兼容 顺序自动选择
-
 ## v1.1.13 AI 语境翻译 + 句子语法分析
 - 释义弹窗改为标签页：📖 词典（默认，免费快速）｜🤖 语境翻译（AI 结合单词所在句子解释语境含义）｜📚 语法分析（分析句子主干/从句/时态，长难句拆分理解）
 - AI 功能使用主页「AI 设置」中绑定的 API Key（自动选择已绑定的服务商），未绑定时点击给出提示
@@ -33,47 +28,6 @@
 - 样式拆分：`src/styles/theme.css`（通用）/ `home.css`（主页与设置）/ `reader.css`（阅读器与弹窗）
 - 引入 Vite 多页工程化（可选）：`npm install` → `npm run dev` 热更新 / `npm run build` 构建；`python3 server.py --prod` 可服务构建产物
 - 顺带修复：思考模式开关未接线、`loadThinking` 未定义（v1.1.9 遗留问题），现在开关真实生效
-
-## v1.1.10 修正 OpenCode Go 官方模型列表
-- OpenCode Go 官方模型列表中不存在 glm-5 / kimi-k2.5（已在 Zen 下线），已改为官方 chat/completions 端点可用模型：grok-4.5、glm-5.2、glm-5.1、kimi-k3、kimi-k2.7-code、kimi-k2.6、deepseek-v4-pro、deepseek-v4-flash、mimo-v2.5、mimo-v2.5-pro、hy3
-- OpenCode Go 默认模型改为官方旗舰 glm-5.2
-- 说明：官方另 7 款模型（gpt-5.6-luna、minimax-m3/m2.7/m2.5、qwen3.8-max/qwen3.7-max/qwen3.7-plus/qwen3.6-plus）走 Responses / Anthropic 端点，暂未列入
-
-## v1.1.9 AI 设置新增「思考模式」开关
-- 主页 → 设置 → AI 设置 新增思考模式开关（默认关闭）
-- 开启后 DeepSeek V4（flash / pro）请求带 thinking: enabled，先推理再回答（更准但更慢、更耗 token）
-- 关闭（默认）时带 thinking: disabled，响应快且稳定；仅 DeepSeek 生效，其它服务商不受影响
-- 开关状态保存于浏览器 localStorage，测试连接时同步生效
-
-## v1.1.8 DeepSeek 思考模式处理
-- 根据 DeepSeek 官方文档：V4 模型思考模式默认开启（effort=high），会导致响应慢、测试连接易超时
-- 现对 DeepSeek 请求默认禁用思考模式（thinking: disabled），响应更快更稳定
-
-## v1.1.7 修正 DeepSeek 官方模型列表
-- DeepSeek 官方 API 的旧模型名 deepseek-chat / deepseek-reasoner 已于 2026-07-24 停用，现更新为官方当前主模型 deepseek-v4-flash / deepseek-v4-pro
-- 已保存的旧 DeepSeek 模型名会自动迁移到 deepseek-v4-flash
-
-## v1.1.6 Base URL 自动填写
-- 添加 API Key 时，已知服务商（OpenAI / DeepSeek / OpenCode Zen / OpenCode Go）的 Base URL 自动填写官方端点并设为只读，无需手动输入
-- OpenAI 兼容格式仍由用户手动填写 Base URL；服务端优先使用前端传入的 Base URL，缺失时回退到官方端点
-
-## v1.1.5 API Key 真实调用
-- 新增本地代理接口 /api/ai_chat：绑定 API Key 后通过本地服务器真实调用所选服务商，解决浏览器跨域限制
-- 服务商命名修正：原「Go」改为「OpenCode Go」（https://opencode.ai/go），原「OpenCode」改为「OpenCode Zen」
-- 添加 API Key 时支持选择模型（各服务商常用模型预设，可自定义）与填写 Base URL（OpenAI 兼容格式必填）
-- 已绑定列表新增「测试连接」按钮：真实调用该服务商 API 验证 Key 是否可用，并显示服务商返回结果
-
-## v1.1.4 API Key 绑定改为手动添加方式
-- 进入 AI 设置不再一次性列出全部服务商，改为点击「＋ 添加 API KEY」后选择服务商并填写密钥
-- 已绑定列表支持显示/隐藏明文、修改、删除
-
-## v1.1.3 AI 设置新增 API Key 绑定
-- AI 设置子菜单新增「API Key 绑定」：可分别绑定 OpenAI、OpenAI 兼容格式、DeepSeek、OpenCode、Go 的 API Key
-- 支持显示/隐藏、保存、清除，数据仅存储在本机浏览器 localStorage
-
-## v1.1.2 主页设置菜单
-- 主页右上角新增设置按钮，点击弹出复古像素风格设置菜单
-- 新增「AI 设置」子菜单入口，结构可扩展，后续其他子菜单直接追加即可
 
 ## v1.1.1 新增主页
 - 新增卡片式主页（index.html）：复古像素风格，当前提供「阅读学习助手」入口，后续新功能以卡片形式继续添加

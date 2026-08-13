@@ -253,7 +253,7 @@ function buildMeaningsHtml(entry) {
   let html = '';
   for (const m of (entry.meanings || [])) {
     if (!m.definition) continue;
-    html += `<div class="def"><span class="pos">${escapeHtml(m.partOfSpeech || '')}</span>${escapeHtml(m.definition)}`;
+    html += `<div class="def"><span class="pos">${escapeHtml(m.partOfSpeech || '')}</span><span class="def-text">${escapeHtml(m.definition)}</span>`;
     if (m.example) html += `<div class="ex">例：${escapeHtml(m.example)}</div>`;
     html += `</div>`;
   }

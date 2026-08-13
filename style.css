@@ -145,19 +145,29 @@ main {
 .popup-word { font-size: 24px; font-weight: 800; color: #1f2328; letter-spacing: .3px; }
 .popup-phonetic { color: #6e7781; font-size: 14px; margin: 2px 0 10px; }
 .popup-meanings { font-size: 14px; color: #24292f; }
-.popup-meanings .def { margin: 0 0 10px; padding-left: 12px; border-left: 3px solid #d0d7de; }
+.popup-meanings .def {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 4px;
+  margin: 0 0 12px;
+  padding-left: 12px;
+  border-left: 3px solid #d0d7de;
+}
 .popup-meanings .pos {
   display: inline-block;
-  background: #eef4ff;
-  color: #2f6fed;
+  flex-shrink: 0;
+  background: #e7f5ff;
+  color: #1c7ed6;
   border-radius: 4px;
   padding: 1px 7px;
-  margin-right: 6px;
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
 }
-.popup-meanings .ex { color: #8b949e; font-style: italic; font-size: 13px; margin-top: 2px; }
+.popup-meanings .def-text { line-height: 1.65; }
+.popup-meanings .ex { color: #8b949e; font-style: italic; font-size: 13px; flex-basis: 100%; margin-top: 2px; }
 .popup-src { margin-top: 12px; font-size: 11px; color: #8b949e; }
 .popup-close {
   position: absolute;

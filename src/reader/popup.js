@@ -52,7 +52,6 @@ export function showPopupAt(anchorRect, contentHtml, title, ai) {
     fallbackBtn.title = '美音发音';
     fallbackBtn.addEventListener('click', (e) => { e.stopPropagation(); speakWord(title, 'us'); });
     chips.appendChild(fallbackBtn);
-    w.appendChild(chips);
     // 加入生词本按钮（点击后把单词 + 所在句子收藏进生词本）
     const wbBtn = document.createElement('button');
     wbBtn.className = 'popup-wordbook';
@@ -72,7 +71,12 @@ export function showPopupAt(anchorRect, contentHtml, title, ai) {
         }, 1500);
       }
     });
-    w.appendChild(wbBtn);
+    // 元信息行：音标 + 加入生词本按钮 同一行（按钮在音标右侧）
+    const meta = document.createElement('div');
+    meta.className = 'popup-word-meta';
+    meta.appendChild(chips);
+    meta.appendChild(wbBtn);
+    w.appendChild(meta);
     popup.appendChild(w);
     loadPhonetics(title, chips);
   }

@@ -89,6 +89,14 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.35); }
 }
+/* 元信息行：音标 + 加入生词本按钮 同一行 */
+.dict-result .popup-word .popup-word-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
 .dict-result .popup-word .popup-phonetics {
   display: inline-flex;
   flex-wrap: wrap;
@@ -123,8 +131,6 @@
   color: #3a2b1e;
 }
 .dict-result .popup-word .popup-wordbook {
-  align-self: flex-start;
-  margin-top: 4px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;

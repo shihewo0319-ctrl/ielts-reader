@@ -109,6 +109,14 @@ main { max-width: min(1400px, 96vw); }
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.35); }
 }
+/* 元信息行：音标 + 加入生词本按钮 同一行 */
+.popup-word .popup-word-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
 .popup-word .popup-phonetics {
   display: inline-flex;
   flex-wrap: wrap;
@@ -357,8 +365,6 @@ main { max-width: min(1400px, 96vw); }
 
 /* ===== 弹窗内「⭐ 加入生词本」按钮 ===== */
 .popup-word .popup-wordbook {
-  align-self: flex-start;
-  margin-top: 4px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;

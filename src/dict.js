@@ -60,7 +60,12 @@ async function search(word) {
       }, 1500);
     }
   });
-  head.appendChild(wbBtn);
+  // 元信息行：音标 + 加入生词本按钮 同一行（按钮在音标右侧）
+  const meta = document.createElement('div');
+  meta.className = 'popup-word-meta';
+  meta.appendChild(chips);
+  meta.appendChild(wbBtn);
+  head.appendChild(meta);
 
   // 卡片容器：外观与阅读器词典弹窗一致
   const card = document.createElement('div');

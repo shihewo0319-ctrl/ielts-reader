@@ -29,7 +29,8 @@ ielts-reader/
 ├── index.html            # 主页（Vite 入口 1）
 ├── reader.html           # 阅读器（Vite 入口 2）
 ├── src/
-│   ├── home.js           # 主页：设置菜单 + AI 设置（API Key / 思考模式）
+│   ├── home.js           # 主页入口（卡片跳转逻辑，未来新功能入口）
+│   ├── settings.js       # 设置菜单 + AI 设置（API Key / 思考模式）
 │   ├── reader.js         # 阅读器入口：组装各模块并初始化
 │   ├── reader/
 │   │   ├── article.js    # 文章加载 / 渲染 / 分词 / 文件上传
@@ -51,7 +52,7 @@ ielts-reader/
 
 ## 新增功能怎么加
 
-- **新功能模块**：在 `src/` 下建独立目录/文件，从 `src/reader.js` 或 `src/home.js` 入口引入，主页卡片加在 `index.html` 的 `.home-grid` 里。
+- **新功能模块**：在 `src/` 下建独立目录/文件，从 `src/reader.js` 或 `src/home.js` 入口引入（设置相关写进 `src/settings.js`），主页卡片加在 `index.html` 的 `.home-grid` 里。
 - **新 API 代理**：在 `server.py` 的 `Handler` 里加一个 `handle_xxx` 方法，并在 `do_GET`/`do_POST` 中路由。
 - **版本**：每次改动在 `VERSION.md` 升版本（功能更新同步更新日志）。
 

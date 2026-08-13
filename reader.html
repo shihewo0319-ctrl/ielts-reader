@@ -10,8 +10,9 @@
 </head>
 <body>
   <header class="topbar">
-    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.52</span></h1>
+    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.53</span></h1>
     <div class="topbar-actions">
+      <nav id="top-nav" class="topbar-nav"></nav>
       <select id="dict-source" class="btn source-select" title="选择查词来源">
         <option value="auto">🔁 词典源：自动</option>
         <option value="free">Free Dictionary</option>
@@ -62,6 +63,7 @@
     <div id="popup-src" class="popup-src"></div>
   </div>
 
+  <script type="module" src="/src/lib/nav.js"></script>
 <script type="module" src="/src/reader.js"></script>
 </body>
 </html>

@@ -1,8 +1,11 @@
+/* 阅读器页面容器：放宽到接近屏幕宽度，上传/粘贴框随屏幕变大（覆盖 theme.css 的 860px 限制） */
+main { max-width: min(1400px, 96vw); }
+
 /* 上传区 */
 .drop-zone {
   border: 3px dashed #3a2b1e;
   border-radius: 0;
-  padding: 48px 20px;
+  padding: 64px 24px;
   text-align: center;
   color: #3a2b1e;
   background: #fff3d6;
@@ -24,9 +27,10 @@
 .paste-title { font-size: 16px; font-weight: 700; margin: 0 0 10px; color: #3a2b1e; }
 .paste-zone textarea {
   width: 100%;
+  min-height: 260px;
   box-sizing: border-box;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.7;
   color: #3a2b1e;
   background: #fffdf6;
@@ -47,7 +51,12 @@
   margin-bottom: 16px;
 }
 .article-head h2 { font-size: 18px; color: #e63946; }
-.article { font-size: 17px; letter-spacing: .2px; }
+.article {
+  max-width: 860px;
+  margin: 0 auto;
+  font-size: 17px;
+  letter-spacing: .2px;
+}
 .article p { margin-bottom: 14px; text-align: justify; }
 .article h3 { margin: 18px 0 10px; font-size: 18px; }
 

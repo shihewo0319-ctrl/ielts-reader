@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.33**
+- 当前版本：**1.1.34**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,7 +10,7 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.33`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.34`
 2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 

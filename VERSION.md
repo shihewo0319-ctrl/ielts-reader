@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.32**
+- 当前版本：**1.1.33**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,22 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.32`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.33`
 2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+# 更新日志
+
+## v1.1.33 模块化重构（代码结构优化，功能不变）
+- AI 设置面板 HTML 从 index.html 移出，改为 JS 模板渲染（`src/settings/menu.js`），主页只留一个挂载点
+- 设置模块拆分：`src/settings.js`（入口）+ `src/settings/menu.js`（菜单开关/面板切换）+ `src/settings/ai.js`（API Key 绑定 / 思考模式）+ `src/settings/ai-test.js`（测试连接）+ `src/lib/providers.js`（服务商 / 模型 / Base URL 数据表）
+- 语法分析渲染（Enpuz 式词块 + 成分颜色 + 从句底色 + 图例 + 单词高亮）从 `popup.js` 拆出到 `src/reader/grammar.js`
+- 清理死代码（`effectiveBaseUrl`），统一设置模块代码风格（全部改为 const / 箭头函数）
+- 效果：`popup.js` 318 → 237 行、`settings.js` 346 → 拆分为 3 个小文件，全部低于 300 行红线
 
 ## v1.1.29 主页新增每日名言
 - 主页底部随机显示一条英语名言 + 中文翻译（内置 12 条学习/坚持主题名言，刷新随机更换）

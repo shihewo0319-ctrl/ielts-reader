@@ -29,18 +29,25 @@ ielts-reader/
 ├── index.html            # 主页（Vite 入口 1）
 ├── reader.html           # 阅读器（Vite 入口 2）
 ├── src/
-│   ├── home.js           # 主页入口（卡片跳转逻辑，未来新功能入口）
-│   ├── settings.js       # 设置菜单 + AI 设置（API Key / 思考模式）
+│   ├── home.js           # 主页入口（卡片跳转逻辑 + 名言渲染）
+│   ├── settings.js       # 设置入口：渲染菜单 HTML 并装配子模块
+│   ├── settings/
+│   │   ├── menu.js       # 设置菜单 HTML 模板 + 开关 / 面板切换
+│   │   ├── ai.js         # AI 设置：API Key 绑定 / 思考模式
+│   │   └── ai-test.js    # 「测试连接」按钮（真实调用 /api/ai_chat 验证 Key）
 │   ├── reader.js         # 阅读器入口：组装各模块并初始化
 │   ├── reader/
 │   │   ├── article.js    # 文章加载 / 渲染 / 分词 / 文件上传
 │   │   ├── dict.js       # 词典查询（多源 + 中文 + 例句 + 释义 HTML）
-│   │   ├── popup.js      # 释义弹窗：显示 / 定位 / 点击查词 / 词组查询
+│   │   ├── popup.js      # 释义弹窗：显示 / 定位 / 点击查词 / 词组查询 / AI 标签页
+│   │   ├── grammar.js    # 语法分析渲染（Enpuz 式词块 / 图例 / 单词高亮）
 │   │   ├── tts.js        # 单词发音 / 音标
 │   │   └── sample.js     # 示例文章
 │   ├── lib/
 │   │   ├── dom.js        # 通用 DOM / 字符串工具
-│   │   └── api.js        # 带超时的 JSON 请求封装
+│   │   ├── api.js        # 带超时的 JSON 请求封装
+│   │   ├── ai-config.js  # AI 调用配置：默认服务商 / 读取已绑定 Key
+│   │   └── providers.js  # AI 服务商 / 模型 / Base URL 数据表
 │   └── styles/
 │       ├── theme.css     # 变量 + 通用（顶部栏 / 按钮 / 面板）
 │       ├── home.css      # 主页 + 设置菜单 + API Key
@@ -52,7 +59,7 @@ ielts-reader/
 
 ## 新增功能怎么加
 
-- **新功能模块**：在 `src/` 下建独立目录/文件，从 `src/reader.js` 或 `src/home.js` 入口引入（设置相关写进 `src/settings.js`），主页卡片加在 `index.html` 的 `.home-grid` 里。
+- **新功能模块**：在 `src/` 下建独立目录/文件，从 `src/reader.js` 或 `src/home.js` 入口引入（设置相关拆进 `src/settings/` 对应子模块，不要往 `settings/menu.js` / `settings/ai.js` 里堆无关逻辑），主页卡片加在 `index.html` 的 `.home-grid` 里。
 - **新 API 代理**：在 `server.py` 的 `Handler` 里加一个 `handle_xxx` 方法，并在 `do_GET`/`do_POST` 中路由。
 - **版本**：每次改动在 `VERSION.md` 升版本（功能更新同步更新日志）。
 
@@ -69,6 +76,6 @@ ielts-reader/
 2. **页面入口只组装**：`src/reader.js` / `src/home.js` 只负责引入模块并初始化，不写业务逻辑。
 3. **通用工具放 `src/lib/`**：被多个模块复用的函数（DOM 操作、请求封装、配置读取）放 `src/lib/`，并加一行职责注释。
 4. **数据与 UI 分离**：逻辑（词典/AI/发音调用）在独立模块里，UI 组装在弹窗/页面模块里，通过 import 连接。
-5. **行数红线**：单文件超过约 300 行时，主动拆分（如弹窗标签页逻辑可拆出 `src/reader/ai-pane.js`）。当前 `src/settings.js`(338) / `src/reader/popup.js`(212) 是重点观察对象。
+5. **行数红线**：单文件超过约 300 行时，主动拆分（如弹窗 AI 标签页逻辑可拆出 `src/reader/ai-pane.js`）。当前 `src/reader/popup.js`(237) 是最大文件，接近红线时再拆。
 6. **样式按页面分文件**：`src/styles/theme.css`（通用）/ `home.css`（主页）/ `reader.css`（阅读器），新增页面样式新建对应 css。
 7. **新功能检查清单**：建独立模块 ✓ → 入口引入 ✓ → 主页加卡片 ✓ → 样式加对文件 ✓ → 升版本 + 写 VERSION.md（功能更新） ✓ → `npm run build` 能过 ✓

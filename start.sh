@@ -5,7 +5,7 @@ for port in 8000 8080 8123 9000 9090; do
   if ! (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
     echo "✅ 启动成功，浏览器打开：http://localhost:$port"
     echo "（按 Ctrl+C 停止）"
-    python3 -m http.server "$port"
+    python3 server.py "$port"
     exit 0
   fi
 done

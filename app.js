@@ -197,29 +197,27 @@ function stripHtml(s) {
   return String(s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-// 中文释义：有道词典（免费、国内稳定）
+// 中文释义：通过本地代理请求有道词典（同源，避免浏览器跨域限制）
 async function lookupChinese(word) {
-  const url = `https://dict.youdao.com/suggest?num=3&ver=3.0&doctype=json&cache=false&le=en&q=${encodeURIComponent(word)}`;
-  const data = await fetchJson(url, 6000);
-  const entries = data && data.data && data.data.entries;
-  if (!Array.isArray(entries) || !entries.length) throw new Error('无中文释义');
-  // 优先返回完全匹配的词条
-  let hit = entries.find(e => String(e.entry || '').toLowerCase() === word.toLowerCase());
-  if (!hit) hit = entries[0];
-  if (!hit || !hit.explain) throw new Error('无中文释义');
-  return hit.explain;
+  const data = await fetchJson(`/api/chinese?word=${encodeURIComponent(word)}`, 6000);
+  if (!data || !data.ok || !data.explain) throw new Error('无中文释义');
+  return data.explain;
 }
 
 function buildPopupHtml(entry, zh) {
   let html = '';
-  if (zh) html += `<div class="popup-zh"><span class="pos">中文</span>${escapeHtml(zh)}</div>`;
   if (entry && entry.error) {
     html += `<div class="popup-error">${escapeHtml(entry.error.message || '英文释义查询失败')}</div>`;
   } else if (entry) {
     const phonetic = (entry.phonetics || []).map(p => p.text).filter(Boolean)[0] || '';
     if (phonetic) html += `<div class="popup-phonetic">${escapeHtml(phonetic)}</div>`;
     html += buildMeaningsHtml(entry);
-    html += `<div class="popup-src">来源：${escapeHtml(entry.source || "词典")}${zh ? ' ＋ 有道词典' : ''}</div>`;
+    html += `<div class="popup-src">来源：${escapeHtml(entry.source || "词典")}</div>`;
+  }
+  if (zh) {
+    // 英文释义正常显示时，用分割线隔开；只有中文时不再加分割线
+    if (!(entry && entry.error)) html += '<div class="popup-divider"></div>';
+    html += `<div class="popup-zh"><span class="pos">中文</span>${escapeHtml(zh)}</div>`;
   }
   return html;
 }

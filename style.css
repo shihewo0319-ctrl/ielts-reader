@@ -457,3 +457,75 @@ main {
 .apikey-btn:hover { background: #f4a261; }
 .apikey-save { background: #e63946; color: #fff; }
 .apikey-save:hover { background: #c1272d; }
+
+/* API Key 绑定（手动添加方式 v1.1.4） */
+.apikey-add {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #fff3d6;
+  color: #3a2b1e;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #3a2b1e;
+}
+.apikey-add:hover { background: #ffe08a; }
+.apikey-add:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #3a2b1e; }
+
+.apikey-empty {
+  font-size: 13px;
+  color: #a05c22;
+  border: 2px dashed #a05c22;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.apikey-form {
+  border: 3px solid #3a2b1e;
+  background: #fff3d6;
+  padding: 12px;
+  margin-top: 10px;
+  box-shadow: 3px 3px 0 #3a2b1e;
+}
+.apikey-form[hidden] { display: none; }
+.apikey-select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  color: #3a2b1e;
+  background: #fffdf0;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+}
+.apikey-form .apikey-row { margin-bottom: 8px; }
+.apikey-form-btns { justify-content: flex-end; margin-bottom: 0 !important; }
+.apikey-cancel { background: #fffdf0; }
+.apikey-cancel:hover { background: #ffe08a; }
+
+.apikey-bound-item {
+  border: 2px solid #3a2b1e;
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+.apikey-bound-item .apikey-head { margin-bottom: 6px; }
+.apikey-val {
+  font-size: 12px;
+  color: #a05c22;
+  letter-spacing: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  text-align: right;
+  margin-right: 8px;
+}
+.apikey-ops { justify-content: flex-end; }
+.apikey-del:hover { background: #e63946; color: #fff; }

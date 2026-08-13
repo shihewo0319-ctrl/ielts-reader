@@ -1,0 +1,91 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fff3d6;
+  --card: #fffdf0;
+  --text: #3a2b1e;
+  --muted: #a05c22;
+  --primary: #f4a261;
+  --primary-dark: #e08c3f;
+  --border: #3a2b1e;
+  --hl: #ffe08a;
+  --hl-ai: #ffe08a;
+  --popup-bg: #fffdf0;
+  --accent: #e63946;
+}
+
+body {
+  font-family: "Courier New", "SimSun", "Microsoft YaHei", monospace;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* 顶部栏：红底白字 + 粗黑棕下边框 */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: #e63946;
+  color: #fff;
+  border-bottom: 4px solid #3a2b1e;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar h1 { font-size: 20px; font-weight: 700; color: #fff; }
+.topbar-actions { display: flex; gap: 10px; }
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+.panel {
+  background: var(--card);
+  border: 3px solid #3a2b1e;
+  border-radius: 0;
+  box-shadow: 5px 5px 0 #3a2b1e;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.hidden { display: none !important; }
+
+/* 按钮：米黄底 3px 粗边 + 硬阴影 */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 3px solid #3a2b1e;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #3a2b1e;
+  background: #fff3d6;
+  color: #3a2b1e;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn:hover { background: #f4a261; }
+.btn-primary { background: #f4a261; border-color: #3a2b1e; color: #3a2b1e; box-shadow: 3px 3px 0 #3a2b1e; }
+.btn-primary:hover { background: #ffe08a; color: #3a2b1e; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .topbar { flex-direction: column; gap: 8px; }
+  .popup { width: 90vw; left: 5vw !important; }
+}
+.version {
+  font-size: 12px;
+  font-weight: 400;
+  color: #3a2b1e;
+  background: #fff3d6;
+  border: 2px solid #3a2b1e;
+  border-radius: 0;
+  padding: 2px 8px;
+  vertical-align: middle;
+  margin-left: 6px;
+}

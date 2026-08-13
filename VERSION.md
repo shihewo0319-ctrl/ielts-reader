@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.10**
+- 当前版本：**1.1.11**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,19 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.9`
-2. index.html / reader.html 的 `style.css?v=1.1.9`
-3. reader.html 的 `app.js?v=1.1.9`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.11`
+2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
+3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.11 项目模块化重构
+- 前端按功能拆分为 ES Modules：`src/home.js`（主页/AI 设置）、`src/reader.js`（阅读器入口）、`src/reader/`（article 文章、dict 词典、popup 弹窗、tts 发音、sample 示例）、`src/lib/`（dom/api 通用工具）
+- 样式拆分：`src/styles/theme.css`（通用）/ `home.css`（主页与设置）/ `reader.css`（阅读器与弹窗）
+- 引入 Vite 多页工程化（可选）：`npm install` → `npm run dev` 热更新 / `npm run build` 构建；`python3 server.py --prod` 可服务构建产物
+- 顺带修复：思考模式开关未接线、`loadThinking` 未定义（v1.1.9 遗留问题），现在开关真实生效
 
 ## v1.1.10 修正 OpenCode Go 官方模型列表
 - OpenCode Go 官方模型列表中不存在 glm-5 / kimi-k2.5（已在 Zen 下线），已改为官方 chat/completions 端点可用模型：grok-4.5、glm-5.2、glm-5.1、kimi-k3、kimi-k2.7-code、kimi-k2.6、deepseek-v4-pro、deepseek-v4-flash、mimo-v2.5、mimo-v2.5-pro、hy3

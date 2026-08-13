@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """IELTS 阅读学习助手 本地服务器
-- 提供静态页面
+- 提供静态页面（开发：项目根目录 / 原生 ES Modules；生产：--prod 时服务 dist/ 构建产物）
 - /api/chinese?word=xxx  代理有道词典中文释义（解决浏览器跨域限制）
 """
 import json
@@ -12,7 +12,11 @@ import urllib.request
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(BASE_DIR)
+# 生产模式：--prod 且存在构建产物 dist/ 时，静态目录指向 dist/
+if '--prod' in sys.argv and os.path.isdir(os.path.join(BASE_DIR, 'dist')):
+    os.chdir(os.path.join(BASE_DIR, 'dist'))
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8123
 
 

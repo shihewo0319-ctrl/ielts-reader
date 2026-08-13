@@ -1,0 +1,12 @@
+/* ============ 示例文章（首次进入自动展示，方便体验） ============ */
+export const SAMPLE_ARTICLE = `The Impact of Urban Green Spaces
+
+Urbanisation has accelerated at an unprecedented rate over the past century, with more than half of the world's population now residing in cities. While urban development has brought economic prosperity and improved living standards, it has also given rise to a range of environmental and social challenges. One increasingly prominent solution is the creation and preservation of green spaces within cities.
+
+Green spaces, which include parks, gardens, and tree-lined streets, provide a multitude of benefits. Firstly, they contribute to the mitigation of air pollution by absorbing carbon dioxide and releasing oxygen. Trees also act as natural filters, trapping particulate matter that would otherwise be inhaled by residents. Furthermore, green areas help to regulate urban temperatures, counteracting the so-called "heat island" effect whereby concrete and asphalt retain heat and make cities considerably warmer than surrounding rural areas.
+
+In addition to environmental advantages, green spaces have a significant impact on public health and wellbeing. Research has consistently demonstrated that access to nature reduces stress levels, lowers blood pressure, and improves mental health. Children who play in parks tend to be more physically active, which helps to combat the growing problem of childhood obesity. Moreover, these spaces foster social cohesion by providing neutral grounds where people from diverse backgrounds can interact and form communities.
+
+Nevertheless, the provision of green space is not without controversy. Critics argue that land in urban centres is too valuable to be reserved for parks, particularly in cities facing acute housing shortages. They contend that the same land could accommodate residential developments, thereby alleviating pressure on housing markets. Proponents, however, counter that the long-term costs of neglecting green infrastructure, such as higher healthcare expenditure and degraded air quality, far outweigh the short-term economic gains.
+
+In conclusion, although the debate between development and environmental preservation is unlikely to be resolved easily, the evidence overwhelmingly supports the integration of green spaces into urban planning. Cities that prioritise greenery are not only more sustainable but also more liveable, offering their inhabitants a healthier and more harmonious environment in which to thrive.`;

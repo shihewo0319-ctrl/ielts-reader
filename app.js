@@ -46,8 +46,15 @@ if (dictSelect) {
 }
 const settingsModal = $('settings-modal');
 
+/* 全文朗读控件（提前声明，供 loadArticle 初始化时调用 stopReading） */
+const readState = { active: false, paused: false, index: 0, items: [] };
+const btnRead = $('btn-read');
+const btnStopRead = $('btn-stop-read');
+const readRate = $('read-rate');
+
 /* ============ 文章加载 ============ */
 function loadArticle(text, title = '阅读文章') {
+  stopReading();
   articleText = text;
   aiVocab = [];
   articleTitle.textContent = title;
@@ -122,6 +129,7 @@ function readFile(file) {
 
 $('btn-sample').addEventListener('click', () => loadArticle(SAMPLE_ARTICLE, '示例文章：The Impact of Urban Green Spaces'));
 $('btn-reset').addEventListener('click', () => {
+  stopReading();
   articlePanel.classList.add('hidden');
   vocabPanel.classList.add('hidden');
   $('upload-panel').classList.remove('hidden');
@@ -621,3 +629,108 @@ function escapeHtml(s) {
 
 // 首次进入自动展示示例文章，方便立刻体验
 loadArticle(SAMPLE_ARTICLE, '示例文章：The Impact of Urban Green Spaces');
+
+/* ============ 全文朗读 ============ */
+// 用浏览器语音合成整篇朗读：按段落朗读并高亮当前段落，支持暂停/继续/停止/变速
+
+function buildReadItems() {
+  const items = [];
+  articleContent.querySelectorAll('p').forEach(p => {
+    const text = (p.textContent || '').trim();
+    if (text) items.push({ el: p, text });
+  });
+  return items;
+}
+
+function updateReadBtn() {
+  if (readState.active && !readState.paused) {
+    btnRead.textContent = '⏸ 暂停';
+    btnRead.title = '暂停朗读';
+  } else if (readState.active && readState.paused) {
+    btnRead.textContent = '▶ 继续';
+    btnRead.title = '继续朗读';
+  } else {
+    btnRead.textContent = '🔊 朗读全文';
+    btnRead.title = '朗读全文';
+  }
+}
+
+function highlightReadItem(el) {
+  clearReadHighlight();
+  if (el) el.classList.add('reading');
+}
+
+function clearReadHighlight() {
+  articleContent.querySelectorAll('p.reading').forEach(p => p.classList.remove('reading'));
+}
+
+function readNext() {
+  if (!readState.active || readState.paused) return;
+  if (readState.index >= readState.items.length) { stopReading(); return; }
+  const item = readState.items[readState.index];
+  highlightReadItem(item.el);
+  const u = new SpeechSynthesisUtterance(item.text);
+  u.lang = 'en-US';
+  u.rate = parseFloat(readRate.value) || 1;
+  const voice = pickEnVoice();
+  if (voice) u.voice = voice;
+  u.onend = () => { readState.index++; readNext(); };
+  u.onerror = () => { readState.index++; readNext(); };
+  // Chrome 已知问题：cancel 后立刻 speak 可能被吞掉，稍作延迟再播放
+  const speakIdx = readState.index;
+  setTimeout(() => {
+    if (!readState.active || readState.paused || speakIdx !== readState.index) return;
+    try { speechSynthesis.speak(u); } catch (e) { readState.index++; readNext(); }
+  }, 80);
+}
+
+function startReading() {
+  if (!('speechSynthesis' in window)) {
+    alert('当前浏览器不支持语音朗读，请换用 Chrome / Edge 打开');
+    return;
+  }
+  if (readState.active && readState.paused) { // 继续
+    readState.paused = false;
+    try { speechSynthesis.resume(); } catch (e) {}
+    updateReadBtn();
+    return;
+  }
+  if (readState.active) return; // 已在朗读
+  readState.active = true;
+  readState.paused = false;
+  readState.index = 0;
+  readState.items = buildReadItems();
+  if (!readState.items.length) { stopReading(); return; }
+  btnStopRead.classList.remove('hidden');
+  updateReadBtn();
+  readNext();
+}
+
+function toggleReadPause() {
+  if (!readState.active) return;
+  if (readState.paused) {
+    readState.paused = false;
+    try { speechSynthesis.resume(); } catch (e) {}
+  } else {
+    readState.paused = true;
+    try { speechSynthesis.pause(); } catch (e) {}
+  }
+  updateReadBtn();
+}
+
+function stopReading() {
+  try { speechSynthesis.cancel(); } catch (e) {}
+  readState.active = false;
+  readState.paused = false;
+  readState.index = 0;
+  readState.items = [];
+  clearReadHighlight();
+  btnStopRead.classList.add('hidden');
+  updateReadBtn();
+}
+
+btnRead.addEventListener('click', () => {
+  if (readState.active && !readState.paused) toggleReadPause();
+  else startReading();
+});
+btnStopRead.addEventListener('click', stopReading);

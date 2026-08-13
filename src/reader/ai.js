@@ -13,10 +13,19 @@ export const PROVIDER_NAMES = {
   'openai-compatible': 'OpenAI 兼容',
 };
 
-const successCache = new Map(); // key -> { ok:true, content, provider }
+const successCache = new Map(); // key -> { ok:true, content, provider }（当前页面内存缓存）
+const STORE_CACHE_KEY = 'ielts_ai_cache'; // localStorage 持久缓存：刷新页面后已分析过的句子不再重复调用 AI
+const MAX_CACHE = 300;
 
 function cacheKey(kind, word, sentence) {
   return kind + '\u0000' + (word || '') + '\u0000' + (sentence || '');
+}
+
+function loadPersistCache() {
+  try { return JSON.parse(localStorage.getItem(STORE_CACHE_KEY) || '{}'); } catch (e) { return {}; }
+}
+function savePersistCache(c) {
+  try { localStorage.setItem(STORE_CACHE_KEY, JSON.stringify(c)); } catch (e) {}
 }
 
 function buildPrompt(kind, word, sentence) {
@@ -42,6 +51,13 @@ export async function fetchAi(kind, word, sentence) {
   const key = cacheKey(kind, word, sentence);
   const cached = successCache.get(key);
   if (cached) return cached;
+  // 持久缓存命中：刷新页面后仍秒开，直接返回并同步到内存缓存
+  const store = loadPersistCache();
+  if (store[key]) {
+    const out = { ok: true, content: store[key].content, provider: store[key].provider };
+    successCache.set(key, out);
+    return out;
+  }
 
   const cfg = getDefaultAiConfig();
   if (!cfg) {
@@ -68,6 +84,15 @@ export async function fetchAi(kind, word, sentence) {
     if (res.ok) {
       const out = { ok: true, content: res.content || '', provider: cfg.provider };
       successCache.set(key, out);
+      // 写入持久缓存，容量超限时删除最旧的条目
+      const store = loadPersistCache();
+      store[key] = { content: out.content, provider: out.provider, ts: Date.now() };
+      const keys = Object.keys(store);
+      if (keys.length > MAX_CACHE) {
+        keys.sort((a, b) => (store[a].ts || 0) - (store[b].ts || 0));
+        for (let i = 0; i < keys.length - MAX_CACHE; i++) delete store[keys[i]];
+      }
+      savePersistCache(store);
       return out;
     }
     let msg = String(res.error || '未知错误');

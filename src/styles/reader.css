@@ -229,6 +229,27 @@
   vertical-align: 1px;
 }
 
+/* ===== 语法分析：句子结构树形图 ===== */
+.ai-tree {
+  background: #fdf0d5;
+  border: 2px solid #3a2b1e;
+  border-left: 6px solid #f4a261;
+  padding: 8px 10px;
+  margin: 8px 0;
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+}
+.ai-tree .tree-line { white-space: pre; }
+.ai-tree .tree-prefix { color: #3a2b1e; }
+.ai-tree .pos {
+  margin-right: 4px;
+  vertical-align: baseline;
+  font-size: 12px;
+}
+
 /* ===== 语境翻译：原句显示 + 选中单词高亮 ===== */
 .ai-sentence {
   font-size: 14px;

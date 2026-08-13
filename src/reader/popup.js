@@ -103,8 +103,8 @@ export function showPopupAt(anchorRect, contentHtml, title, ai) {
 async function loadAiPane(pane, kind, ai) {
   if (pane.dataset.loaded === '1') return;
   pane.dataset.loaded = '1';
-  // 语境翻译：顶部显示原句 + 高亮选中单词
-  if (kind === 'translate' && ai.sentence) {
+  // 语境翻译 / 语法分析：顶部显示原句 + 高亮选中单词
+  if ((kind === 'translate' || kind === 'grammar') && ai.sentence) {
     const sent = document.createElement('div');
     sent.className = 'ai-sentence';
     sent.innerHTML = highlightWord(escapeHtml(ai.sentence), ai.word);

@@ -36,7 +36,13 @@ function buildPrompt(kind, word, sentence) {
     + '【成分划分】从左到右标注核心成分（主语/谓语动词/宾语/表语/定语/状语/补语等），示例格式："The old man(主语) slowly(方式状语) walked(谓语动词) along the river(地点状语)."；'
     + '多词短语整体标注并用 ··· 连接；存在从句时，分别用【主句】与【从句】分段，从句注明类型（如定语从句/状语从句/宾语从句/主语从句）；'
     + '形式主语/形式宾语需标注其真实主语/真实宾语；只标主要成分，不必逐词展开，保持简洁\n'
-    + '【主干结构】一句话概括句子主干（主谓宾 / 主系表 / 主谓等），并列或嵌套关系一并说明\n';
+    + '【主干结构】一句话概括句子主干（主谓宾 / 主系表 / 主谓等），并列或嵌套关系一并说明\n'
+    + '【结构图】最后输出一个树状图，直观展示整句结构，每行一个节点，用 ├─ └─ │ 等线条连接，格式示例：\n'
+    + '陈述句（主谓状）\n'
+    + '├─ 主语：The old man\n'
+    + '├─ 谓语动词：walked\n'
+    + '└─ 地点状语：along the river\n'
+    + '有从句时按层级展开，如：├─ 主句 │  ├─ 主语：I │  └─ 谓语动词：believe └─ 宾语从句 ├─ 主语：he └─ 谓语动词：is coming';
 }
 
 // kind: 'translate' | 'grammar'
@@ -89,6 +95,28 @@ export function buildAiContentHtml(content, compact = false) {
   let text = content;
   // 语法分析：压缩结构之间的连续空行，让间距更紧凑
   if (compact) text = text.replace(/\n{2,}/g, '\n');
-  const esc = escapeHtml(text);
-  return esc.replace(/【([^】]+)】/g, '<span class="pos">$1</span>');
+  let html = escapeHtml(text);
+  // 【结构图】块 → 树形图表卡片（先替换，避免后续标签处理影响树内内容）
+  html = html.replace(/【结构图】\n?([\s\S]*?)(?=\n【[^】]+】|$)/g, (m, block) => {
+    return '<span class="pos">结构图</span><div class="ai-tree">' + renderTreeBlock(block) + '</div>';
+  });
+  return html.replace(/【([^】]+)】/g, '<span class="pos">$1</span>');
+}
+
+// 把【结构图】里的文本树渲染成带连接线的树形图表
+function renderTreeBlock(block) {
+  const lines = block.split('\n');
+  let out = '';
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, '');
+    if (!line.trim()) continue;
+    // 拆出树线前缀（├─ └─ │ 等）与节点内容，树线保持原样
+    const m = line.match(/^(\s*(?:[│├└]─?[ \t]*)*)(.*)$/);
+    const prefix = m ? m[1] : '';
+    let text = m ? m[2] : line;
+    // 高亮节点里的「成分：内容」中的成分（红色标签样式）
+    text = text.replace(/^([^:：]{1,14}?)([:：]\s*)/, '<span class="pos">$1</span>$2');
+    out += '<div class="tree-line"><span class="tree-prefix">' + prefix + '</span>' + text + '</div>';
+  }
+  return out;
 }

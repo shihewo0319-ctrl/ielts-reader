@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.14**
+- 当前版本：**1.1.15**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,18 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html）
-1. index.html / reader.html 标题旁的版本徽章：`v1.1.14`
+1. index.html / reader.html 标题旁的版本徽章：`v1.1.15`
 2. index.html / reader.html 的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.15 选择默认 API
+- AI 设置已绑定列表新增「⭐ 设为默认」：绑定多个 API 时，可手动指定阅读器 AI 语境翻译 / 语法分析默认调用哪个服务商
+- 默认 API 存在 localStorage（ieltsDefaultProvider），删除默认服务商时自动清除
+- 未手动设置时，仍按 OpenCode Go → OpenCode Zen → DeepSeek → OpenAI → OpenAI 兼容 顺序自动选择
 
 ## v1.1.13 AI 语境翻译 + 句子语法分析
 - 释义弹窗改为标签页：📖 词典（默认，免费快速）｜🤖 语境翻译（AI 结合单词所在句子解释语境含义）｜📚 语法分析（分析句子主干/从句/时态，长难句拆分理解）

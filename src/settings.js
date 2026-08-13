@@ -1,5 +1,7 @@
 /* ============ 设置（设置菜单 + AI 设置：API Key 绑定 + 思考模式） ============ */
 
+import { getDefaultProvider, setDefaultProvider } from './lib/ai-config.js';
+
 // ===== 思考模式开关（v1.1.9 补充：修复 loadThinking 未定义 / 开关未接线） =====
 const THINKING_KEY = 'ieltsThinking';
 function loadThinking() {
@@ -202,6 +204,13 @@ function saveThinking(v) {
         status.className = 'apikey-status bound';
         status.textContent = '已绑定';
         head.appendChild(name); head.appendChild(val); head.appendChild(status);
+        var isDefault = getDefaultProvider() === id;
+        if (isDefault) {
+          var badge = document.createElement('span');
+          badge.className = 'apikey-default-badge';
+          badge.textContent = '⭐ 默认';
+          head.appendChild(badge);
+        }
 
         var meta = document.createElement('div');
         meta.className = 'apikey-meta';
@@ -225,7 +234,14 @@ function saveThinking(v) {
         test.title = '真实调用该服务商 API 验证 Key';
         var result = document.createElement('div');
         result.className = 'apikey-test-result';
-        ops.appendChild(show); ops.appendChild(edit); ops.appendChild(del); ops.appendChild(test);
+        var setDefault = document.createElement('button');
+        setDefault.type = 'button';
+        setDefault.className = 'apikey-btn' + (isDefault ? ' apikey-default-on' : '');
+        setDefault.textContent = isDefault ? '✓ 默认' : '⭐ 设为默认';
+        setDefault.title = '设为默认 API（阅读器 AI 语境翻译 / 语法分析默认使用）';
+        setDefault.disabled = isDefault;
+        setDefault.addEventListener('click', function () { setDefaultProvider(id); renderApiKeys(); });
+        ops.appendChild(show); ops.appendChild(edit); ops.appendChild(del); ops.appendChild(setDefault); ops.appendChild(test);
 
         show.addEventListener('click', function () {
           var showing = val.textContent !== MASK;
@@ -235,6 +251,7 @@ function saveThinking(v) {
         edit.addEventListener('click', function () { openForm(id); });
         del.addEventListener('click', function () {
           storeKey(id, '');
+          if (getDefaultProvider() === id) setDefaultProvider('');
           if (editingProvider === id) { editingProvider = null; document.getElementById('apikeyForm').hidden = true; }
           renderApiKeys();
         });

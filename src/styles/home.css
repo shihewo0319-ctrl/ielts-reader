@@ -297,3 +297,17 @@
 .apikey-test-result.ok { color: #2a6f2a; }
 .apikey-test-result.fail { color: #e63946; }
 .apikey-test-result.testing { color: #a05c22; }
+
+/* ===== 默认 API 标记（v1.1.15） ===== */
+.apikey-default-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3a2b1e;
+  background: #ffe08a;
+  border: 2px solid #3a2b1e;
+  padding: 1px 6px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+.apikey-default-on { background: #ffe08a; }
+.apikey-default-on:disabled { cursor: default; opacity: 1; }

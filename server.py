@@ -163,6 +163,9 @@ class Handler(SimpleHTTPRequestHandler):
             'messages': [{'role': 'user', 'content': message}],
             'stream': False,
         }
+        # DeepSeek V4 默认开启思考模式（effort=high）导致响应慢/易超时，默认禁用，保证响应快且稳定
+        if provider == 'deepseek':
+            payload['thinking'] = {'type': 'disabled'}
         req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + api_key,

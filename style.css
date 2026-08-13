@@ -273,3 +273,49 @@ main {
   vertical-align: middle;
   margin-left: 6px;
 }
+
+/* 主页 */
+.home-hero { text-align: center; margin: 40px 0 30px; }
+.home-hero h2 { font-size: 26px; color: #e63946; }
+.home-hero p { color: #a05c22; margin-top: 8px; }
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+.feature-card {
+  display: block;
+  text-decoration: none;
+  background: #fffdf0;
+  border: 3px solid #3a2b1e;
+  border-radius: 0;
+  box-shadow: 5px 5px 0 #3a2b1e;
+  padding: 28px 24px;
+  transition: background .15s, transform .05s, box-shadow .05s;
+}
+.feature-card:hover { background: #ffe08a; }
+.feature-card:active { transform: translate(2px, 2px); box-shadow: 3px 3px 0 #3a2b1e; }
+.feature-card .fc-icon { font-size: 40px; line-height: 1; }
+.feature-card .fc-title { font-size: 18px; font-weight: 700; color: #e63946; margin-top: 12px; }
+.feature-card .fc-desc { font-size: 14px; color: #3a2b1e; margin-top: 8px; line-height: 1.6; }
+.feature-card .fc-enter {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a2b1e;
+  border: 2px solid #3a2b1e;
+  background: #fff3d6;
+  padding: 4px 12px;
+}
+.feature-card:hover .fc-enter { background: #f4a261; }
+
+/* 顶部栏标题：点击返回主页 */
+.topbar h1 a.topbar-home {
+  color: #fff;
+  text-decoration: none;
+}
+.topbar h1 a.topbar-home:hover { text-decoration: underline; }

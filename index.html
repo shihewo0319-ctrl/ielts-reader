@@ -3,55 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IELTS 阅读学习助手</title>
-  <link rel="stylesheet" href="style.css?v=1.1.0">
+  <title>IELTS 学习台</title>
+  <link rel="stylesheet" href="style.css?v=1.1.1">
 </head>
 <body>
   <header class="topbar">
-    <h1>📖 IELTS 阅读学习助手 <span class="version" id="app-version">v1.1.0</span></h1>
-    <div class="topbar-actions">
-      <select id="dict-source" class="btn source-select" title="选择查词来源">
-        <option value="auto">🔁 词典源：自动</option>
-        <option value="free">Free Dictionary</option>
-        <option value="datamuse">Datamuse</option>
-        <option value="wiktionary">Wiktionary</option>
-      </select>
-    </div>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.1</span></h1>
+    <div class="topbar-actions"></div>
   </header>
 
   <main>
-    <!-- 上传区 -->
-    <section id="upload-panel" class="panel">
-      <div id="drop-zone" class="drop-zone">
-        <p>📄 拖拽文章到这里，或</p>
-        <input type="file" id="file-input" accept=".txt,.md,.html,.htm" hidden>
-        <button id="btn-choose" class="btn btn-primary">选择文件</button>
-        <button id="btn-sample" class="btn">📝 加载示例文章</button>
-        <p class="hint">支持 .txt / .md / .html 文件</p>
-      </div>
+    <section class="home-hero">
+      <h2>欢迎使用 IELTS 学习台</h2>
+      <p>选择下面的功能开始学习</p>
     </section>
 
-    <!-- 文章区 -->
-    <section id="article-panel" class="panel hidden">
-      <div class="article-head">
-        <h2 id="article-title">阅读文章</h2>
-        <div class="article-actions">
-          <button id="btn-reset" class="btn">↩️ 换一篇</button>
-        </div>
-      </div>
-      <article id="article-content" class="article"></article>
+    <section class="home-grid">
+      <a class="feature-card" href="reader.html">
+        <div class="fc-icon">📖</div>
+        <div class="fc-title">阅读学习助手</div>
+        <div class="fc-desc">上传雅思阅读文章，点击任意单词即可查看英文释义、音标、中文释义和双语例句，还支持选中词组查询。</div>
+        <div class="fc-enter">进入 →</div>
+      </a>
     </section>
   </main>
-
-  <!-- 单词释义弹窗 -->
-  <div id="popup" class="popup hidden">
-    <button id="popup-close" class="popup-close">×</button>
-    <div id="popup-word" class="popup-word"></div>
-    <div id="popup-phonetic" class="popup-phonetic"></div>
-    <div id="popup-meanings" class="popup-meanings"></div>
-    <div id="popup-src" class="popup-src"></div>
-  </div>
-
-  <script src="app.js?v=1.1.0"></script>
 </body>
 </html>

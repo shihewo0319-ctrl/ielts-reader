@@ -197,6 +197,33 @@ function stripHtml(s) {
   return String(s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// 中文释义：有道词典（免费、国内稳定）
+async function lookupChinese(word) {
+  const url = `https://dict.youdao.com/suggest?num=3&ver=3.0&doctype=json&cache=false&le=en&q=${encodeURIComponent(word)}`;
+  const data = await fetchJson(url, 6000);
+  const entries = data && data.data && data.data.entries;
+  if (!Array.isArray(entries) || !entries.length) throw new Error('无中文释义');
+  // 优先返回完全匹配的词条
+  let hit = entries.find(e => String(e.entry || '').toLowerCase() === word.toLowerCase());
+  if (!hit) hit = entries[0];
+  if (!hit || !hit.explain) throw new Error('无中文释义');
+  return hit.explain;
+}
+
+function buildPopupHtml(entry, zh) {
+  let html = '';
+  if (zh) html += `<div class="popup-zh"><span class="pos">中文</span>${escapeHtml(zh)}</div>`;
+  if (entry && entry.error) {
+    html += `<div class="popup-error">${escapeHtml(entry.error.message || '英文释义查询失败')}</div>`;
+  } else if (entry) {
+    const phonetic = (entry.phonetics || []).map(p => p.text).filter(Boolean)[0] || '';
+    if (phonetic) html += `<div class="popup-phonetic">${escapeHtml(phonetic)}</div>`;
+    html += buildMeaningsHtml(entry);
+    html += `<div class="popup-src">来源：${escapeHtml(entry.source || "词典")}${zh ? ' ＋ 有道词典' : ''}</div>`;
+  }
+  return html;
+}
+
 // 词典源选择（localStorage 持久化）
 const dictSourceKey = 'ieltsDictSource';
 function getDictSource() {
@@ -279,14 +306,11 @@ articleContent.addEventListener('click', async (e) => {
   e.stopPropagation();
   const word = span.dataset.word;
   showPopupAt(span.getBoundingClientRect(), '<div class="popup-error">查询中…</div>', word);
-  try {
-    const entry = await lookupWord(word);
-    const phonetic = (entry.phonetics || []).map(p => p.text).filter(Boolean)[0] || '';
-    const src = `<div class="popup-src">来源：${escapeHtml(entry.source || "词典")}</div>`;
-    showPopupAt(span.getBoundingClientRect(), `<div class="popup-phonetic">${escapeHtml(phonetic)}</div>${buildMeaningsHtml(entry)}${src}`, word);
-  } catch (err) {
-    showPopupAt(span.getBoundingClientRect(), `<div class="popup-error">${escapeHtml(err.message || '查询失败')}</div>`, word);
-  }
+  const [entry, zh] = await Promise.all([
+    lookupWord(word).catch(err => ({ error: err })),
+    lookupChinese(word).catch(() => ''),
+  ]);
+  showPopupAt(span.getBoundingClientRect(), buildPopupHtml(entry, zh), word);
 });
 
 /* 选中词组查询 */
@@ -316,12 +340,14 @@ function showLookupBtn(rect, text) {
     btn.remove();
     hidePopup();
     showPopupAt(rect, '<div class="popup-error">查询中…</div>', text);
-    try {
-      const entry = await lookupWord(text);
-      const phonetic = (entry.phonetics || []).map(p => p.text).filter(Boolean)[0] || '';
-      showPopupAt(rect, `<div class="popup-phonetic">${escapeHtml(phonetic)}</div>${buildMeaningsHtml(entry)}`, text);
-    } catch {
+    const [entry, zh] = await Promise.all([
+      lookupWord(text).catch(err => ({ error: err })),
+      lookupChinese(text).catch(() => ''),
+    ]);
+    if ((entry && entry.error) && !zh) {
       showPopupAt(rect, '<div class="popup-error">词组未收录，试试点击单个单词查词</div>', text);
+    } else {
+      showPopupAt(rect, buildPopupHtml(entry, zh), text);
     }
   });
   document.body.appendChild(btn);

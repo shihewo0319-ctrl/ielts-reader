@@ -203,3 +203,11 @@ main {
   cursor: pointer;
 }
 .source-select:hover { background: #f0f2f5; }
+
+.popup-zh {
+  font-size: 15px;
+  font-weight: 600;
+  color: #c0392b;
+  margin-bottom: 6px;
+}
+.popup-zh .pos { color: var(--primary); }

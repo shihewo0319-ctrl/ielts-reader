@@ -3,13 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <title>IELTS 学习台</title>
-  <link rel="stylesheet" href="style.css?v=1.1.1">
+  <link rel="stylesheet" href="style.css?v=1.1.2">
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.1</span></h1>
-    <div class="topbar-actions"></div>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.2</span></h1>
+    <div class="topbar-actions">
+      <div class="settings-wrap">
+        <button class="settings-btn" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
+        <div class="settings-menu" id="settingsMenu" hidden>
+          <div class="settings-panel" id="settingsMain">
+            <div class="settings-title">设置</div>
+            <button class="settings-item" data-panel="ai">AI 设置 <span class="arrow">→</span></button>
+            <div class="settings-more">更多子菜单即将上线…</div>
+          </div>
+          <div class="settings-panel" id="settingsAi" hidden>
+            <div class="settings-title">
+              <button class="settings-back" id="settingsBack" title="返回设置">←</button>
+              AI 设置
+            </div>
+            <div class="settings-body">
+              <p>设置项将在这里显示，敬请期待。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -27,5 +48,38 @@
       </a>
     </section>
   </main>
+<script>
+  (function () {
+    var btn = document.getElementById('settingsBtn');
+    var menu = document.getElementById('settingsMenu');
+    var main = document.getElementById('settingsMain');
+    var ai = document.getElementById('settingsAi');
+    var back = document.getElementById('settingsBack');
+
+    function resetPanels() { main.hidden = false; ai.hidden = true; }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opening = menu.hidden;
+      menu.hidden = !opening;
+      if (opening) resetPanels();
+    });
+
+    document.querySelector('[data-panel="ai"]').addEventListener('click', function () {
+      main.hidden = true; ai.hidden = false;
+    });
+
+    back.addEventListener('click', function () {
+      resetPanels();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.settings-wrap')) { menu.hidden = true; resetPanels(); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { menu.hidden = true; resetPanels(); }
+    });
+  })();
+</script>
 </body>
 </html>

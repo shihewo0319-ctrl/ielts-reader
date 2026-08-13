@@ -10,7 +10,7 @@
 </head>
 <body>
   <header class="topbar">
-    <h1>🏠 IELTS 学习台 <span class="version">v1.1.47</span></h1>
+    <h1>🏠 IELTS 学习台 <span class="version">v1.1.48</span></h1>
     <div class="topbar-actions">
       <div id="settings-menu-root"></div>
     </div>
@@ -21,6 +21,18 @@
       <h2>欢迎使用 IELTS 学习台</h2>
       <p>选择下面的功能开始学习</p>
     </section>
+
+    <!-- 单词查询：搜索框入口（非卡片），释义格式与阅读器词典一致 -->
+    <section class="dict-search">
+      <h2 class="dict-search-title">🔍 单词查询</h2>
+      <form id="dict-form" class="dict-search-form" autocomplete="off">
+        <input id="dict-input" class="dict-search-input" type="text"
+               placeholder="输入英文单词，如 gardens，回车或点「查询」"
+               spellcheck="false">
+        <button type="submit" class="btn btn-primary">查询</button>
+      </form>
+    </section>
+    <div id="dict-result" class="dict-result popup" hidden></div>
 
     <section class="home-grid">
       <a class="feature-card" href="reader.html">

@@ -262,20 +262,61 @@ function buildMeaningsHtml(entry) {
 }
 
 /* ============ 弹窗 ============ */
-// 单词发音：使用浏览器内置语音合成（免费、无需 API、连接稳定）
-function speakWord(word) {
+// 单词发音：优先浏览器语音合成；若未真正开始朗读（部分浏览器静默失败），
+// 自动兜底用有道词典发音接口（免费、国内稳定）。type=2 美音，type=1 英音。
+let ttsVoices = [];
+function initTts() {
+  if (!('speechSynthesis' in window)) return;
+  const load = () => { try { ttsVoices = speechSynthesis.getVoices() || []; } catch (e) {} };
+  load();
+  try { speechSynthesis.onvoiceschanged = load; } catch (e) {}
+}
+initTts();
+
+function pickEnVoice() {
+  return ttsVoices.find(v => /^en(-|_)?(US|GB)/i.test(v.lang) && /Google|Microsoft|Samantha|Daniel|Alex|Aria|Jenny|Guy|Libby|Zira|Hazel|Susan/i.test(v.name))
+      || ttsVoices.find(v => /^en(-|_)?US/i.test(v.lang))
+      || ttsVoices.find(v => /^en/i.test(v.lang))
+      || null;
+}
+
+function speakByYoudao(word) {
   try {
-    if (!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
+    const audio = new Audio('https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(word) + '&type=2');
+    audio.play().catch(() => {});
+  } catch (e) {}
+}
+
+function speakWord(word) {
+  // 按钮播放反馈
+  const btn = document.querySelector('.popup .popup-sound');
+  if (btn) {
+    btn.classList.remove('speaking');
+    void btn.offsetWidth; // 重置动画
+    btn.classList.add('speaking');
+    setTimeout(() => btn.classList.remove('speaking'), 1600);
+  }
+  if ('speechSynthesis' in window) {
+    let started = false;
+    let timer = null;
+    try { speechSynthesis.cancel(); } catch (e) {}
     const u = new SpeechSynthesisUtterance(word);
     u.lang = 'en-US';
     u.rate = 0.9;
-    const voices = speechSynthesis.getVoices();
-    const en = voices.find(v => /^en(-|_)?(US|GB)/i.test(v.lang) && /Google|Microsoft|Samantha|Daniel|Alex/i.test(v.name))
-            || voices.find(v => /^en/i.test(v.lang));
-    if (en) u.voice = en;
-    speechSynthesis.speak(u);
-  } catch (err) { /* 发音失败时静默忽略 */ }
+    const voice = pickEnVoice();
+    if (voice) u.voice = voice;
+    u.onstart = () => { started = true; };
+    u.onend = () => { if (timer) clearTimeout(timer); };
+    u.onerror = () => { if (timer) clearTimeout(timer); speakByYoudao(word); };
+    // Chrome 已知问题：cancel 后立刻 speak 可能被吞掉，稍作延迟
+    timer = setTimeout(() => {
+      if (!started) { try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u); }
+    }, 60);
+    // 如果浏览器一直没真正开始朗读，自动切到有道发音
+    setTimeout(() => { if (!started) speakByYoudao(word); }, 900);
+    return;
+  }
+  speakByYoudao(word);
 }
 
 function showPopupAt(anchorRect, contentHtml, title) {

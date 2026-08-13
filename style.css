@@ -163,6 +163,11 @@ main {
 }
 .popup-word .popup-sound:hover { opacity: 1; transform: scale(1.15); }
 .popup-word .popup-sound:active { transform: scale(.95); }
+.popup-word .popup-sound.speaking { animation: sound-pulse .4s ease-in-out 2; }
+@keyframes sound-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
 .popup-phonetic { color: #6e7781; font-size: 14px; margin: 2px 0 10px; }
 .popup-meanings { font-size: 14px; color: #24292f; }
 .popup-meanings .def {

@@ -219,15 +219,15 @@ main {
   margin: 12px 0;
 }
 .popup-zh {
-  font-size: 16px;
-  font-weight: 700;
-  color: #c0392b;
+  font-size: 15px;
+  font-weight: 600;
+  color: #24292f;
   line-height: 1.6;
 }
 .popup-zh .pos {
   display: inline-block;
-  background: #ffe3e3;
-  color: #c0392b;
+  background: #fff4e6;
+  color: #e8590c;
   border-radius: 4px;
   padding: 1px 7px;
   margin-right: 6px;

@@ -27,6 +27,7 @@ function buildPrompt(kind, word, sentence) {
     + '请像专业语法分析工具 Enpuz 那样分析这句话，只输出一个 JSON 对象（不要输出任何其他文字、不要用 markdown 代码块包裹），格式如下：\n'
     + '{\n'
     + '  "summary": "句子类型（简单句/并列句/复合句及从句类型）+ 主干 + 时态语态，用中文一句话概括",\n'
+    + '  "translation": "整个句子的通顺中文翻译",\n'
     + '  "chunks": [\n'
     + '    {"text": "单词或短语原文", "role": "成分名", "clause": "所属从句名"}\n'
     + '  ]\n'
@@ -36,7 +37,8 @@ function buildPrompt(kind, word, sentence) {
     + '2. 多词短语作为一个 chunk，例如 "the old man" 整体作为一个 chunk\n'
     + '3. role 用中文成分名：主语/谓语动词/宾语/表语/定语/状语/补语/连词/系表结构/介词短语等\n'
     + '4. clause 填该 chunk 属于的主句或从句名（如 主句 / 让步状语从句 / 宾语从句），标点符号的 clause 填空字符串\n'
-    + '5. 标点符号（逗号句号等）单独作为一个 chunk，role 填 "标点"'
+    + '5. 标点符号（逗号句号等）单独作为一个 chunk，role 填 "标点"\n'
+    + '6. translation 必须是整个句子的通顺中文翻译，不要省略'
 }
 
 // kind: 'translate' | 'grammar'
@@ -84,7 +86,7 @@ export function buildAiContentHtml(content) {
 }
 
 // 解析语法分析的 JSON 输出（容忍 markdown 代码块 / 前后多余文字）
-// 返回 { ok:true, summary, chunks:[{text,role,clause}] } 或 { ok:false }
+// 返回 { ok:true, summary, translation, chunks:[{text,role,clause}] } 或 { ok:false }
 export function parseGrammarJson(content) {
   try {
     let text = String(content || '').trim();
@@ -105,7 +107,12 @@ export function parseGrammarJson(content) {
         clause: typeof c.clause === 'string' ? c.clause : '',
       }));
     if (!chunks.length) return { ok: false };
-    return { ok: true, summary: typeof obj.summary === 'string' ? obj.summary : '', chunks };
+    return {
+      ok: true,
+      summary: typeof obj.summary === 'string' ? obj.summary : '',
+      translation: typeof obj.translation === 'string' ? obj.translation : '',
+      chunks,
+    };
   } catch (e) {
     return { ok: false };
   }

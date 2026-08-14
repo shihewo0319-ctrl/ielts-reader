@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.3.0**
+- 当前版本：**1.3.1**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -9,14 +9,23 @@
 - **功能更新**（新增功能、更换实现方式、功能增强等）：升版本号后，必须在下方「更新日志」里新增一条，写明版本号和更新内容
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
-## 每次改版本时需要同步的位置（index.html / reader.html / library.html / wordbook.html / dict.html）
-1. 五个页面标题旁的版本徽章：`v1.3.0`
+## 每次改版本时需要同步的位置（index.html / reader.html / library.html / wordbook.html / dict.html / grammar.html）
+1. 六个页面标题旁的版本徽章：`v1.3.1`
 2. 页面的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.3.1 新增独立「语法分析」功能页（结构树 + 流水词块 + 双语对照三合一）
+- 新页面 grammar.html + 首页第 4 张功能卡片「🧩 语法分析」+ 顶栏导航 + vite 多页入口
+- 粘贴任意英文句子 → 复用 AI 语法分析链路（fetchAi kind='grammar'）→ 三合一渲染：
+  ① 结构树（按主句/从句分组列出成分）② 流水词块（词在上、成分标签在下，红边=主句/紫边=从句）③ 双语对照（英文按成分着色 + 中文翻译 + 结构总结）
+- 渲染逻辑新建 `src/reader/grammar-view.js`（阅读器弹窗仍用原 Enpuz 行内样式不变）；样式新建 `src/styles/grammar.css`（像素风）
+- AI 语法分析提示词新增 `translation` 字段（整句中文翻译），`parseGrammarJson` 返回 translation（可选，弹窗不受影响）
+- 内置两个示例句按钮（让步状语从句 / that 宾语从句），未绑定 API Key 时提示去「设置 → AI 设置」
+- 预览稿：Project/grammar-combined-preview/index.html（独立页面，未入库）
 
 ## v1.1.66 单词查询页移除 URL 记忆（刷新即空白页，不再残留上次结果）
 - 查询结果不再写入 URL（v1.1.49 的「链接可刷新/收藏/分享」特性移除）：刷新 / 重新打开 / 旧收藏链接都只显示空白搜索框

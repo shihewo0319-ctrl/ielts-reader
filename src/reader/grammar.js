@@ -2,9 +2,10 @@
  * 把 ai.js 的 parseGrammarJson 结果渲染成：整句保持原样、每个词/短语下方
  * 用小标签标出成分、主句与从句用底色区分、底部带图例。
  * 同时提供在句子中高亮选中单词的工具函数（语境翻译原句也用）。
+ * 注：语法分析页（grammar.html）的三合一渲染在 grammar-view.js，本模块只管弹窗。
  */
-// 成分 → 标签颜色
-function roleColorClass(role) {
+// 成分 → 标签颜色（弹窗渲染与语法分析页共用）
+export function roleColorClass(role) {
   if (/主语/.test(role)) return 'subj';
   if (/谓语|系表/.test(role)) return 'pred';
   if (/宾语/.test(role)) return 'obj';

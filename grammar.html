@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+  <title>IELTS 学习台 · 语法分析</title>
+  <link rel="stylesheet" href="/src/styles/theme.css">
+  <link rel="stylesheet" href="/src/styles/grammar.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.3.1</span></h1>
+    <nav id="top-nav" class="topbar-nav"></nav>
+  </header>
+
+  <main>
+    <section class="panel ga-input-panel">
+      <h2 class="page-title">🧩 语法分析</h2>
+      <p class="ga-hint">粘贴任意英文句子，AI 分析句子结构：<b>结构树</b>看层次、<b>流水词块</b>看成分、<b>双语对照</b>看理解。</p>
+      <textarea id="grammar-input" rows="4" placeholder="输入或粘贴一个英文句子，例如：Although the weather was terrible, the students still enjoyed their trip."></textarea>
+      <div class="ga-actions">
+        <button id="btn-analyze" class="btn btn-primary">🔍 分析语法</button>
+        <div id="grammar-samples" class="ga-samples"></div>
+      </div>
+    </section>
+
+    <section id="grammar-result" class="panel ga-result" hidden></section>
+  </main>
+
+  <script type="module" src="/src/lib/nav.js"></script>
+<script type="module" src="/src/grammar.js"></script>
+</body>
+</html>

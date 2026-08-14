@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-// 多页应用：主页 / 阅读器 / 我的文章 / 生词本 / 单词查询
+// 多页应用：主页 / 阅读器 / 我的文章 / 生词本 / 单词查询 / 语法分析
 export default defineConfig({
   build: {
     rollupOptions: {
@@ -11,6 +11,7 @@ export default defineConfig({
         library: resolve(__dirname, 'library.html'),
         wordbook: resolve(__dirname, 'wordbook.html'),
         dict: resolve(__dirname, 'dict.html'),
+        grammar: resolve(__dirname, 'grammar.html'),
       },
     },
   },

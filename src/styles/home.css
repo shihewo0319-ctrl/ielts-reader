@@ -367,3 +367,34 @@
   box-shadow: 2px 2px 0 #f4a261;
 }
 .dict-search-form .btn { padding: 10px 22px; font-size: 15px; }
+
+/* ===== 搜索框输入联想下拉（v1.1.65，与 dict.css 保持一致） ===== */
+.suggest-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 4px;
+  background: #fffdf0;
+  border: 2px solid #3a2b1e;
+  box-shadow: 4px 4px 0 rgba(58, 43, 30, .25);
+}
+.suggest-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed #d8cbb0;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:hover, .suggest-item.active { background: #fdf0d5; }
+.suggest-item-word { font-size: 15px; font-weight: 700; color: #e63946; }
+.suggest-item-zh { font-size: 11px; color: #a05c22; }

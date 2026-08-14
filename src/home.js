@@ -5,6 +5,8 @@
  */
 import './settings.js';
 import { randomQuote } from './lib/quotes.js';
+import { fetchJson } from './lib/api.js';
+import { initSuggestBox } from './lib/suggest-box.js';
 
 /* ===== 主页底部：随机英语名言 + 中文翻译（艺术字体） ===== */
 function esc(s) {
@@ -24,17 +26,29 @@ function renderQuote() {
 
 renderQuote();
 
-/* ===== 单词查询搜索框：跳转到独立查询页（dict.html?word=xxx） ===== */
+/* ===== 单词查询搜索框：跳转到独立查询页（dict.html?word=xxx）+ 输入联想 ===== */
 function initDictSearch() {
   const form = document.getElementById('dict-form');
   const input = document.getElementById('dict-input');
   if (!form || !input) return;
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const word = input.value.trim();
+  const go = (word) => {
     if (!word) return;
     location.href = 'dict.html?word=' + encodeURIComponent(word);
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    go(input.value.trim());
+  });
+
+  // 搜索引擎式输入联想（有道 suggest，最多 8 条；选中/回车即跳转查询页）
+  initSuggestBox(input, {
+    fetch: async (q) => {
+      const data = await fetchJson('/api/suggest?word=' + encodeURIComponent(q), 6000);
+      return (data && data.ok && Array.isArray(data.entries)) ? data.entries : [];
+    },
+    onPick: go,
   });
 }
 

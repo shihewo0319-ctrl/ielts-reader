@@ -204,55 +204,13 @@
   vertical-align: 1px;
 }
 
-/* ===== 联想词 / 中文映射（v1.1.64） ===== */
-.dict-suggest {
-  margin-top: 18px;
-  background: #fffdf0;
-  border: 3px solid #3a2b1e;
-  box-shadow: 5px 5px 0 #3a2b1e;
-  padding: 14px 16px;
-}
+/* ===== 中文查询：中→英映射列表（v1.1.64） ===== */
 .dict-suggest-label {
   font-size: 13px;
   font-weight: 700;
   color: #3a2b1e;
   margin-bottom: 10px;
 }
-.dict-suggest-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.dict-suggest-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  max-width: 240px;
-  font-family: inherit;
-  text-align: left;
-  background: #fff3d6;
-  border: 2px solid #3a2b1e;
-  border-radius: 0;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: background .15s, transform .1s;
-}
-.dict-suggest-chip:hover { background: #f4a261; }
-.dict-suggest-chip:active { transform: translate(1px, 1px); }
-.dict-suggest-chip .dict-suggest-word {
-  font-size: 14px;
-  font-weight: 700;
-  color: #e63946;
-  white-space: nowrap;
-}
-.dict-suggest-chip .dict-suggest-zh {
-  font-size: 11px;
-  color: #a05c22;
-  line-height: 1.4;
-  word-break: break-all;
-}
-/* 中文查询：中→英映射列表 */
 .dict-suggest-list {
   display: flex;
   flex-direction: column;
@@ -280,3 +238,34 @@
   white-space: nowrap;
 }
 .dict-suggest-item .dict-suggest-zh { font-size: 12px; color: #a05c22; }
+
+/* ===== 搜索框输入联想下拉（v1.1.65，单词 + 简短中文释义） ===== */
+.suggest-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 4px;
+  background: #fffdf0;
+  border: 2px solid #3a2b1e;
+  box-shadow: 4px 4px 0 rgba(58, 43, 30, .25);
+}
+.suggest-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed #d8cbb0;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:hover, .suggest-item.active { background: #fdf0d5; }
+.suggest-item-word { font-size: 15px; font-weight: 700; color: #e63946; }
+.suggest-item-zh { font-size: 11px; color: #a05c22; }

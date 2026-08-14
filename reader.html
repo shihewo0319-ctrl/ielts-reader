@@ -10,7 +10,7 @@
 </head>
 <body>
   <header class="topbar">
-    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.59</span></h1>
+    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version" id="app-version">v1.1.60</span></h1>
     <nav id="top-nav" class="topbar-nav"></nav>
     <div class="topbar-actions">
       <select id="dict-source" class="btn source-select" title="选择查词来源">
@@ -54,14 +54,8 @@
     </section>
   </main>
 
-  <!-- 单词释义弹窗 -->
-  <div id="popup" class="popup hidden">
-    <button id="popup-close" class="popup-close">×</button>
-    <div id="popup-word" class="popup-word"></div>
-    <div id="popup-phonetic" class="popup-phonetic"></div>
-    <div id="popup-meanings" class="popup-meanings"></div>
-    <div id="popup-src" class="popup-src"></div>
-  </div>
+  <!-- 单词释义弹窗（内容由 popup.js 动态构建，容器保持空即可） -->
+  <div id="popup" class="popup hidden"></div>
 
   <script type="module" src="/src/lib/nav.js"></script>
 <script type="module" src="/src/reader.js"></script>

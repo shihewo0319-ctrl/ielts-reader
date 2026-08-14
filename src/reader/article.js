@@ -1,7 +1,9 @@
-/* ============ 文章加载 / 渲染 / 分词 / 文件上传 ============ */
+/* ============ 文章加载 / 渲染 / 分词 / 文件上传 ============
+ * 注意：本模块不依赖 popup.js（避免 article ↔ popup 循环引用），
+ * 弹窗隐藏等交互由入口 reader.js 接线（resetArticle 只负责面板切换）。
+ */
 import { $ } from '../lib/dom.js';
 import { SAMPLE_ARTICLE } from './sample.js';
-import { hidePopup } from './popup.js';
 
 let articleText = '';          // 当前文章纯文本
 let articleTitle = '阅读文章';   // 当前文章标题
@@ -88,11 +90,12 @@ export function initUploadPanel() {
   });
 
   $('btn-sample').addEventListener('click', () => loadArticle(SAMPLE_ARTICLE, '示例文章：The Impact of Urban Green Spaces'));
-  $('btn-reset').addEventListener('click', () => {
-    $('article-panel').classList.add('hidden');
-    $('upload-panel').classList.remove('hidden');
-    hidePopup();
-  });
+}
+
+// 返回上传面板（「换一篇」按钮的交互由 reader.js 接线：先 hidePopup 再调用本函数）
+export function resetArticle() {
+  $('article-panel').classList.add('hidden');
+  $('upload-panel').classList.remove('hidden');
 }
 
 function readFile(file) {

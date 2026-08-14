@@ -2,12 +2,11 @@
  * 点击单词时弹窗带标签页：📖 词典 | 🤖 语境翻译 | 📚 语法分析
  */
 import { $, escapeHtml } from '../lib/dom.js';
-import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml } from './dict.js';
-import { speakWord, loadPhonetics } from './tts.js';
+import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml, buildWordHeader } from './dict.js';
 import { fetchAi, buildAiContentHtml, parseGrammarJson } from './ai.js';
 import { providerName } from '../lib/providers.js';
 import { renderGrammarChunks, highlightWord } from './grammar.js';
-import { addWord, addLookup } from '../lib/db-api.js';
+import { addLookup } from '../lib/db-api.js';
 import { getCurrentArticle } from './article.js';
 
 let lastAnchor = null;
@@ -37,48 +36,9 @@ export function showPopupAt(anchorRect, contentHtml, title, ai) {
   closeBtn.addEventListener('click', hidePopup);
   popup.appendChild(closeBtn);
   if (title) {
-    const w = document.createElement('div');
-    w.className = 'popup-word';
-    const wordSpan = document.createElement('span');
-    wordSpan.className = 'popup-word-text';
-    wordSpan.textContent = title;
-    w.appendChild(wordSpan);
-    const chips = document.createElement('span');
-    chips.className = 'popup-phonetics';
-    // 兜底喇叭按钮：音标加载出来后会被替换成 英/美 两个音标标签
-    const fallbackBtn = document.createElement('button');
-    fallbackBtn.className = 'popup-sound';
-    fallbackBtn.textContent = '🔊';
-    fallbackBtn.title = '美音发音';
-    fallbackBtn.addEventListener('click', (e) => { e.stopPropagation(); speakWord(title, 'us'); });
-    chips.appendChild(fallbackBtn);
-    // 加入生词本按钮（点击后把单词 + 所在句子收藏进生词本）
-    const wbBtn = document.createElement('button');
-    wbBtn.className = 'popup-wordbook';
-    wbBtn.textContent = '⭐ 加入生词本';
-    wbBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const sentence = (ai && ai.sentence) || '';
-      wbBtn.disabled = true;
-      try {
-        await addWord(title, sentence, '');
-        wbBtn.textContent = '✅ 已加入生词本';
-      } catch (err) {
-        wbBtn.textContent = '❌ 加入失败';
-        setTimeout(() => {
-          wbBtn.textContent = '⭐ 加入生词本';
-          wbBtn.disabled = false;
-        }, 1500);
-      }
-    });
-    // 元信息行：音标 + 加入生词本按钮 同一行（按钮在音标右侧）
-    const meta = document.createElement('div');
-    meta.className = 'popup-word-meta';
-    meta.appendChild(chips);
-    meta.appendChild(wbBtn);
-    w.appendChild(meta);
-    popup.appendChild(w);
-    loadPhonetics(title, chips);
+    // 词头（单词 + 音标 + ⭐ 加入生词本）由 dict.js 的 buildWordHeader 统一构建，
+    // 与单词查询页保持完全一致
+    popup.appendChild(buildWordHeader(title, (ai && ai.sentence) || ''));
   }
 
   if (ai && ai.sentence) {

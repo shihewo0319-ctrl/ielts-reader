@@ -1,6 +1,6 @@
 /* ============ 阅读器入口：组装各模块并初始化 ============ */
 import { $ } from './lib/dom.js';
-import { loadArticle, getCurrentArticle, initUploadPanel } from './reader/article.js';
+import { loadArticle, getCurrentArticle, initUploadPanel, resetArticle } from './reader/article.js';
 import { dictSourceKey, getDictSource } from './reader/dict.js';
 import { hidePopup, initWordLookup } from './reader/popup.js';
 import { initTts } from './reader/tts.js';
@@ -11,6 +11,10 @@ initTts();
 initUploadPanel();
 initWordLookup();
 initAiConfig(); // 预加载服务器 AI 设置（API Key / 思考模式），首次点击语境翻译更快
+
+/* 「换一篇」：返回上传面板 + 隐藏弹窗（接线放入口，保持 article.js 不依赖 popup.js） */
+const resetBtn = $('btn-reset');
+if (resetBtn) resetBtn.addEventListener('click', () => { hidePopup(); resetArticle(); });
 
 /* 词典源选择器 */
 const dictSelect = $('dict-source');

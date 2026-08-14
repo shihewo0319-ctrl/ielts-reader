@@ -1,6 +1,10 @@
-/* ============ 词典查询（多源 + 中文 + 例句 + 释义 HTML 构建） ============ */
+/* ============ 词典查询（多源 + 中文 + 例句 + 释义 HTML 构建 + 词头构建） ============
+ * 弹窗（popup.js）与单词查询页（dict.js）共用的释义展示都从这里构建，保证两处完全一致。
+ */
 import { escapeHtml, stripHtml } from '../lib/dom.js';
 import { fetchJson } from '../lib/api.js';
+import { addWord } from '../lib/db-api.js';
+import { speakWord, loadPhonetics } from './tts.js';
 
 // 源1：Free Dictionary API（信息最全：音标+释义+例句）
 async function lookupFreeDict(word) {
@@ -143,4 +147,56 @@ export function buildPopupHtml(entry, zh, examples) {
     html += buildExamplesHtml(examples);
   }
   return html;
+}
+
+/* 弹窗 / 单词查询页共用的词头元素：单词 + 元信息行（英/美音标 + ⭐ 加入生词本 同一行）
+ * 内部自动接线：🔊 兜底喇叭（美音）、音标点击发音、加入生词本（带成功/失败反馈），
+ * 并异步加载音标（失败时保留 🔊 兜底）。返回 .popup-word 元素，调用方 append 即可。 */
+export function buildWordHeader(word, sentence = '') {
+  const w = document.createElement('div');
+  w.className = 'popup-word';
+
+  const wordSpan = document.createElement('span');
+  wordSpan.className = 'popup-word-text';
+  wordSpan.textContent = word;
+  w.appendChild(wordSpan);
+
+  const chips = document.createElement('span');
+  chips.className = 'popup-phonetics';
+  // 兜底喇叭按钮：音标加载出来后会被替换成 英/美 两个音标标签
+  const fallbackBtn = document.createElement('button');
+  fallbackBtn.className = 'popup-sound';
+  fallbackBtn.textContent = '🔊';
+  fallbackBtn.title = '美音发音';
+  fallbackBtn.addEventListener('click', (e) => { e.stopPropagation(); speakWord(word, 'us'); });
+  chips.appendChild(fallbackBtn);
+
+  // 加入生词本按钮（点击后把单词 + 所在句子收藏进生词本）
+  const wbBtn = document.createElement('button');
+  wbBtn.className = 'popup-wordbook';
+  wbBtn.textContent = '⭐ 加入生词本';
+  wbBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    wbBtn.disabled = true;
+    try {
+      await addWord(word, sentence, '');
+      wbBtn.textContent = '✅ 已加入生词本';
+    } catch (err) {
+      wbBtn.textContent = '❌ 加入失败';
+      setTimeout(() => {
+        wbBtn.textContent = '⭐ 加入生词本';
+        wbBtn.disabled = false;
+      }, 1500);
+    }
+  });
+
+  // 元信息行：音标 + 加入生词本按钮 同一行（按钮在音标右侧）
+  const meta = document.createElement('div');
+  meta.className = 'popup-word-meta';
+  meta.appendChild(chips);
+  meta.appendChild(wbBtn);
+  w.appendChild(meta);
+
+  loadPhonetics(word, chips); // 异步加载英/美音标（失败时保留 🔊 兜底）
+  return w;
 }

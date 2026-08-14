@@ -2,10 +2,10 @@
  * 两个标签页：
  *   - ⭐ 生词本：阅读时点单词旁「⭐ 加入生词本」收藏，这里可查看/删除
  *   - 🕘 学习记录：阅读时点击单词查词会自动记录，这里可查看/清空
- * 数据读写走 src/lib/db-api.js（后端 SQLite）。
+ * 数据读写走 src/lib/db-api.js（后端 SQLite）；中文释义复用 reader/dict.js 的 lookupChinese。
  */
 import { $, escapeHtml } from './lib/dom.js';
-import { fetchJson } from './lib/api.js';
+import { lookupChinese } from './reader/dict.js';
 import { listWords, deleteWord, listLookups, clearLookups } from './lib/db-api.js';
 
 // 中文释义内存缓存（word -> 释义文本），避免重复请求有道接口
@@ -80,8 +80,11 @@ async function loadWords() {
         try {
           let explain = zhCache.get(w.word);
           if (explain === undefined) {
-            const data = await fetchJson('/api/chinese?word=' + encodeURIComponent(w.word), 8000);
-            explain = (data && data.ok && data.explain) ? data.explain : '（暂无中文释义）';
+            try {
+              explain = await lookupChinese(w.word);
+            } catch (e) {
+              explain = '（暂无中文释义）';
+            }
             zhCache.set(w.word, explain);
           }
           meaning.innerHTML = '<span class="wb-zh-label">中文释义</span>' + escapeHtml(explain);

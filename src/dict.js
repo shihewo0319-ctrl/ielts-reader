@@ -1,7 +1,8 @@
 /* ============ 单词查询页入口（dict.html） ============
- * 独立查询页：从 URL 的 ?word= 读取单词自动查询，释义展示格式与阅读器词典弹窗一致。
- * v1.1.65 起：搜索框输入时实时联想（有道 suggest，最多 8 条，单词 + 中文释义）；
- * 中文查询：有道 suggest 映射出对应英文词，点击后查该英文词。
+ * 页面内查询（v1.1.66 起结果不写 URL）：刷新即空白搜索框，不再残留上次结果；
+ * 首页搜索框跳转经 sessionStorage 一次性传词。
+ * 功能：搜索框输入时实时联想（有道 suggest，最多 8 条，单词 + 中文释义）；
+ *       中文查询：有道 suggest 映射出对应英文词，点击后查该英文词。
  */
 import {
   lookupWord, lookupChinese, lookupExamples, buildPopupHtml, buildWordHeader,
@@ -92,7 +93,7 @@ async function search(word) {
   card.appendChild(body);
 }
 
-/* ===== 搜索框：输入联想 + 回车跳转（URL 带 word 参数，可刷新/收藏/分享） ===== */
+/* ===== 搜索框：输入联想 + 页面内查询（v1.1.66 起不再写 URL，刷新即空白页） ===== */
 function initDictSearch() {
   const form = document.getElementById('dict-form');
   const input = document.getElementById('dict-input');
@@ -102,21 +103,22 @@ function initDictSearch() {
     e.preventDefault();
     const word = input.value.trim();
     if (!word) return;
-    location.href = 'dict.html?word=' + encodeURIComponent(word);
+    search(word);
   });
 
-  // 搜索引擎式输入联想（有道 suggest，最多 8 条；选中/回车即跳转查询）
+  // 搜索引擎式输入联想（有道 suggest，最多 8 条；选中/回车即查询）
   initSuggestBox(input, {
     fetch: suggestEntries,
-    onPick: (word) => { location.href = 'dict.html?word=' + encodeURIComponent(word); },
+    onPick: (word) => search(word),
   });
 }
 
 initDictSearch();
 
-// 从 URL 读取初始单词并自动查询
-const params = new URLSearchParams(location.search);
-const initWord = (params.get('word') || '').trim();
+// 从首页搜索框跳转过来的单词：经 sessionStorage 一次性传递（读取即删除）。
+// 不用 URL 传递 → 刷新 / 重新打开 / 收藏的链接都不会残留上次查询结果。
+const initWord = (sessionStorage.getItem('dictInitWord') || '').trim();
+sessionStorage.removeItem('dictInitWord');
 if (initWord) {
   const input = document.getElementById('dict-input');
   if (input) input.value = initWord;

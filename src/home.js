@@ -26,7 +26,8 @@ function renderQuote() {
 
 renderQuote();
 
-/* ===== 单词查询搜索框：跳转到独立查询页（dict.html?word=xxx）+ 输入联想 ===== */
+/* ===== 单词查询搜索框：跳转查询页 + 输入联想 =====
+ * v1.1.66 起经 sessionStorage 一次性传词（不再写 ?word= URL，避免查询页刷新残留结果）。 */
 function initDictSearch() {
   const form = document.getElementById('dict-form');
   const input = document.getElementById('dict-input');
@@ -34,7 +35,8 @@ function initDictSearch() {
 
   const go = (word) => {
     if (!word) return;
-    location.href = 'dict.html?word=' + encodeURIComponent(word);
+    sessionStorage.setItem('dictInitWord', word); // 一次性：查询页读取后即删除
+    location.href = 'dict.html';
   };
 
   form.addEventListener('submit', (e) => {

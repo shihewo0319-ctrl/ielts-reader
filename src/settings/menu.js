@@ -10,7 +10,6 @@ export const SETTINGS_MENU_HTML = `
     <div class="settings-panel" id="settingsMain">
       <div class="settings-title">设置</div>
       <button class="settings-item" data-panel="ai">AI 设置 <span class="arrow">→</span></button>
-      <div class="settings-more">更多子菜单即将上线…</div>
     </div>
     <div class="settings-panel" id="settingsAi" hidden>
       <div class="settings-title">

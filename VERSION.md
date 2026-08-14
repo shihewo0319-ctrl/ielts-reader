@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.59**
+- 当前版本：**1.1.61**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -9,14 +9,23 @@
 - **功能更新**（新增功能、更换实现方式、功能增强等）：升版本号后，必须在下方「更新日志」里新增一条，写明版本号和更新内容
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
-## 每次改版本时需要同步的位置（index.html / reader.html / library.html / wordbook.html）
-1. 四个页面标题旁的版本徽章：`v1.1.43`（index.html / reader.html / library.html / wordbook.html）
+## 每次改版本时需要同步的位置（index.html / reader.html / library.html / wordbook.html / dict.html）
+1. 五个页面标题旁的版本徽章：`v1.1.61`
 2. 页面的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.61 设置菜单移除「更多子菜单即将上线」占位提示
+- 删除设置菜单主面板里「更多子菜单即将上线…」的占位行及对应无用样式（.settings-more）
+
+## v1.1.60 模块化重构（代码结构优化，功能不变）
+- 断开 `article.js` ↔ `popup.js` 循环引用：「换一篇」按钮接线移入入口 `reader.js`（新增 `resetArticle()`），弹窗隐藏与面板切换解耦
+- 弹窗 / 单词查询页共用的词头（单词 + 英/美音标 + 🔊 兜底 + ⭐ 加入生词本）抽成 `reader/dict.js` 的 `buildWordHeader(word, sentence)`，两处各删约 45 行重复代码
+- 生词本「📖 释义」按钮改用 `reader/dict.js` 的 `lookupChinese()` 封装，不再直接 fetch `/api/chinese`
+- 删除 `reader.html` 死代码弹窗骨架（静态 `#popup-*` div，`showPopupAt()` 全量重建从未用到）
 
 ## v1.1.53 恢复顶栏导航：仅非首页显示，且不含首页按钮
 - 恢复 v1.1.51 的顶栏页面跳转按钮，但仅阅读器 / 我的文章 / 生词本 / 单词查询页显示

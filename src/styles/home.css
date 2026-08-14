@@ -115,11 +115,6 @@
 .settings-item:hover { background: #ffe08a; }
 .settings-item .arrow { color: #e63946; }
 
-.settings-more {
-  font-size: 12px;
-  color: #a05c22;
-  padding: 10px 12px;
-}
 .settings-body { padding: 16px 12px; font-size: 13px; color: #3a2b1e; line-height: 1.7; }
 .settings-body p { margin: 0; }
 

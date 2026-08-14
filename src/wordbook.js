@@ -58,8 +58,14 @@ async function loadWords() {
     const head = document.createElement('div');
     head.className = 'wb-item-head';
     const wordEl = document.createElement('span');
-    wordEl.className = 'wb-word';
+    wordEl.className = 'wb-word wb-word-link';
     wordEl.textContent = w.word;
+    // 点击单词 → 跳转单词查询页自动查词（sessionStorage 一次性传词，刷新即空白页）
+    wordEl.title = '点击查询「' + w.word + '」';
+    wordEl.addEventListener('click', () => {
+      sessionStorage.setItem('dictInitWord', w.word);
+      location.href = 'dict.html';
+    });
     head.appendChild(wordEl);
     item.appendChild(head);
 
@@ -176,8 +182,14 @@ async function loadLookups() {
     const head = document.createElement('div');
     head.className = 'lookup-item-head';
     const wordEl = document.createElement('span');
-    wordEl.className = 'wb-word';
+    wordEl.className = 'wb-word wb-word-link';
     wordEl.textContent = l.word;
+    // 点击单词 → 跳转单词查询页自动查词（与生词本一致）
+    wordEl.title = '点击查询「' + l.word + '」';
+    wordEl.addEventListener('click', () => {
+      sessionStorage.setItem('dictInitWord', l.word);
+      location.href = 'dict.html';
+    });
     const meta = document.createElement('span');
     meta.className = 'wb-time';
     meta.textContent = fmtTime(l.created_at) + (l.article_title ? ' · 《' + l.article_title + '》' : '');

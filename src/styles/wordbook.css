@@ -56,6 +56,9 @@ main { max-width: 860px; }
   font-weight: 800;
   color: #e63946;
 }
+/* 可点击单词：悬停高亮 + 下划线提示可查询（v1.3.3） */
+.wb-word-link { cursor: pointer; }
+.wb-word-link:hover { text-decoration: underline; background: #ffe08a; }
 .wb-time {
   font-size: 11px;
   color: #a05c22;

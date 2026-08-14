@@ -74,6 +74,13 @@ main { max-width: 860px; }
   border-left: 3px solid #f4a261;
   padding-left: 10px;
 }
+/* 例句中高亮的单词（与阅读器弹窗 AI 语境翻译的 ai-word-hl 一致） */
+.ai-word-hl {
+  background: #ffe08a;
+  color: #e63946;
+  font-weight: 700;
+  padding: 0 2px;
+}
 .wb-note {
   font-size: 13px;
   color: #a05c22;

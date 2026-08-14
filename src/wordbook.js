@@ -5,7 +5,8 @@
  * 数据读写走 src/lib/db-api.js（后端 SQLite）；中文释义复用 reader/dict.js 的 lookupChinese。
  */
 import { $, escapeHtml } from './lib/dom.js';
-import { lookupChinese } from './reader/dict.js';
+import { lookupChinese, lookupExamples } from './reader/dict.js';
+import { highlightWord } from './reader/grammar.js';
 import { listWords, deleteWord, listLookups, clearLookups } from './lib/db-api.js';
 
 // 中文释义内存缓存（word -> 释义文本），避免重复请求有道接口
@@ -13,6 +14,26 @@ const zhCache = new Map();
 
 function fmtTime(s) {
   return String(s || '').replace('T', ' ').slice(0, 16);
+}
+
+/* 例句行：句子里的单词高亮显示。
+ * 从阅读器加入的词带原句直接用；单词查询页加入的词没有句子（sentence 为空），
+ * 用有道例句接口（/api/sentences，内存缓存）自动补一句展示（不落库）。 */
+function makeSentenceEl(word, sentence) {
+  const s = document.createElement('div');
+  s.className = 'wb-sentence';
+  if (sentence) {
+    s.innerHTML = highlightWord(escapeHtml(sentence), word);
+    return s;
+  }
+  s.textContent = '⏳ 加载例句…';
+  lookupExamples(word)
+    .then(list => {
+      const en = (list && list[0] && list[0].en) || '';
+      s.innerHTML = en ? highlightWord(escapeHtml(en), word) : '';
+    })
+    .catch(() => { s.innerHTML = ''; });
+  return s;
 }
 
 async function loadWords() {
@@ -44,12 +65,8 @@ async function loadWords() {
 
     const body = document.createElement('div');
     body.className = 'wb-item-body';
-    if (w.sentence) {
-      const s = document.createElement('div');
-      s.className = 'wb-sentence';
-      s.textContent = w.sentence;
-      body.appendChild(s);
-    }
+    // 例句：高亮单词；没有句子的（单词查询页加入）自动用有道例句补一句
+    body.appendChild(makeSentenceEl(w.word, w.sentence));
     if (w.note) {
       const n = document.createElement('div');
       n.className = 'wb-note';
@@ -170,7 +187,7 @@ async function loadLookups() {
     if (l.sentence) {
       const s = document.createElement('div');
       s.className = 'wb-sentence';
-      s.textContent = l.sentence;
+      s.innerHTML = highlightWord(escapeHtml(l.sentence), l.word);
       item.appendChild(s);
     }
     listWrap.appendChild(item);

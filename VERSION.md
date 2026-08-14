@@ -1,6 +1,6 @@
 # 版本规则
 
-- 当前版本：**1.1.62**
+- 当前版本：**1.1.64**
 - 每次改动：patch +1 → 1.0.1、1.0.2、…、1.0.9
 - 第 10 次改动：minor +1、patch 归零 → 1.1.0
 - 之后同理：1.1.4 → 1.1.5 → … → 1.1.9 → 1.2.0 → …
@@ -10,13 +10,19 @@
 - **小改动**（如 UI 位置/排版调整、纯修复等）：只升版本号，不写入更新日志
 
 ## 每次改版本时需要同步的位置（index.html / reader.html / library.html / wordbook.html / dict.html）
-1. 五个页面标题旁的版本徽章：`v1.1.62`
+1. 五个页面标题旁的版本徽章：`v1.1.64`
 2. 页面的样式引用（`/src/styles/*.css`）
 3. reader.html 的脚本引用（`/src/reader.js`）
 
 ---
 
 # 更新日志
+
+## v1.1.64 单词查询支持中文 + 英文联想词
+- 中文查询：输入中文走有道 suggest 中→英映射，列出对应英文词（带中文释义），点击即查该英文词；无结果给提示
+- 英文查询：结果下方新增「联想词」区（有道 suggest：相关英文词 + 中文释义，点击即查），已排除被查单词本身
+- 英文拼写容错：未精确匹配时该区自动变为「你是不是想找」（如 urbanisaton → urbanisation）
+- 后端新增 `/api/suggest`（`proxy.py` 抽出 `_youdao_suggest` 供 chinese/suggest 共用，`server.py` PROXY_GET 加路由）；前端 `reader/dict.js` 新增 `isChinese` / `suggestEntries`，`src/dict.js` 按中/英分流渲染，`dict.css` 新增联想词与中→英映射样式
 
 ## v1.1.62 生词本例句高亮 + 单词查询加入的生词自动补例句
 - 生词本 / 学习记录里的例句中，把当前单词高亮显示（`.ai-word-hl`，与阅读器弹窗 AI 语境翻译高亮样式一致）

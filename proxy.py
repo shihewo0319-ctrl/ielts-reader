@@ -38,23 +38,52 @@ def _youdao_jsonapi(word):
     return json.loads(raw)
 
 
+def _youdao_suggest(word, num=10):
+    """有道 suggest 接口：返回 entries 列表 [{entry, explain}]（chinese / suggest 共用）。
+    英文输入 → entry=英文词、explain=中文释义；中文输入 → entry=中文、explain=对应英文。"""
+    url = ('https://dict.youdao.com/suggest?num=%d&ver=3.0&doctype=json'
+           '&cache=false&le=en&q=' % num + urllib.parse.quote(word))
+    req = urllib.request.Request(url, headers=_UA)
+    with urllib.request.urlopen(req, timeout=config.YOUDAO_TIMEOUT) as resp:
+        raw = resp.read().decode('utf-8', 'ignore')
+    data = json.loads(raw)
+    return (data.get('data') or {}).get('entries') or []
+
+
 def chinese(path):
     """有道词典中文释义（suggest 接口）"""
     try:
         word = _first(_query(path), 'word')
         if not word:
             return {'ok': False, 'error': 'empty word'}
-        url = ('https://dict.youdao.com/suggest?num=3&ver=3.0&doctype=json'
-               '&cache=false&le=en&q=' + urllib.parse.quote(word))
-        req = urllib.request.Request(url, headers=_UA)
-        with urllib.request.urlopen(req, timeout=config.YOUDAO_TIMEOUT) as resp:
-            raw = resp.read().decode('utf-8', 'ignore')
-        data = json.loads(raw)
-        entries = (data.get('data') or {}).get('entries') or []
+        entries = _youdao_suggest(word, 3)
         hit = next((e for e in entries if (e.get('entry') or '').lower() == word.lower()),
                    entries[0] if entries else None)
         explain = (hit or {}).get('explain', '')
         return {'ok': bool(explain), 'explain': explain}
+    except Exception as ex:
+        return {'ok': False, 'error': str(ex)}
+
+
+def suggest(path):
+    """有道 suggest 联想词接口：返回候选词列表 {ok, word, entries:[{entry, explain}]}
+    - 英文输入 → 联想词 / 拼写纠错（entry=英文词、explain=中文释义）
+    - 中文输入 → 中→英映射（entry=中文、explain=对应英文）"""
+    try:
+        word = _first(_query(path), 'word')
+        if not word:
+            return {'ok': False, 'error': 'empty word'}
+        entries = _youdao_suggest(word)
+        out, seen = [], set()
+        for e in entries:
+            entry = (e.get('entry') or '').strip()
+            explain = (e.get('explain') or '').strip()
+            if entry and explain and entry.lower() not in seen:
+                seen.add(entry.lower())
+                out.append({'entry': entry, 'explain': explain})
+            if len(out) >= 10:
+                break
+        return {'ok': bool(out), 'word': word, 'entries': out}
     except Exception as ex:
         return {'ok': False, 'error': str(ex)}
 

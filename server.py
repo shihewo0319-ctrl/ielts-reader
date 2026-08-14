@@ -24,6 +24,7 @@ os.chdir(config.STATIC_DIR or config.BASE_DIR)
 # 外部 API 代理路由（前缀匹配，处理函数见 proxy.py，返回 dict payload）
 PROXY_GET = [
     ('/api/chinese', proxy.chinese),
+    ('/api/suggest', proxy.suggest),
     ('/api/pron', proxy.pron),
     ('/api/sentences', proxy.sentences),
 ]

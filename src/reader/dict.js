@@ -75,6 +75,23 @@ export async function lookupExamples(word) {
   return list;
 }
 
+/* ===== 联想词 / 中文查询支持（v1.1.64） ===== */
+// 是否包含中文字符（决定走中文查询分支）
+export function isChinese(text) {
+  return /[\u4e00-\u9fff]/.test(text);
+}
+
+// 有道 suggest 联想词：英文输入 → 联想/纠错候选（entry=英文词、explain=中文释义）；
+// 中文输入 → 中→英映射候选（entry=中文、explain=英文）。失败返回 []。
+export async function suggestEntries(word) {
+  try {
+    const data = await fetchJson(`/api/suggest?word=${encodeURIComponent(word)}`, 6000);
+    return (data && data.ok && Array.isArray(data.entries)) ? data.entries : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 // 词典源选择（localStorage 持久化）
 export const dictSourceKey = 'ieltsDictSource';
 export function getDictSource() {

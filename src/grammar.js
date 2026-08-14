@@ -15,12 +15,7 @@ initAiConfig(); // 预加载服务器 AI 设置（未绑定时提示引导去设
 const input = $('grammar-input');
 const result = $('grammar-result');
 const btn = $('btn-analyze');
-
-// 两个示例句（与设计预览一致：让步状语从句 / that 宾语从句）
-const SAMPLES = {
-  '让步状语从句': 'Although the weather was terrible, the students still enjoyed their trip to the ancient city.',
-  'that 宾语从句': 'Researchers found that green spaces significantly reduce stress levels in urban residents.',
-};
+const clearBtn = $('btn-clear');
 
 async function analyze(sentence) {
   if (!sentence.trim()) { input.focus(); return; }
@@ -52,18 +47,12 @@ async function analyze(sentence) {
 
 btn.addEventListener('click', () => analyze(input.value.trim()));
 
-// 示例句按钮：填入输入框并直接分析
-const sampleBox = $('grammar-samples');
-if (sampleBox) {
-  Object.entries(SAMPLES).forEach(([label, text]) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'btn';
-    b.textContent = '📝 ' + label;
-    b.addEventListener('click', () => {
-      input.value = text;
-      analyze(text);
-    });
-    sampleBox.appendChild(b);
+// 一键清空：清空输入框与结果区，聚焦输入框
+if (clearBtn) {
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    result.innerHTML = '';
+    result.hidden = true;
+    input.focus();
   });
 }

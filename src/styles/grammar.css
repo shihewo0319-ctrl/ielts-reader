@@ -19,7 +19,6 @@ main { max-width: 860px; }
 .ga-hint { font-size: 13px; color: var(--muted); margin: 4px 0 14px; }
 .ga-hint b { color: var(--accent); }
 .ga-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
-.ga-samples { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .ga-result { min-height: 120px; }
 .ga-loading { color: var(--muted); font-size: 14px; padding: 10px 0; }

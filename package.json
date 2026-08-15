@@ -1,15 +1,18 @@
 {
   "name": "ielts-reader",
   "private": true,
-  "version": "1.3.3",
+  "version": "1.4.0",
   "type": "module",
   "description": "IELTS 学习台：阅读学习助手（模块化前端 + 本地 Python 服务器）",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test",
+    "format": "pretttier --write \"src/**/*.js\" \"src/**/*.css\" \"tests/**/*.js\" \"*.html\""
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "vite": "^7.0.0"
   }
 }

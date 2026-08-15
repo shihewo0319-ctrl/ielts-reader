@@ -1,11 +1,13 @@
 /* ============ 阅读器入口：组装各模块并初始化 ============ */
-import { $ } from './lib/dom.js';
-import { loadArticle, getCurrentArticle, initUploadPanel, resetArticle } from './reader/article.js';
-import { dictSourceKey, getDictSource } from './reader/dict.js';
-import { hidePopup, initWordLookup } from './reader/popup.js';
-import { initTts } from './reader/tts.js';
-import { getArticle, saveArticle } from './lib/db-api.js';
-import { initAiConfig } from './lib/ai-config.js';
+import '../lib/nav.js';
+import '../lib/version.js';
+import { $ } from '../lib/dom.js';
+import { loadArticle, getCurrentArticle, initUploadPanel, resetArticle } from '../reader/article.js';
+import { dictSourceKey, getDictSource } from '../features/dict.js';
+import { hidePopup, initWordLookup } from '../reader/popup.js';
+import { initTts } from '../features/tts.js';
+import { getArticle, saveArticle } from '../lib/db-api.js';
+import { initAiConfig } from '../lib/ai-config.js';
 
 initTts();
 initUploadPanel();

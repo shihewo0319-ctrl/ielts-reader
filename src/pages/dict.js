@@ -4,11 +4,13 @@
  * 功能：搜索框输入时实时联想（有道 suggest，最多 8 条，单词 + 中文释义）；
  *       中文查询：有道 suggest 映射出对应英文词，点击后查该英文词。
  */
+import '../lib/nav.js';
+import '../lib/version.js';
 import {
   lookupWord, lookupChinese, lookupExamples, buildPopupHtml, buildWordHeader,
   isChinese, suggestEntries,
-} from './reader/dict.js';
-import { initSuggestBox } from './lib/suggest-box.js';
+} from '../features/dict.js';
+import { initSuggestBox } from '../lib/suggest-box.js';
 
 /* ===== 中文查询：显示中→英映射列表（点击某项查英文） ===== */
 async function renderChinese(word, result) {

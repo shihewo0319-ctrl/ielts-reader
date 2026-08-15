@@ -2,8 +2,10 @@
  * 展示已保存的文章列表：阅读 / 删除 / 新建。
  * 数据读写走 src/lib/db-api.js（后端 SQLite）。
  */
-import { $, escapeHtml } from './lib/dom.js';
-import { listArticles, deleteArticle } from './lib/db-api.js';
+import '../lib/nav.js';
+import '../lib/version.js';
+import { $, escapeHtml } from '../lib/dom.js';
+import { listArticles, deleteArticle } from '../lib/db-api.js';
 
 async function load() {
   const listEl = $('article-list');

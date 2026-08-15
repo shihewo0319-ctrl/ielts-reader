@@ -2,12 +2,14 @@
  * 两个标签页：
  *   - ⭐ 生词本：阅读时点单词旁「⭐ 加入生词本」收藏，这里可查看/删除
  *   - 🕘 学习记录：阅读时点击单词查词会自动记录，这里可查看/清空
- * 数据读写走 src/lib/db-api.js（后端 SQLite）；中文释义复用 reader/dict.js 的 lookupChinese。
+ * 数据读写走 src/lib/db-api.js（后端 SQLite）；中文释义复用 features/dict.js 的 lookupChinese。
  */
-import { $, escapeHtml } from './lib/dom.js';
-import { lookupChinese, lookupExamples } from './reader/dict.js';
-import { highlightWord } from './reader/grammar.js';
-import { listWords, deleteWord, listLookups, clearLookups } from './lib/db-api.js';
+import '../lib/nav.js';
+import '../lib/version.js';
+import { $, escapeHtml } from '../lib/dom.js';
+import { lookupChinese, lookupExamples } from '../features/dict.js';
+import { highlightWord } from '../features/grammar.js';
+import { listWords, deleteWord, listLookups, clearLookups } from '../lib/db-api.js';
 
 // 中文释义内存缓存（word -> 释义文本），避免重复请求有道接口
 const zhCache = new Map();

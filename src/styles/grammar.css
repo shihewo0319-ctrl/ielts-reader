@@ -1,5 +1,5 @@
 /* ============ 语法分析页（grammar.html）样式 ============
- * 三合一渲染类前缀 gav-（见 src/reader/grammar-view.js）。
+ * 三合一渲染类前缀 gav-（见 src/features/grammar-view.js）。
  * 角色色沿用弹窗语义：主语蓝 / 谓语红 / 宾语绿 / 状语橙 / 连词紫 / 定语灰。
  */
 main { max-width: 860px; }

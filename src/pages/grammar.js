@@ -1,14 +1,16 @@
 /* ============ 语法分析页入口（grammar.html） ============
  * 独立功能：粘贴任意英文句子 → AI 语法分析 → 三合一渲染
- * （结构树 + 流水词块 + 双语对照，见 reader/grammar-view.js）。
- * 复用阅读器 AI 调用链（reader/ai.js 的 fetchAi kind='grammar'），
+ * （结构树 + 流水词块 + 双语对照，见 features/grammar-view.js）。
+ * 复用阅读器 AI 调用链（features/ai.js 的 fetchAi kind='grammar'），
  * AI 输出 JSON（summary + translation + chunks），解析后交给三合一渲染。
  */
-import { $, escapeHtml } from './lib/dom.js';
-import { fetchAi, parseGrammarJson } from './reader/ai.js';
-import { renderGrammarCombined } from './reader/grammar-view.js';
-import { initAiConfig } from './lib/ai-config.js';
-import { providerName } from './lib/providers.js';
+import '../lib/nav.js';
+import '../lib/version.js';
+import { $, escapeHtml } from '../lib/dom.js';
+import { fetchAi, parseGrammarJson } from '../features/ai.js';
+import { renderGrammarCombined } from '../features/grammar-view.js';
+import { initAiConfig } from '../lib/ai-config.js';
+import { providerName } from '../lib/providers.js';
 
 initAiConfig(); // 预加载服务器 AI 设置（未绑定时提示引导去设置）
 

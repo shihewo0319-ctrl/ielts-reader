@@ -2,10 +2,10 @@
  * 点击单词时弹窗带标签页：📖 词典 | 🤖 语境翻译 | 📚 语法分析
  */
 import { $, escapeHtml } from '../lib/dom.js';
-import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml, buildWordHeader } from './dict.js';
-import { fetchAi, buildAiContentHtml, parseGrammarJson } from './ai.js';
+import { lookupWord, lookupChinese, lookupExamples, buildPopupHtml, buildWordHeader } from '../features/dict.js';
+import { fetchAi, buildAiContentHtml, parseGrammarJson } from '../features/ai.js';
 import { providerName } from '../lib/providers.js';
-import { renderGrammarChunks, highlightWord } from './grammar.js';
+import { renderGrammarChunks, highlightWord } from '../features/grammar.js';
 import { addLookup } from '../lib/db-api.js';
 import { getCurrentArticle } from './article.js';
 

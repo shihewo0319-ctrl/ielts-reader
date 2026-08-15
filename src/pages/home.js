@@ -3,10 +3,26 @@
  * 设置菜单 + AI 设置（API Key / 思考模式）在 ./settings.js，由主页入口引入。
  * 以后新增功能卡片 / 主页交互逻辑写在这个文件里。
  */
-import './settings.js';
-import { randomQuote } from './lib/quotes.js';
-import { fetchJson } from './lib/api.js';
-import { initSuggestBox } from './lib/suggest-box.js';
+import '../lib/nav.js';
+import '../lib/version.js';
+import { randomQuote } from '../lib/quotes.js';
+import { fetchJson } from '../lib/api.js';
+import { initSuggestBox } from '../lib/suggest-box.js';
+import { SETTINGS_MENU_HTML, initSettingsMenu } from '../settings/menu.js';
+import { initAiSettings, openAiPanel } from '../settings/ai.js';
+import { initAiConfig } from '../lib/ai-config.js';
+
+/* ===== 设置菜单（主页右上角）：渲染进挂载点并装配 AI 设置 =====
+ * 先 await initAiConfig() 预加载/迁移服务器 AI 设置（失败不阻塞），
+ * 确保打开面板时列表已包含恢复的 Key（原 src/settings.js）。 */
+const settingsRoot = document.getElementById('settings-menu-root');
+if (settingsRoot) {
+  initAiConfig().catch(() => {}).finally(() => {
+    settingsRoot.innerHTML = SETTINGS_MENU_HTML;
+    initSettingsMenu({ onAiPanelOpen: openAiPanel });
+    initAiSettings();
+  });
+}
 
 /* ===== 主页底部：随机英语名言 + 中文翻译（艺术字体） ===== */
 function esc(s) {

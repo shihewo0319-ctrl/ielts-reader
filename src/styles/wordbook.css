@@ -1,9 +1,9 @@
-/* ============ 生词本 / 学习记录页 ============ */
+
 main { max-width: 860px; }
 
-.page-title { font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 16px; letter-spacing: .3px; }
 
-/* 标签页：分段控制器（底槽 + 白色滑块） */
+
+
 .wb-tabs {
   display: flex;
   gap: 4px;
@@ -37,7 +37,7 @@ main { max-width: 860px; }
 
 .wb-pane { min-height: 120px; }
 
-/* 生词条目：依次浮现，悬停浮起 */
+
 .wb-item {
   display: flex;
   flex-wrap: wrap; /* 释义面板（flex: 0 0 100%）独占第二行 */
@@ -80,7 +80,7 @@ main { max-width: 860px; }
   color: var(--accent);
   font-family: var(--font-serif);
 }
-/* 可点击单词：悬停高亮 + 下划线提示可查询 */
+
 .wb-word-link { cursor: pointer; border-radius: 5px; transition: color .15s var(--ease), background .15s var(--ease); }
 .wb-word-link:hover { text-decoration: underline; background: var(--hl); color: var(--primary-dark); }
 .wb-time {
@@ -101,21 +101,14 @@ main { max-width: 860px; }
   border-left: var(--bw-acc) solid var(--primary-tint);
   padding-left: 10px;
 }
-/* 例句中高亮的单词（与阅读器弹窗 AI 语境翻译的 ai-word-hl 一致） */
-.ai-word-hl {
-  background: var(--hl);
-  color: var(--accent);
-  font-weight: 700;
-  padding: 0 2px;
-  border-radius: 4px;
-}
+
 .wb-note {
   font-size: 13px;
   color: var(--muted);
   margin-top: 4px;
 }
 
-/* 学习记录 */
+
 .lookup-list { display: flex; flex-direction: column; gap: 10px; }
 .lookup-list .btn { align-self: flex-end; }
 .lookup-item {
@@ -145,8 +138,7 @@ main { max-width: 860px; }
   min-width: 0;
 }
 
-/* 操作区：释义按钮 + 删除按钮
- * flex: 0 0 100% → 始终换行到例句下方独占一行，不受例句长短影响（按钮统一在例句下面，右对齐） */
+
 .wb-actions {
   display: flex;
   align-items: center;
@@ -161,7 +153,7 @@ main { max-width: 860px; }
   background: var(--card-soft);
 }
 
-/* 中文释义面板：默认隐藏，点击「释义」后顺滑展开/收起 */
+
 .wb-meaning {
   flex: 0 0 100%; /* 独占第二行 */
   max-height: 0;
@@ -189,30 +181,11 @@ main { max-width: 860px; }
   margin-right: 6px;
 }
 
-/* 危险按钮（删除）：红色渐变 */
-.btn-danger {
-  background: linear-gradient(135deg, #e05a4e, #c93a30);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 12px -5px rgba(201, 58, 48, .5);
-}
-.btn-danger:hover {
-  background: linear-gradient(135deg, #e96a5e, #d2453a);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 7px 18px -6px rgba(201, 58, 48, .55);
-}
 
-.loading { color: var(--muted); font-size: 14px; padding: 12px 0; }
-.empty-state {
-  color: var(--muted);
-  font-size: 14px;
-  border: var(--bw) dashed var(--border-strong);
-  border-radius: 14px;
-  padding: 28px;
-  text-align: center;
-  background: var(--card-soft);
-}
+
+
+
+
 
 @media (max-width: 600px) {
   .wb-item { flex-direction: column; align-items: flex-start; }

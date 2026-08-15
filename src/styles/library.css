@@ -1,12 +1,12 @@
-/* ============ 我的文章页 ============ */
+
 main { max-width: 860px; }
 
-.page-title { font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 4px; letter-spacing: .3px; }
-.page-hint { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+
 
 .article-list { display: flex; flex-direction: column; gap: 12px; }
 
-/* 文章卡片：依次浮现，悬停浮起 */
+
 .article-item {
   display: flex;
   justify-content: space-between;
@@ -51,32 +51,13 @@ main { max-width: 860px; }
 }
 .article-item-ops { display: flex; gap: 8px; flex-shrink: 0; }
 
-/* 危险按钮（删除）：红色渐变 */
-.btn-danger {
-  background: linear-gradient(135deg, #e05a4e, #c93a30);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 12px -5px rgba(201, 58, 48, .5);
-}
-.btn-danger:hover {
-  background: linear-gradient(135deg, #e96a5e, #d2453a);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 7px 18px -6px rgba(201, 58, 48, .55);
-}
 
-.loading { color: var(--muted); font-size: 14px; padding: 12px 0; }
-.empty-state {
-  color: var(--muted);
-  font-size: 14px;
-  border: var(--bw) dashed var(--border-strong);
-  border-radius: 14px;
-  padding: 28px;
-  text-align: center;
-  background: var(--card-soft);
-}
-.empty-state a { color: var(--accent); font-weight: 700; }
-.empty-state a:hover { color: var(--primary-dark); }
+
+
+
+
+
+
 
 @media (max-width: 600px) {
   .article-item { flex-direction: column; align-items: flex-start; }

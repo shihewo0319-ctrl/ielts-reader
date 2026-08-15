@@ -14,7 +14,7 @@ import { initSuggestBox } from './lib/suggest-box.js';
 async function renderChinese(word, result) {
   const entries = await suggestEntries(word);
   const card = document.createElement('div');
-  card.className = 'popup-card';
+  card.className = 'popup-card dict-view';
   result.innerHTML = '';
   result.appendChild(card);
 
@@ -81,7 +81,7 @@ async function search(word) {
 
   // 卡片容器：外观与阅读器词典弹窗一致
   const card = document.createElement('div');
-  card.className = 'popup-card';
+  card.className = 'popup-card dict-view';
   result.innerHTML = '';
   result.appendChild(card);
 

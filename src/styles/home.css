@@ -1,4 +1,4 @@
-/* ============ 主页 ============ */
+
 .home-hero { text-align: center; margin: 46px 0 34px; }
 .home-hero h2 {
   font-family: var(--font-head);
@@ -20,7 +20,7 @@
   margin: 0 auto;
   padding: 0 20px 80px;
 }
-/* 卡片各自依次浮现（覆盖 theme.css 的 main > * 整块动画） */
+
 main > .home-grid { animation: none; }
 @keyframes card-in {
   from { opacity: 0; transform: translateY(22px) scale(.98); }
@@ -44,7 +44,7 @@ main > .home-grid { animation: none; }
 .feature-card:nth-child(2) { animation-delay: .13s; }
 .feature-card:nth-child(3) { animation-delay: .21s; }
 .feature-card:nth-child(4) { animation-delay: .29s; }
-/* 悬停：卡片浮起 + 顶部渐变饰条亮起 */
+
 .feature-card::before {
   content: none;
   position: absolute;
@@ -61,7 +61,7 @@ main > .home-grid { animation: none; }
 }
 .feature-card:hover::before { opacity: 0; }
 
-/* 图标气泡：每张卡片一种暖色淡彩 */
+
 .feature-card .fc-icon {
   display: inline-flex;
   align-items: center;
@@ -106,7 +106,7 @@ main > .home-grid { animation: none; }
   box-shadow: var(--shadow-primary);
 }
 
-/* 顶部栏标题：点击返回主页 */
+
 .topbar h1 a.topbar-home {
   color: var(--tb-text);
   text-decoration: none;
@@ -114,7 +114,7 @@ main > .home-grid { animation: none; }
 }
 .topbar h1 a.topbar-home:hover { opacity: .82; text-decoration: none; }
 
-/* 设置菜单（主页右上角） */
+
 .settings-wrap { position: relative; }
 .settings-btn {
   font-size: 17px;
@@ -212,7 +212,7 @@ main > .home-grid { animation: none; }
 }
 .settings-body p { margin: 0; }
 
-/* API Key 绑定（AI 设置面板） */
+
 .settings-menu { width: 350px; }
 .settings-section {
   font-size: 13.5px;
@@ -225,7 +225,7 @@ main > .home-grid { animation: none; }
 }
 .settings-hint { font-size: 12px; color: var(--muted); margin: 0 0 12px; line-height: 1.65; }
 
-/* 思考模式开关：顺滑胶囊拨杆 */
+
 .think-row {
   display: flex;
   align-items: center;
@@ -342,7 +342,7 @@ main > .home-grid { animation: none; }
 }
 .apikey-save:hover { background: var(--grad-hover); color: #fff; border-color: transparent; }
 
-/* API Key 绑定（手动添加方式，含模型/Base URL/测试连接） */
+
 .apikey-add {
   display: block;
   width: 100%;
@@ -457,7 +457,7 @@ main > .home-grid { animation: none; }
 .apikey-test-result.fail { color: var(--accent); }
 .apikey-test-result.testing { color: var(--muted); }
 
-/* ===== 默认 API 标记 ===== */
+
 .apikey-default-badge {
   font-size: 11px;
   font-weight: 700;
@@ -472,7 +472,7 @@ main > .home-grid { animation: none; }
 .apikey-default-on { background: var(--hl); }
 .apikey-default-on:disabled { cursor: default; opacity: 1; }
 
-/* ===== 主页底部：每日名言 ===== */
+
 .quote-box {
   max-width: 720px;
   margin: 24px auto 18px;
@@ -498,76 +498,19 @@ main > .home-grid { animation: none; }
   letter-spacing: 1.5px;
 }
 
-/* ===== 单词查询搜索框（首页入口，与 dict.html 查询页一致） ===== */
-.dict-search {
-  max-width: 860px;
-  margin: 0 auto 30px;
-  padding: 0 20px;
-}
-.dict-search-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--accent);
-  margin-bottom: 12px;
-  letter-spacing: .3px;
-}
-.dict-search-form {
-  display: flex;
-  gap: 10px;
-}
-.dict-search-input {
-  flex: 1;
-  min-width: 0;
-  font-family: inherit;
-  font-size: 15.5px;
-  color: var(--text);
-  background: var(--surface);
-  border: var(--bw) solid var(--border-strong);
-  border-radius: var(--r-full);
-  padding: 10px 20px;
-  box-shadow: inset 4px 4px 9px rgba(112, 96, 172, .18), inset -4px -4px 9px #fff;
-  transition: border-color .18s var(--ease), box-shadow .18s var(--ease);
-}
-.dict-search-input::placeholder { color: var(--ph); }
-.dict-search-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--ring-soft), var(--shadow-sm);
-}
-.dict-search-form .btn { padding: 10px 24px; font-size: 14.5px; }
 
-/* ===== 搜索框输入联想下拉（与 dict.css 保持一致） ===== */
-@keyframes drop-in {
-  from { opacity: 0; transform: translateY(-6px) scale(.98); }
-  to { opacity: 1; transform: none; }
-}
-.suggest-dropdown {
-  margin-top: 8px;
-  background: var(--surface);
-  border: var(--bw) solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  transform-origin: top center;
-  animation: drop-in .2s var(--ease);
-}
-.suggest-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-  width: 100%;
-  font-family: inherit;
-  text-align: left;
-  background: none;
-  border: none;
-  border-bottom: var(--bw) solid var(--line);
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: background .14s var(--ease);
-}
-.suggest-item:last-child { border-bottom: none; }
-.suggest-item:hover, .suggest-item.active { background: var(--primary-soft); }
-.suggest-item-word { font-size: 15px; font-weight: 700; color: var(--primary-dark); }
-.suggest-item-zh { font-size: 11px; color: var(--muted); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

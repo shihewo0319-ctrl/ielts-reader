@@ -1,6 +1,6 @@
 /* ============ 设置菜单：HTML 模板 + 开关 / 面板切换 ============
  * 设置菜单的整块 HTML 由 JS 模板渲染（不再写死在 index.html），
- * 菜单只负责：打开/关闭、主面板与子面板切换、点外部/Esc 关闭。
+ * 菜单负责：打开/关闭、主面板与 AI 设置子面板切换、点外部/Esc 关闭。
  * AI 设置子面板的业务（API Key / 思考模式）在 ./ai.js，通过 onAiPanelOpen 钩子联动。
  */
 export const SETTINGS_MENU_HTML = `
@@ -13,7 +13,7 @@ export const SETTINGS_MENU_HTML = `
     </div>
     <div class="settings-panel" id="settingsAi" hidden>
       <div class="settings-title">
-        <button class="settings-back" id="settingsBack" title="返回设置">←</button>
+        <button class="settings-back" title="返回设置">←</button>
         AI 设置
       </div>
       <div class="settings-body">
@@ -59,10 +59,12 @@ export function initSettingsMenu({ onAiPanelOpen } = {}) {
   const menu = document.getElementById('settingsMenu');
   const main = document.getElementById('settingsMain');
   const ai = document.getElementById('settingsAi');
-  const back = document.getElementById('settingsBack');
-  if (!btn || !menu || !main || !ai || !back) return;
+  if (!btn || !menu || !main || !ai) return;
 
-  function resetPanels() { main.hidden = false; ai.hidden = true; }
+  function resetPanels() {
+    main.hidden = false;
+    ai.hidden = true;
+  }
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -78,9 +80,17 @@ export function initSettingsMenu({ onAiPanelOpen } = {}) {
     if (e.key === 'Escape') { menu.hidden = true; resetPanels(); }
   });
 
-  back.addEventListener('click', () => resetPanels());
-  document.querySelector('[data-panel="ai"]')?.addEventListener('click', () => {
-    main.hidden = true; ai.hidden = false;
-    if (onAiPanelOpen) onAiPanelOpen();
+  document.querySelectorAll('.settings-back').forEach((b) => {
+    b.addEventListener('click', () => resetPanels());
+  });
+
+  document.querySelectorAll('[data-panel]').forEach((item) => {
+    item.addEventListener('click', () => {
+      main.hidden = true;
+      if (item.dataset.panel === 'ai') {
+        ai.hidden = false;
+        if (onAiPanelOpen) onAiPanelOpen();
+      }
+    });
   });
 }

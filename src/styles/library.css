@@ -1,55 +1,82 @@
 /* ============ 我的文章页 ============ */
 main { max-width: 860px; }
 
-.page-title { font-size: 20px; color: #e63946; margin-bottom: 4px; }
-.page-hint { font-size: 13px; color: #a05c22; margin-bottom: 18px; }
+.page-title { font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 4px; letter-spacing: .3px; }
+.page-hint { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
 
 .article-list { display: flex; flex-direction: column; gap: 12px; }
 
+/* 文章卡片：依次浮现，悬停浮起 */
 .article-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  border: 2px solid #3a2b1e;
-  background: #fff;
-  padding: 12px 14px;
+  border: var(--bw) solid var(--border);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 13px 16px;
+  box-shadow: var(--shadow-sm);
+  animation: rise-in .45s var(--ease) backwards;
+  transition: transform .22s var(--spring), box-shadow .2s var(--ease), border-color .2s var(--ease);
+}
+.article-item:nth-child(1) { animation-delay: .02s; }
+.article-item:nth-child(2) { animation-delay: .07s; }
+.article-item:nth-child(3) { animation-delay: .12s; }
+.article-item:nth-child(4) { animation-delay: .17s; }
+.article-item:nth-child(5) { animation-delay: .22s; }
+.article-item:nth-child(n+6) { animation-delay: .27s; }
+.article-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(236, 111, 60, .38);
+  box-shadow: var(--shadow-md);
 }
 .article-item-head { min-width: 0; }
 .article-item-title {
   display: block;
   font-size: 15px;
   font-weight: 700;
-  color: #3a2b1e;
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color .16s var(--ease);
 }
+.article-item:hover .article-item-title { color: var(--primary-dark); }
 .article-item-meta {
   display: block;
   font-size: 12px;
-  color: #a05c22;
+  color: var(--muted);
   margin-top: 3px;
 }
 .article-item-ops { display: flex; gap: 8px; flex-shrink: 0; }
 
-/* 危险按钮（删除）：红底白字，与复古风格保持一致 */
+/* 危险按钮（删除）：红色渐变 */
 .btn-danger {
-  background: #e63946;
+  background: linear-gradient(135deg, #e05a4e, #c93a30);
   color: #fff;
-  border-color: #3a2b1e;
+  border-color: transparent;
+  box-shadow: 0 4px 12px -5px rgba(201, 58, 48, .5);
 }
-.btn-danger:hover { background: #c1272d; color: #fff; }
+.btn-danger:hover {
+  background: linear-gradient(135deg, #e96a5e, #d2453a);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 7px 18px -6px rgba(201, 58, 48, .55);
+}
 
-.loading { color: #a05c22; font-size: 14px; padding: 12px 0; }
+.loading { color: var(--muted); font-size: 14px; padding: 12px 0; }
 .empty-state {
-  color: #a05c22;
+  color: var(--muted);
   font-size: 14px;
-  border: 2px dashed #a05c22;
-  padding: 20px;
+  border: var(--bw) dashed var(--border-strong);
+  border-radius: 14px;
+  padding: 28px;
   text-align: center;
+  background: var(--card-soft);
 }
-.empty-state a { color: #e63946; font-weight: 700; }
+.empty-state a { color: var(--accent); font-weight: 700; }
+.empty-state a:hover { color: var(--primary-dark); }
 
 @media (max-width: 600px) {
   .article-item { flex-direction: column; align-items: flex-start; }

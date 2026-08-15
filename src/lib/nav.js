@@ -11,6 +11,7 @@ const NAV_PAGES = [
   { id: 'library', label: '📚 我的文章', href: 'library.html' },
   { id: 'wordbook', label: '📒 生词本', href: 'wordbook.html' },
   { id: 'grammar', label: '🧩 语法分析', href: 'grammar.html' },
+  { id: 'vocab', label: '🎯 背单词', href: 'vocab.html' },
   { id: 'dict', label: '🔍 单词查询', href: 'dict.html' },
 ];
 

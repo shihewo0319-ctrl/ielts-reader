@@ -17,6 +17,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 import api_db
 import config
+import db
 import proxy
 
 os.chdir(config.STATIC_DIR or config.BASE_DIR)
@@ -132,6 +133,7 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    db.init_db()  # 启动即建表/迁移（幂等，v3 起新增 vocab 表）
     host = resolve_host()
     if ':' in host:
         class V6Server(ThreadingHTTPServer):

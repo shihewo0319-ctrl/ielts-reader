@@ -65,3 +65,35 @@ export async function addLookup(word, sentence = '', articleTitle = '', articleI
 export async function clearLookups() {
   await deleteJson('/api/lookups');
 }
+
+/* ============ 背单词（艾宾浩斯间隔重复） ============ */
+export async function listVocabProgress() {
+  const res = await fetchJson('/api/vocab/progress');
+  return (res && res.ok && Array.isArray(res.progress)) ? res.progress : [];
+}
+
+export async function saveVocabReview(payload) {
+  const res = await postJson('/api/vocab/review', payload);
+  return !!(res && res.ok);
+}
+
+export async function getVocabSettings() {
+  const res = await fetchJson('/api/vocab/settings');
+  if (!res || !res.ok) return { daily_new: 10, tiers: '1,2,3,p' };
+  return { daily_new: res.daily_new || 10, tiers: res.tiers || '1,2,3,p' };
+}
+
+export async function saveVocabSettings(dailyNew, tiers) {
+  const res = await postJson('/api/vocab/settings', { daily_new: dailyNew, tiers });
+  return !!(res && res.ok);
+}
+
+export async function listVocabLog() {
+  const res = await fetchJson('/api/vocab/log');
+  return (res && res.ok && Array.isArray(res.log)) ? res.log : [];
+}
+
+export async function resetVocabProgress(vid = '') {
+  const res = await deleteJson('/api/vocab/progress' + (vid ? '?vid=' + encodeURIComponent(vid) : ''));
+  return !!(res && res.ok);
+}

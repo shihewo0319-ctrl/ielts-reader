@@ -2,6 +2,8 @@
 
 雅思阅读学习工具：上传阅读文章，点击任意单词即可查看**英文释义、音标、中文释义、双语例句**，支持选中词组查询、英/美音发音；内置 **SQLite 数据库**，支持「我的文章」「生词本 / 学习记录」的保存与跨设备同步；**AI API Key 加密保存在服务器数据库**，绑定一次、所有设备通用。
 
+内置 **🎯 背单词**：雅思高频词库 477 条（含词组），按**艾宾浩斯遗忘曲线**间隔复习，每日词量自由设定。
+
 界面为**黏土拟物（Claymorphism）**设计系统：无边框膨润浮雕、超大圆角、内凹输入框（薰衣草奶白 × 暖珊瑚配色），全部设计令牌集中在 `src/styles/theme.css`。
 
 ## 快速开始
@@ -69,8 +71,10 @@ ielts-reader/
     ├── pages/         # ★ 页面入口（只组装，不写业务）
     │   ├── home.js    #   主页：名言/搜索联想 + 设置菜单装配（原 settings.js 已并入）
     │   ├── reader.js  #   阅读器：组装 article/popup/dict 等模块
+    │   │   └── vocab.js    #   背单词：仪表盘/学习卡片流/词库浏览
     │   ├── dict.js / library.js / wordbook.js / grammar.js
     ├── features/      # ★ 跨页面复用的功能模块
+    │   ├── vocab/       #   背单词：wordlist.js（词库数据）+ srs.js（间隔重复引擎）
     │   ├── dict.js    #   词典查询（多源 + 中文 + 例句 + 释义 HTML）——reader/dict/wordbook 三页共用
     │   ├── grammar.js / grammar-view.js  # 语法分析（弹窗内渲染 + 独立页三合一渲染）
     │   ├── ai.js      #   AI 调用链（语境翻译 / 语法分析共用）

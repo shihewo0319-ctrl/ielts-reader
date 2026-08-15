@@ -12,6 +12,7 @@ export default defineConfig({
         wordbook: resolve(__dirname, 'wordbook.html'),
         dict: resolve(__dirname, 'dict.html'),
         grammar: resolve(__dirname, 'grammar.html'),
+        vocab: resolve(__dirname, 'vocab.html'),
       },
     },
   },

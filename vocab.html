@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+  <title>IELTS 学习台 · 背单词</title>
+  <link rel="stylesheet" href="/src/styles/theme.css">
+  <link rel="stylesheet" href="/src/styles/shared.css">
+  <link rel="stylesheet" href="/src/styles/vocab.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1><a class="topbar-home" href="index.html" title="返回主页">🏠 IELTS 学习台</a> <span class="version"></span></h1>
+    <nav id="top-nav" class="topbar-nav"></nav>
+  </header>
+
+  <main>
+    <!-- ① 仪表盘 -->
+    <section class="panel" id="vocab-dash">
+      <h2 class="page-title">🎯 背单词</h2>
+      <p class="page-hint">雅思高频词汇 + 词组 · 艾宾浩斯遗忘曲线科学复习 · 每日词量自由设定</p>
+
+      <div class="vc-today tile">
+        <div class="vc-today-main">
+          <div class="vc-today-label">今日任务</div>
+          <div class="vc-today-nums">
+            <span class="vc-n"><b id="vc-due">0</b><i>待复习</i></span>
+            <span class="vc-sep">×</span>
+            <span class="vc-n"><b id="vc-new">0</b><i>新词</i></span>
+            <span class="vc-streak" id="vc-streak"></span>
+          </div>
+        </div>
+        <button id="vc-start" class="btn btn-primary">开始学习</button>
+      </div>
+
+      <div class="vc-stats">
+        <div class="tile vc-st"><b id="vc-total">0</b><span>词库总量</span></div>
+        <div class="tile vc-st"><b id="vc-learned">0</b><span>已学习</span></div>
+        <div class="tile vc-st"><b id="vc-mastered">0</b><span>已掌握</span></div>
+        <div class="tile vc-st"><b id="vc-progress">0%</b><span>总进度</span></div>
+      </div>
+
+      <div class="vc-settings tile">
+        <div class="vc-set-row">
+          <span class="vc-set-label">每日新词</span>
+          <div class="vc-chips" id="vc-daily-chips"></div>
+          <input id="vc-daily-input" class="vc-daily-input" type="number" min="1" max="100" title="自定义每日新词数">
+          <span class="vc-unit">个 / 天</span>
+        </div>
+        <div class="vc-set-row">
+          <span class="vc-set-label">词库范围</span>
+          <div class="vc-chips" id="vc-tier-chips"></div>
+        </div>
+        <p class="vc-set-hint">复习到期词优先；「忘了」的词 10 分钟后本轮内重现；间隔按遗忘曲线自动拉长（认识 → 1天 → 数天 → 数十天）。</p>
+      </div>
+    </section>
+
+    <!-- ② 学习中 -->
+    <section class="panel hidden" id="vocab-study">
+      <div class="vc-study-top">
+        <button id="vc-exit" class="btn" title="结束本次学习">✕ 退出</button>
+        <div class="vc-progress"><i id="vc-bar"></i></div>
+        <span class="vc-count" id="vc-count">0 / 0</span>
+      </div>
+
+      <div class="vc-card-wrap">
+        <div class="vc-card" id="vc-card">
+          <div class="vc-card-tier" id="vc-card-tier"></div>
+          <div class="vc-card-word" id="vc-card-front">
+            <div class="vc-word" id="vc-word"></div>
+            <div class="vc-phonetic" id="vc-phonetic"></div>
+            <button class="vc-sound" id="vc-sound" title="发音">🔊</button>
+          </div>
+          <div class="vc-card-back hidden" id="vc-card-back">
+            <div class="vc-def" id="vc-def"></div>
+            <div class="vc-def-word" id="vc-def-word"></div>
+          </div>
+          <div class="vc-actions" id="vc-actions">
+            <button class="btn btn-primary vc-reveal" id="vc-reveal">显示答案</button>
+          </div>
+          <div class="vc-actions hidden" id="vc-grades">
+            <button class="vc-grade g0" data-g="0"><b>忘了</b><i data-hint="0"></i></button>
+            <button class="vc-grade g1" data-g="1"><b>模糊</b><i data-hint="1"></i></button>
+            <button class="vc-grade g2" data-g="2"><b>认识</b><i data-hint="2"></i></button>
+            <button class="vc-grade g3" data-g="3"><b>秒懂</b><i data-hint="3"></i></button>
+          </div>
+          <div class="vc-tip">先在心里回想释义，再显示答案自评</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ 完成页 -->
+    <section class="panel hidden" id="vocab-done">
+      <div class="vc-done">
+        <div class="vc-done-icon">🎉</div>
+        <h2 class="vc-done-title">今日任务完成！</h2>
+        <div class="vc-done-stats" id="vc-done-stats"></div>
+        <p class="vc-done-next" id="vc-done-next"></p>
+        <div class="vc-done-btns">
+          <button id="vc-back" class="btn btn-primary">返回仪表盘</button>
+          <button id="vc-again" class="btn">再学一轮</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ 词库浏览 -->
+    <section class="panel" id="vocab-browse">
+      <h2 class="page-title">📚 词库</h2>
+      <div class="vc-browse-bar">
+        <input id="vc-search" class="vc-search" type="text" placeholder="搜索单词 / 词组 / 释义…" spellcheck="false">
+        <div class="vc-chips" id="vc-filter-chips"></div>
+        <button id="vc-reset-all" class="btn vc-reset-btn" title="清空全部学习进度">↺ 重置进度</button>
+      </div>
+      <div class="vc-browse-list" id="vc-browse-list"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/pages/vocab.js"></script>
+</body>
+</html>

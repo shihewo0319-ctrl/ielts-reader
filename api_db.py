@@ -70,16 +70,6 @@ def handle_get(path, query):
         return {'ok': True, 'lookups': db.list_lookups(min(max(limit, 1), 500))}
     if path == '/api/settings':
         return safe_state()
-    if path == '/api/vocab/progress':
-        return {'ok': True, 'progress': db.list_vocab_progress()}
-    if path == '/api/vocab/log':
-        return {'ok': True, 'log': db.list_vocab_log()}
-    if path == '/api/vocab/settings':
-        return {
-            'ok': True,
-            'daily_new': int(db.get_setting('vocab.daily_new') or 10),
-            'tiers': db.get_setting('vocab.tiers') or '1,2,3,p',
-        }
     return None
 
 
@@ -114,37 +104,6 @@ def handle_post(path, query, body):
         return {'ok': True}
     if path == '/api/settings':
         return save_settings(body)
-    if path == '/api/vocab/review':
-        # 前端 srs.js 算好下一状态，服务端持久化并累计当日日志
-        vid = str(body.get('vid') or '').strip()
-        if not vid:
-            return {'ok': False, 'error': '缺少 vid'}
-        item = {
-            'vid': vid,
-            'stage': _body_int(body, 'stage') or 0,
-            'due': str(body.get('due') or ''),
-            'interval_d': float(body.get('interval_d') or 0),
-            'ease': float(body.get('ease') or 2.5),
-            'reps': _body_int(body, 'reps') or 0,
-            'lapses': _body_int(body, 'lapses') or 0,
-        }
-        db.save_vocab_review(item)
-        day = str(body.get('day') or '')[:10]
-        if day:
-            db.vocab_log_bump(
-                day,
-                reviewed=1,
-                again=1 if _body_int(body, 'grade') == 0 else 0,
-                new_cnt=1 if body.get('was_new') else 0)
-        return {'ok': True}
-    if path == '/api/vocab/settings':
-        daily = _body_int(body, 'daily_new')
-        if daily is not None:
-            db.set_setting('vocab.daily_new', max(1, min(100, daily)))
-        tiers = str(body.get('tiers') or '').strip()
-        if tiers:
-            db.set_setting('vocab.tiers', tiers[:40])
-        return {'ok': True}
     return None
 
 
@@ -164,9 +123,5 @@ def handle_delete(path, query):
     if path == '/api/lookups':
         # 不带 id：清空全部学习记录（生词本不可整体清空，避免误删）
         db.clear_lookups()
-        return {'ok': True}
-    if path == '/api/vocab/progress':
-        vid = _first(query, 'vid')
-        db.reset_vocab_progress(vid or None)
         return {'ok': True}
     return None

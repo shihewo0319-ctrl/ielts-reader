@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
 test('首页：核心入口齐全，版本胶囊来自单一来源', async ({ page }) => {
   await page.goto('/index.html');
   await expect(page.locator('.home-hero h2')).toBeVisible();
-  await expect(page.locator('.feature-card')).toHaveCount(5); // 含背单词卡片
+  await expect(page.locator('.feature-card')).toHaveCount(4);
   await expect(page.locator('.dict-search-input')).toBeVisible();
   // 版本号由 lib/version.js 填充
   await expect(page.locator('.version')).toHaveText(/^v\d+\.\d+\.\d+$/);
@@ -81,35 +81,4 @@ test('黏土设计系统令牌生效（全站视觉基线）', async ({ page }) 
   await expect(card).toHaveCSS('border-top-width', '0px');
   const shadow = await card.evaluate((el) => getComputedStyle(el).boxShadow);
   expect(shadow).toContain('inset'); // 蓬润浮雕（内高光）
-});
-
-test('背单词：词库加载与学习流程', async ({ page }) => {
-  await page.goto('/vocab.html');
-  await expect(page.locator('.page-title').first()).toContainText('背单词');
-  // 内置词库已加载（>400 条）+ 词库总览入口卡
-  await page.waitForFunction(() => Number(document.getElementById('vc-total')?.textContent) > 400);
-  await expect(page.locator('.vc-bank-entry')).toBeVisible();
-  // 学习流：开始 → 回想 → 显示答案 → 自评「认识」
-  await page.click('#vc-start');
-  await expect(page.locator('#vc-word')).toBeVisible();
-  await page.click('#vc-reveal');
-  await expect(page.locator('#vc-def')).toBeVisible();
-  await page.click('.vc-grade[data-g="2"]');
-  // 退出学习回到仪表盘（进度已在 mock 后端记录）
-  await page.click('#vc-exit');
-  await expect(page.locator('#vc-due')).toBeVisible();
-});
-
-test('词库总览：分类标签 + 分页', async ({ page }) => {
-  await page.goto('/vocab-bank.html');
-  await expect(page.locator('.vb-tabs')).toBeVisible();
-  // 四个分类标签
-  await expect(page.locator('.vb-tab')).toHaveCount(4);
-  // 未学标签：全量分页（>400 条 → 多页，每页 20）
-  await page.click('.vb-tab:nth-child(2)');
-  await expect(page.locator('.vb-list .vc-item')).toHaveCount(20);
-  await expect(page.locator('#vb-page-info')).toContainText('第 1 /');
-  // 翻到第 2 页
-  await page.click('.vb-page:nth-child(3)');
-  await expect(page.locator('#vb-page-info')).toContainText('第 2 /');
 });

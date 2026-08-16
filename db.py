@@ -51,34 +51,10 @@ CREATE INDEX IF NOT EXISTS idx_articles_updated ON articles(updated_at);
 CREATE INDEX IF NOT EXISTS idx_words_created   ON words(created_at);
 """
 
-# v3：背单词（艾宾浩斯间隔重复）——进度表 + 每日学习日志（打卡/统计）
-# vid 词条 id 由前端词库定义（w:单词 / p:词组），服务端只存进度不存词条内容
-SCHEMA_V3 = """
-CREATE TABLE IF NOT EXISTS vocab_progress (
-  vid        TEXT PRIMARY KEY,
-  stage      INTEGER NOT NULL DEFAULT 0,   -- 0 新词 1 学习中 2 复习中 3 已掌握
-  due        TEXT NOT NULL DEFAULT '',     -- 下次到期时间（本地时间 ISO）
-  interval_d REAL NOT NULL DEFAULT 0,      -- 当前间隔（天；<1 为会话内分钟级）
-  ease       REAL NOT NULL DEFAULT 2.5,    -- SM-2 难度系数
-  reps       INTEGER NOT NULL DEFAULT 0,
-  lapses     INTEGER NOT NULL DEFAULT 0,
-  added_at   TEXT NOT NULL DEFAULT (datetime('now','localtime')),
-  last_at    TEXT NOT NULL DEFAULT ''
-);
-CREATE INDEX IF NOT EXISTS idx_vocab_due ON vocab_progress(due);
-CREATE TABLE IF NOT EXISTS vocab_log (
-  day      TEXT PRIMARY KEY,               -- YYYY-MM-DD
-  reviewed INTEGER NOT NULL DEFAULT 0,     -- 当天评分次数
-  again    INTEGER NOT NULL DEFAULT 0,     -- 当天「忘了」次数
-  new_cnt  INTEGER NOT NULL DEFAULT 0      -- 当天首次学习的新词数
-);
-"""
-
 # 迁移清单：[(版本号, SQL)]，init_db() 从当前 user_version 逐级执行到最新
 MIGRATIONS = [
     (1, SCHEMA_V1),
     (2, SCHEMA_V2),
-    (3, SCHEMA_V3),
 ]
 
 
@@ -217,53 +193,6 @@ def set_setting(key, value):
 def delete_setting(key):
     with cursor() as conn:
         conn.execute('DELETE FROM settings WHERE key = ?', (key,))
-
-
-# ============ 背单词 vocab（艾宾浩斯间隔重复） ============
-def list_vocab_progress():
-    """全部词条进度（前端与词库 join 后自行组队列）"""
-    with cursor() as conn:
-        rows = conn.execute('SELECT * FROM vocab_progress').fetchall()
-        return [dict(r) for r in rows]
-
-
-def save_vocab_review(item):
-    """upsert 一条词条进度（间隔计算在前端 srs.js，服务端只持久化）"""
-    with cursor() as conn:
-        conn.execute(
-            'INSERT INTO vocab_progress (vid, stage, due, interval_d, ease, reps, lapses, last_at)'
-            " VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))"
-            ' ON CONFLICT(vid) DO UPDATE SET stage=excluded.stage, due=excluded.due,'
-            ' interval_d=excluded.interval_d, ease=excluded.ease, reps=excluded.reps,'
-            ' lapses=excluded.lapses, last_at=excluded.last_at',
-            (item['vid'], item['stage'], item['due'], item['interval_d'],
-             item['ease'], item['reps'], item['lapses']))
-
-
-def vocab_log_bump(day, reviewed=0, again=0, new_cnt=0):
-    """累计当日学习日志（打卡 / 统计用，幂等 upsert 自增）"""
-    with cursor() as conn:
-        conn.execute(
-            'INSERT INTO vocab_log (day, reviewed, again, new_cnt) VALUES (?, ?, ?, ?)'
-            ' ON CONFLICT(day) DO UPDATE SET reviewed=reviewed+excluded.reviewed,'
-            ' again=again+excluded.again, new_cnt=new_cnt+excluded.new_cnt',
-            (day, reviewed, again, new_cnt))
-
-
-def list_vocab_log(limit=400):
-    with cursor() as conn:
-        rows = conn.execute(
-            'SELECT * FROM vocab_log ORDER BY day DESC LIMIT ?', (limit,)).fetchall()
-        return [dict(r) for r in rows]
-
-
-def reset_vocab_progress(vid=None):
-    """清除学习进度：指定词条重置，或不带 vid 清空全部"""
-    with cursor() as conn:
-        if vid:
-            conn.execute('DELETE FROM vocab_progress WHERE vid = ?', (vid,))
-        else:
-            conn.execute('DELETE FROM vocab_progress')
 
 
 if __name__ == '__main__':

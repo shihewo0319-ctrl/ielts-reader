@@ -17,7 +17,6 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 import api_db
 import config
-import db
 import proxy
 
 os.chdir(config.STATIC_DIR or config.BASE_DIR)
@@ -129,14 +128,10 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def log_message(self, fmt, *args):
-        # 只审计危险操作（DELETE），避免静态资源刷屏；排障时可临时放开
-        if getattr(self, 'command', '') == 'DELETE':
-            import sys
-            print('[DELETE]', self.address_string(), self.path, file=sys.stderr)
+        pass  # 安静模式
 
 
 if __name__ == '__main__':
-    db.init_db()  # 启动即建表/迁移（幂等，v3 起新增 vocab 表）
     host = resolve_host()
     if ':' in host:
         class V6Server(ThreadingHTTPServer):

@@ -171,9 +171,19 @@ function bind() {
   });
 }
 
+function pickDefaultTab() {
+  // 默认落在首个有内容的标签：已学 → 今日新学 → 未学（全新用户直接看到全量词库）
+  for (const id of ['learned', 'today', 'fresh']) {
+    const t = TABS.find((x) => x.id === id);
+    if (tabItems(t).length > 0) return id;
+  }
+  return 'fresh';
+}
+
 (async function init() {
   bind();
   const rows = await listVocabProgress();
   state.progress = new Map(rows.map((p) => [p.vid, p]));
+  state.tab = pickDefaultTab();
   render();
 })();

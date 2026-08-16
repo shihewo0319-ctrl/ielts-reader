@@ -217,9 +217,10 @@ async function grade(g) {
   state.done.review += 1;
   if (g === 0) state.done.again += 1;
   if (wasNew) state.done.fresh += 1;
-  await saveVocabReview({
+  // 先推进界面再落库：即使服务器短暂卡顿，学习节奏也不中断
+  saveVocabReview({
     vid: card.item.vid, ...next, grade: g, was_new: wasNew, day: todayStr(),
-  });
+  }).catch((err) => console.warn('评分保存失败（稍后可重新评分）:', err));
   // 「忘了 / 模糊」且仍在学习阶段 → 本轮末尾重现（艾宾浩斯会话内复习）
   if (next.stage === 1 && state.pos < state.queue.length - 1) {
     state.queue.push({ item: card.item, progress: next, isNew: false });

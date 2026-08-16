@@ -162,11 +162,30 @@ function bind() {
     sessionStorage.setItem('dictInitWord', w);
     location.href = 'dict.html';
   });
-  $('vb-reset').addEventListener('click', async () => {
-    if (!confirm('确定清空全部背单词进度吗？此操作不可恢复。')) return;
+  // 两段式确认：不用原生 confirm()（嵌入式浏览器里行为不可靠，易误清空）
+  let resetArmed = false, resetTimer = null;
+  const btn = $('vb-reset');
+  btn.addEventListener('click', async () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      btn.textContent = '⚠ 再点一次确认清空';
+      btn.classList.add('armed');
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        resetArmed = false;
+        btn.textContent = '↺ 重置全部进度';
+        btn.classList.remove('armed');
+      }, 3000);
+      return;
+    }
+    clearTimeout(resetTimer);
+    resetArmed = false;
+    btn.textContent = '↺ 重置全部进度';
+    btn.classList.remove('armed');
     await resetVocabProgress();
     state.progress = new Map();
     state.page = 1;
+    state.tab = pickDefaultTab(); // 清空后跳到有内容的标签，避免空列表
     render();
   });
 }

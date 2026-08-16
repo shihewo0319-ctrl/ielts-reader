@@ -269,3 +269,10 @@ main { max-width: 860px; }
   .vb-tabs { border-radius: var(--r-lg); }
   .vb-tab { padding: 7px 11px; font-size: 12.5px; }
 }
+
+/* 重置按钮警示态（两段式确认第二步） */
+.vb-reset-btn.armed {
+  background: linear-gradient(180deg, #ff9d7e, #ff7f5c);
+  color: #fff; border-color: transparent;
+  box-shadow: 0 4px 12px -4px rgba(224, 90, 53, .5);
+}

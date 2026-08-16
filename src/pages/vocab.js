@@ -213,7 +213,7 @@ async function grade(g) {
   const next = gradeCard(base, g);
   const wasNew = card.isNew;
   card.progress = next;
-  state.progress.set(card.item.vid, { ...next, vid: card.item.vid });
+  state.progress.set(card.item.vid, { ...next, vid: card.item.vid, added_at: localIso() });
   state.done.review += 1;
   if (g === 0) state.done.again += 1;
   if (wasNew) state.done.fresh += 1;

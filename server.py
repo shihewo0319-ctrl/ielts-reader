@@ -129,7 +129,10 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def log_message(self, fmt, *args):
-        pass  # 安静模式
+        # 只审计危险操作（DELETE），避免静态资源刷屏；排障时可临时放开
+        if getattr(self, 'command', '') == 'DELETE':
+            import sys
+            print('[DELETE]', self.address_string(), self.path, file=sys.stderr)
 
 
 if __name__ == '__main__':

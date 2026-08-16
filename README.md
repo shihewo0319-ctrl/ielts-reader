@@ -71,7 +71,8 @@ ielts-reader/
     ├── pages/         # ★ 页面入口（只组装，不写业务）
     │   ├── home.js    #   主页：名言/搜索联想 + 设置菜单装配（原 settings.js 已并入）
     │   ├── reader.js  #   阅读器：组装 article/popup/dict 等模块
-    │   │   └── vocab.js    #   背单词：仪表盘/学习卡片流/词库浏览
+    │   │   ├── vocab.js    #   背单词：仪表盘/学习卡片流
+    │   │   └── vocab-bank.js #   词库总览：四类标签 + 每页 20 分页
     │   ├── dict.js / library.js / wordbook.js / grammar.js
     ├── features/      # ★ 跨页面复用的功能模块
     │   ├── vocab/       #   背单词：wordlist.js（词库数据）+ srs.js（间隔重复引擎）

@@ -13,6 +13,7 @@ export default defineConfig({
         dict: resolve(__dirname, 'dict.html'),
         grammar: resolve(__dirname, 'grammar.html'),
         vocab: resolve(__dirname, 'vocab.html'),
+        vocabBank: resolve(__dirname, 'vocab-bank.html'),
       },
     },
   },

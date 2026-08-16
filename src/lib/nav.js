@@ -16,7 +16,8 @@ const NAV_PAGES = [
 ];
 
 function currentPage() {
-  const name = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  let name = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  if (name === 'vocab-bank.html') name = 'vocab.html'; // 词库总览归属背单词导航
   for (const p of NAV_PAGES) {
     if (name === p.href) return p.id;
   }

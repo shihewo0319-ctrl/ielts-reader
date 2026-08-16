@@ -15,7 +15,7 @@ const $ = (id) => document.getElementById(id);
 import { initTts, speakWord } from '../features/tts.js';
 import {
   listVocabProgress, saveVocabReview, getVocabSettings, saveVocabSettings,
-  listVocabLog, resetVocabProgress,
+  listVocabLog,
 } from '../lib/db-api.js';
 import { VOCAB_BANK, TIERS } from '../features/vocab/wordlist.js';
 import {
@@ -25,6 +25,7 @@ import {
 const BANK_BY_ID = new Map(VOCAB_BANK.map((x) => [x.vid, x]));
 const tierKey = (item) => (item.type === 'phrase' ? 'p' : String(item.tier));
 const todayStr = () => localIso().slice(0, 10);
+let TODAY = todayStr();
 
 const state = {
   settings: { daily_new: 10, tiers: '1,2,3,p' },
@@ -33,7 +34,6 @@ const state = {
   queue: [],             // 本次学习队列 [{ item, progress, isNew }]
   pos: 0,
   done: { review: 0, again: 0, fresh: 0, t0: 0 },
-  filter: { q: '', tier: '' },
 };
 
 /* ---------- 数据加载 ---------- */
@@ -92,6 +92,7 @@ function renderDash() {
   $('vc-mastered').textContent = mastered;
   $('vc-progress').textContent = Math.round((mastered / VOCAB_BANK.length) * 100) + '%';
   $('vc-streak').textContent = streakText();
+  renderBankEntry(learned);
   $('vc-start').disabled = queue.length === 0;
   $('vc-start').textContent = queue.length === 0 ? '今日已完成 ✓' : (due > 0 ? '开始学习' : '学习新词');
 }
@@ -104,6 +105,20 @@ function streakText() {
   if (!days.has(localIso(d).slice(0, 10))) d.setDate(d.getDate() - 1); // 今天还没学则从昨天数
   while (days.has(localIso(d).slice(0, 10))) { n += 1; d.setDate(d.getDate() - 1); }
   return n > 0 ? `🔥 连续 ${n} 天` : '';
+}
+
+/* ---------- 词库总览入口卡统计 ---------- */
+function renderBankEntry(learned) {
+  let today = 0, stubborn = 0;
+  for (const p of state.progress.values()) {
+    if ((p.added_at || '').slice(0, 10) === TODAY) today += 1;
+    if ((p.lapses || 0) >= 3) stubborn += 1;
+  }
+  const learnedN = learned != null ? learned
+    : [...state.progress.values()].filter((p) => p.stage > 0).length;
+  const el = $('vc-bank-summary');
+  if (el) el.textContent =
+    `已学 ${learnedN} · 未学 ${VOCAB_BANK.length - learnedN} · 今日新学 ${today} · 顽固 ${stubborn}`;
 }
 
 /* ---------- 设置区 ---------- */
@@ -134,7 +149,7 @@ function renderSettings() {
       if (active.size === 0) active.add(t.id); // 至少保留一个
       await saveVocabSettings(state.settings.daily_new, [...active].join(','));
       state.settings.tiers = [...active].join(',');
-      renderSettings(); renderDash(); renderBrowse();
+      renderSettings(); renderDash();
     });
     tchips.appendChild(b);
   });
@@ -153,7 +168,7 @@ function startStudy() {
   state.pos = 0;
   state.done = { review: 0, again: 0, fresh: 0, t0: Date.now() };
   $('vocab-dash').classList.add('hidden');
-  $('vocab-browse').classList.add('hidden');
+  $('vocab-bank-entry').classList.add('hidden');
   $('vocab-done').classList.add('hidden');
   $('vocab-study').classList.remove('hidden');
   showCard();
@@ -235,45 +250,10 @@ function exitStudy() {
   $('vocab-study').classList.add('hidden');
   $('vocab-done').classList.add('hidden');
   $('vocab-dash').classList.remove('hidden');
-  $('vocab-browse').classList.remove('hidden');
-  renderDash(); renderBrowse();
+  $('vocab-bank-entry').classList.remove('hidden');
+  renderDash();
 }
 
-/* ---------- 词库浏览 ---------- */
-function renderBrowse() {
-  const q = state.filter.q.trim().toLowerCase();
-  const tier = state.filter.tier;
-  const chips = $('vc-filter-chips');
-  chips.innerHTML = '';
-  const mk = (id, name) => {
-    const b = document.createElement('button');
-    b.className = 'vc-chip' + (tier === id ? ' on' : '');
-    b.textContent = name;
-    b.addEventListener('click', () => { state.filter.tier = tier === id ? '' : id; renderBrowse(); });
-    chips.appendChild(b);
-  };
-  mk('', '全部');
-  TIERS.forEach((t) => mk(t.id, t.name));
-
-  const list = $('vc-browse-list');
-  list.innerHTML = '';
-  const frag = document.createDocumentFragment();
-  const ST = ['未学', '学习中', '复习中', '已掌握'];
-  for (const item of VOCAB_BANK) {
-    if (tier && tierKey(item) !== tier) continue;
-    if (q && !(item.w.toLowerCase().includes(q) || item.d.toLowerCase().includes(q))) continue;
-    const p = state.progress.get(item.vid);
-    const row = document.createElement('div');
-    row.className = 'vc-item';
-    row.innerHTML =
-      `<span class="vi-w" data-w="${escapeHtml(item.w)}">${escapeHtml(item.w)}</span>` +
-      `<span class="vi-p">${escapeHtml(item.p || '')}</span>` +
-      `<span class="vi-d">${escapeHtml(item.d)}</span>` +
-      `<span class="vi-badge st${p ? p.stage : 0}">${p ? ST[p.stage] + (p.stage === 1 || p.stage === 2 ? ' · ' + (p.due || '').slice(5, 10) : '') : '未学'}</span>`;
-    frag.appendChild(row);
-  }
-  list.appendChild(frag);
-}
 
 /* ---------- 事件与初始化 ---------- */
 function bind() {
@@ -293,22 +273,6 @@ function bind() {
     const btn = e.currentTarget;
     btn.classList.remove('speaking'); void btn.offsetWidth; btn.classList.add('speaking');
   });
-  $('vc-search').addEventListener('input', (e) => {
-    state.filter.q = e.target.value; renderBrowse();
-  });
-  // 点词条 → 查词页看完整释义（复用一次性传词机制）
-  $('vc-browse-list').addEventListener('click', (e) => {
-    const w = e.target.closest('.vi-w')?.dataset.w;
-    if (!w) return;
-    sessionStorage.setItem('dictInitWord', w);
-    location.href = 'dict.html';
-  });
-  $('vc-reset-all').addEventListener('click', async () => {
-    if (!confirm('确定清空全部背单词进度吗？此操作不可恢复。')) return;
-    await resetVocabProgress();
-    await loadAll();
-    renderDash(); renderSettings(); renderBrowse();
-  });
 }
 
 (async function init() {
@@ -317,5 +281,4 @@ function bind() {
   await loadAll();
   renderDash();
   renderSettings();
-  renderBrowse();
 })();

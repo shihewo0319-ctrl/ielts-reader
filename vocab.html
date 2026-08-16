@@ -104,15 +104,16 @@
       </div>
     </section>
 
-    <!-- ④ 词库浏览 -->
-    <section class="panel" id="vocab-browse">
-      <h2 class="page-title">📚 词库</h2>
-      <div class="vc-browse-bar">
-        <input id="vc-search" class="vc-search" type="text" placeholder="搜索单词 / 词组 / 释义…" spellcheck="false">
-        <div class="vc-chips" id="vc-filter-chips"></div>
-        <button id="vc-reset-all" class="btn vc-reset-btn" title="清空全部学习进度">↺ 重置进度</button>
-      </div>
-      <div class="vc-browse-list" id="vc-browse-list"></div>
+    <!-- ④ 词库总览入口（跳转独立页：全量单词 / 分类标签 / 分页） -->
+    <section class="panel" id="vocab-bank-entry">
+      <a class="vc-bank-entry" href="vocab-bank.html">
+        <span class="vc-bank-icon">📚</span>
+        <span class="vc-bank-info">
+          <b>词库总览</b>
+          <i id="vc-bank-summary">已学 0 · 未学 0 · 今日新学 0 · 顽固 0</i>
+        </span>
+        <span class="vc-bank-arrow">进入 →</span>
+      </a>
     </section>
   </main>
 

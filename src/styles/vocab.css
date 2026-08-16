@@ -176,3 +176,96 @@ main { max-width: 860px; }
   .vc-word { font-size: 30px; }
   .vc-grade { min-width: 70px; padding: 9px 10px; }
 }
+
+/* ============ 词库总览入口卡（背单词页） ============ */
+.vc-bank-entry {
+  display: flex; align-items: center; gap: 16px;
+  text-decoration: none; color: var(--text);
+  padding: 20px 22px;
+  background: var(--card); border: var(--bw) solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-sm);
+  transition: transform .25s var(--spring), box-shadow .25s var(--ease);
+}
+.vc-bank-entry:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.vc-bank-icon {
+  width: 54px; height: 54px; font-size: 27px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--primary-soft); border-radius: 16px;
+  box-shadow: inset 0 3px 5px rgba(255, 255, 255, .55), 0 6px 12px rgba(112, 96, 172, .22);
+}
+.vc-bank-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.vc-bank-info b { font-size: 16px; font-weight: 800; }
+.vc-bank-info i { font-style: normal; font-size: 12.5px; color: var(--muted); }
+.vc-bank-arrow {
+  font-size: 13px; font-weight: 700; color: var(--primary-dark);
+  background: var(--primary-soft); border-radius: var(--r-full);
+  padding: 6px 16px; white-space: nowrap;
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.vc-bank-entry:hover .vc-bank-arrow { background: var(--gradient); color: #fff; }
+
+/* ============ 词库总览页 ============ */
+main { max-width: 860px; }
+.vb-back { color: var(--accent); font-weight: 700; text-decoration: none; }
+.vb-back:hover { text-decoration: underline; }
+
+/* 分类标签页（分段底槽 + 计数徽标） */
+.vb-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  background: var(--track); border-radius: var(--r-full);
+  padding: 5px; margin: 16px 0 18px;
+  box-shadow: inset 4px 4px 9px rgba(112, 96, 172, .16), inset -4px -4px 9px #fff;
+}
+.vb-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+  color: var(--muted); background: transparent; border: none;
+  border-radius: var(--r-full); padding: 8px 16px;
+  transition: background .22s var(--ease), color .22s var(--ease), box-shadow .22s var(--ease);
+}
+.vb-tab:hover { color: var(--text); }
+.vb-tab i {
+  font-style: normal; font-size: 11px; font-weight: 800;
+  background: rgba(112, 96, 172, .14); color: var(--muted-2);
+  border-radius: var(--r-full); padding: 1px 8px;
+}
+.vb-tab.on {
+  background: linear-gradient(180deg, #c9b8f0, #b4a0e6);
+  color: #fff; box-shadow: 0 4px 10px rgba(112, 96, 172, .3);
+}
+.vb-tab.on i { background: rgba(255, 255, 255, .25); color: #fff; }
+
+/* 序号列 */
+.vc-item .vi-no { font-size: 11px; font-weight: 800; color: var(--ph); min-width: 26px; text-align: right; }
+
+/* 顽固徽标 */
+.vi-badge.stubborn { background: #fdecec; color: #d64545; }
+
+/* 分页 */
+.vb-pager {
+  display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
+  margin-top: 18px;
+}
+.vb-page {
+  font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  min-width: 36px; padding: 7px 12px; text-align: center;
+  color: var(--muted); background: var(--surface);
+  border: var(--bw) solid var(--border-strong); border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  transition: background .18s var(--ease), color .18s var(--ease), transform .18s var(--spring);
+}
+.vb-page:hover:not(:disabled) { background: var(--primary-soft); color: var(--primary-dark); transform: translateY(-1px); }
+.vb-page.on {
+  background: var(--gradient); color: #fff; box-shadow: var(--shadow-primary);
+  cursor: default;
+}
+.vb-page:disabled { opacity: .45; cursor: default; }
+.vb-page-info { text-align: center; font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+.vb-toolbar { display: flex; justify-content: flex-end; margin-top: 16px; }
+.vb-reset-btn { padding: 7px 14px; font-size: 12.5px; }
+
+@media (max-width: 640px) {
+  .vb-tabs { border-radius: var(--r-lg); }
+  .vb-tab { padding: 7px 11px; font-size: 12.5px; }
+}
